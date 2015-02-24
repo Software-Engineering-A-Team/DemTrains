@@ -40,6 +40,7 @@ public class CTCOfficeApplication {
 	 */
 	private void initialize() {
 		frame = new CTCOfficeGUIImplementation();
+		frame.setResizable(false);
 		frame.setBounds(100, 100, 836, 530);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
