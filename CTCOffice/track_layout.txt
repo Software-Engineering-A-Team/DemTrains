@@ -1,0 +1,23 @@
+Keep a list of the shapes.
+	- loop throught the shapes to check if a shape was clicked. Simple example below
+	-   public void mousePressed(MouseEvent e) {
+			last_x = rect.x - e.getX();
+			last_y = rect.y - e.getY();
+ 
+			// Checks whether or not the cursor is inside of the rectangle while the
+			// user is pressing the mouse.
+			if (rect.contains(e.getX(), e.getY())) {
+			pressOut = false;
+			updateLocation(e);
+			
+
+			
+Simple algorithm for laying out the track
+
+find the component by traversing through a 'graph' using breadth first algorithm.
+
+1. If the next component is not drawn, draw the section straight.
+2. If the next component is drawn, turn the section 90 degrees and draw it
+3. If a connecting line can't be drawn, turn the section 90 degrees.
+4. If a connecting line still can't be drawn after rotating the track, try moving the section forward
+5. If it can't be done after moving the block forward, back track and go to step 2
