@@ -1,4 +1,4 @@
-package ctcOfficeGUI;
+//package ctcOfficeGUI;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -22,12 +22,12 @@ import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class CTCOfficeGUIImplementation extends JFrame {
+public class MBOGUIImplementation extends JFrame {
 
     /**
      * Create the panel.
      */
-    public CTCOfficeGUIImplementation() {
+    public MBOGUIImplementation() {
     	setResizable(false);
         getContentPane().setBackground(Color.WHITE);
         setBackground(Color.WHITE);

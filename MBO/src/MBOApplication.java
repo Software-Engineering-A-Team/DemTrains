@@ -1,4 +1,4 @@
-package ctcOfficeGUI;
+//package ctcOfficeGUI;
 
 import java.awt.EventQueue;
 
@@ -8,7 +8,7 @@ import java.awt.BorderLayout;
 import javax.swing.JSplitPane;
 import javax.swing.JScrollPane;
 
-public class CTCOfficeApplication {
+public class MBOApplication {
 
 	private JFrame frame;
 
@@ -19,7 +19,7 @@ public class CTCOfficeApplication {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					CTCOfficeApplication window = new CTCOfficeApplication();
+					MBOApplication window = new MBOApplication();
 					window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -31,7 +31,7 @@ public class CTCOfficeApplication {
 	/**
 	 * Create the application.
 	 */
-	public CTCOfficeApplication() {
+	public MBOApplication() {
 		initialize();
 	}
 
@@ -39,7 +39,7 @@ public class CTCOfficeApplication {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frame = new CTCOfficeGUIImplementation();
+		frame = new MBOGUIImplementation();
 		frame.setResizable(false);
 		frame.setBounds(100, 100, 836, 530);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
