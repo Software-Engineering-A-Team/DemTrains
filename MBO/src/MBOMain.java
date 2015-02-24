@@ -23,6 +23,7 @@ public class MBOMain {
 		int[] schedule = {0,0,0};
 		int time;
 		startTime = startTime;
+		MBOGUIImplementation gui = new MBOGUIImplementation();
 		
 		//mon-fri trains depart in 30 min intervals
 		//sat sun trains depart in 15 min intervals
@@ -30,7 +31,7 @@ public class MBOMain {
 		for(int i=1; i<8; i++){
 			time=startTime;
 			for(int j=0; j<2400-time; j=j+30){
-				System.out.println("DepartureTime: "+(String.format("%04d", ((j+time)%2359)))+"\tBreakTime: "+(String.format("%04d", ((j+400+time)%2400)))+"\tShiftEnd: "+(String.format("%04d", ((j+830+time)%2400))));
+				System.out.println("DepartureTime: "+(String.format("%04d", ((j+time)%2400)))+"\tBreakTime: "+(String.format("%04d", ((j+400+time)%2400)))+"\tShiftEnd: "+(String.format("%04d", ((j+830+time)%2400))));
 			}
 		}
 		
