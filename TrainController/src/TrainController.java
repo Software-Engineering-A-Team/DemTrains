@@ -1,7 +1,6 @@
 public class TrainController {
   final private double METERS_PER_MILE = 1609.34;
   final private double SECONDS_PER_HOUR = 3600;
-  
   final private double MAX_SPEED_SI = 19.444444444;   // meters/second
   final private double MAX_POWER_W = 120000;       // watts
   private double targetVelSi;   // meters/second
@@ -26,7 +25,7 @@ public class TrainController {
     currentVelSi = ConvertVelocityEngToSi(currentVelEng);
   }
   
-  public double CalcEnginePowerW(){
+  public double CalcEnginePowerKw(){
     // If the current velocity is above the target or the max, set
     // engine power to zero
     if (currentVelSi > targetVelSi || currentVelSi > MAX_SPEED_SI)
@@ -39,7 +38,7 @@ public class TrainController {
       enginePowerW = MAX_POWER_W * (targetVelSi - currentVelSi) / MAX_SPEED_SI;
     }
     
-    return enginePowerW;
+    return enginePowerW / 1000.0;
   }
   
   public boolean CheckBrakeState(){
