@@ -15,10 +15,12 @@ public class CTCOffice {
 
 		String excelFilePointer = "";
 		TrackLayout blueLineTrackLayout = new TrackLayout();
+		// Create the track Layout
+		blueLineTrackLayout.parseCsvFile(excelFilePointer);
 		// Draw the GUI
 		CTCOfficeApplication window = new CTCOfficeApplication();
+		window.drawTrackLayout(blueLineTrackLayout);
 		
-		blueLineTrackLayout.parseCsvFile(excelFilePointer);
 		
 		
 

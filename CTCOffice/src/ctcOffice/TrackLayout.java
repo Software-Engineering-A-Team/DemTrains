@@ -9,6 +9,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.List;
 
 /*
@@ -16,10 +18,9 @@ import java.util.List;
  */
 public class TrackLayout {
 	private String line;
-	private Block head;
-	private List<Block> trackBlocks = new ArrayList<Block>();
-	private Block[] blockCurrentConnectionMap; // Map of all the connections for each
+	private List<Infrastructure> trackBlocks = new ArrayList<Infrastructure>();
 	private List<Block> yardConnections = new ArrayList<Block>();
+	private Hashtable<Character, Boolean[]> trackDirections = new Hashtable<Character, Boolean[]>();
 	public TrackLayout(){}
 	
 	/*
@@ -30,53 +31,119 @@ public class TrackLayout {
 	public void parseCsvFile(String fileName) throws IOException{
 		File file = new File("track_layout.csv");
 	    List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
-	    String[][] trackBlockDescriptions = new String[lines.get(0).length()][lines.size()];
-	    blockCurrentConnectionMap = new Block[lines.size()];
+	    String[][] trackBlockDescriptions = new String[lines.size()][lines.get(0).split(",").length];
 	    // Read in the blocks from a file and create the block objects
 	    for (int i=0; i<lines.size(); i++) {
 	        trackBlockDescriptions[i] = (lines.get(i).split(","));
-	        if (trackBlockDescriptions[i].equals("SWITCH")){
-	        	trackBlocks.add(new Switch(trackBlockDescriptions[i]));
+			String[] blockDescriptor = new String[11];
+			blockDescriptor = Arrays.copyOf(trackBlockDescriptions[i], 11);
+			for (int j = trackBlockDescriptions[i].length; j < blockDescriptor.length; j++){
+				blockDescriptor[j] = "";
+			}
+	        if (blockDescriptor[6].contains("SWITCH")){
+	        	trackBlocks.add(new Switch(blockDescriptor));
 	        }
-	        else if (trackBlockDescriptions[i].equals("STATION")){
-	        	trackBlocks.add(new Station(trackBlockDescriptions[i]));
+	        else if (blockDescriptor[6].contains("STATION")){
+	        	trackBlocks.add(new Station(blockDescriptor));
 	        	
 	        }
 	        else{
-	        	trackBlocks.add(new Block(trackBlockDescriptions[i]));
+	        	trackBlocks.add(new Block(blockDescriptor));
 	        }
 	    }
 	    // Declare global variables
 	    line = trackBlockDescriptions[0][0];
 	    
+	    // Determine the directions of each section
+    	int endpointCount = 0;
+	    for (int i=0; i<trackBlocks.size(); i++){
+	    	Block trackBlock = (Block) trackBlocks.get(i);
+	    	Character currSection = trackBlock.getSection();
+			if (!trackDirections.containsKey(currSection)){
+				// Add it to the list
+				Boolean [] temp = {false, false};
+				trackDirections.put(currSection, temp);
+			}
+	    	String[] arrowDirections = trackBlock.getArrowDirection();
+
+	    	for(int j=0;j<arrowDirections.length;j++){
+		    	if (arrowDirections[j].equals("Head")){
+			    	trackDirections.get(currSection)[endpointCount % 2] = true; // Set the correct endpoint for the section to true
+			    	endpointCount++;
+			    }
+		    	else if (arrowDirections[j].equals("Tail")){
+			    	endpointCount++;		    		
+		    	}
+		    }
+	    	
+	    }
+	    
 	    // Map out all the connections the blocks make
 	    for (int i=0; i< trackBlocks.size(); i++){
-	    	if (trackBlocks.get(i).containsSwitch()){
+	    	Block trackBlock = (Block) trackBlocks.get(i);
+	    	if (trackBlock.containsSwitch()){
 	    		//It is a switch, it will point to two blocks
-	    		// Search the arraylist and find the twoo blocks it points to
+	    		// Search the ArrayList and find the two blocks it points to
 	    		int count = 0;
-	    		Switch currSwitch = (Switch)trackBlocks;
-	    		Block[] connectedBlocks = new Block[2];
-	    		for (int j=0; i< trackBlocks.size() && i != j; j++){
-	    			if (currSwitch.getSwitchId() == trackBlocks.get(j).getSwitchId()){
-	    				connectedBlocks[count] = trackBlocks.get(j);
-	    				count++;
-		    			if (count == 2){
-		    				break;
+	    		Switch currSwitch = (Switch)trackBlocks.get(i);
+	    		List<Block> connectedBlocks = new ArrayList<Block>();
+	    		Block[] switchBlocks = new Block[2];
+	    		for (int j=0; i< trackBlocks.size(); j++){
+	    			if (i != j){
+		    			Block tempBlock = (Block)trackBlocks.get(j);
+		    			if (currSwitch.getSwitchId() == tempBlock.getSwitchId()){
+		    				switchBlocks[count] = tempBlock;
+		    				count++;
+			    			if (count == 2){
+			    				break;
+			    			}
 		    			}
 	    			}
 	    		}
-	    		currSwitch.setConnectedBlocks(connectedBlocks);
+	    		currSwitch.setSwitchBlocks(switchBlocks);
+	    		connectedBlocks = Arrays.asList(switchBlocks);
+	    		for (Block tempBlock : switchBlocks){
+	    			if (!currSwitch.getConnectedBlocks().contains(tempBlock)){
+	    				// add the current block as a connection for the next blocks
+	    				currSwitch.addConnectedBlock(tempBlock);
+	    			}
+	    		}
+	    		continue; //Remove this for the real simulation
 	    	}
-	    	else if (Arrays.asList(trackBlocks.get(i).getArrowDirection()).contains("Yard")){
+	    	else if (Arrays.asList(trackBlock.getArrowDirection()).contains("Yard")){
 	    		//It touches the yard
-	    		yardConnections.add(trackBlocks.get(i));
+	    		yardConnections.add(trackBlock);
 	    	}
-	    	else{
+	    	//else{ //Uncomment this for the real simulation
 	    		// It is a normal block
-	    		trackBlocks.get(i).setNextBlock(trackBlocks.get(i));
-	    	}
+	    		
+	    		if (trackBlock.getSwitchId() != null){
+	    			// One end of the block connects to a switch
+	    			for (int j=0; i< trackBlocks.size(); j++){
+	    				if (i != j){
+		    				Block tempBlock = (Block) trackBlocks.get(j);
+		    				if (trackBlock.getSwitchId() == tempBlock.getSwitchId()){
+		    					trackBlock.addConnectedBlock(tempBlock);
+		    					break;
+		    				}
+	    				}
+	    			}
+	    		}
+	    		
+	    		// Set the connections to the next block.
+	    		if (i < trackBlocks.size() - 1){
+    				Block tempBlock = (Block) trackBlocks.get(i + 1);
+	    				// The block is connected to the block at i + 1
+		    			trackBlock.addConnectedBlock(tempBlock);
+		    			if (trackBlock.getSection() == tempBlock.getSection()){
+		    				tempBlock.addConnectedBlock(trackBlock);
+		    			}
+	    		}
+	    	//}
 	    }
-		
+	}
+	
+	public Block[] getYardYardConnections(){
+		return yardConnections.toArray(new Block[yardConnections.size()]);
 	}
 }

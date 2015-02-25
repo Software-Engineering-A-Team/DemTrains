@@ -1,13 +1,15 @@
 package ctcOffice;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-public class Block {
+public class Block implements Infrastructure{
 	private final int shape; //0 is a square, 1 is a triangle, 2 is a Circle, and 3 is a 'y' like switch object with no arrows, 4 is a 'y' like switch object with arrows
 	private final char section;
 	private final int blockNumber;
-	private final int blockLength;
+	private final double blockLength;
 	private final double grade;
 	private final int speed;
 	private final List<String> infrastructure; // null is nothing
@@ -15,8 +17,7 @@ public class Block {
 	private final double cumulativeElevation;
 	private final String[] arrowDirection;
 	private final Integer switchId;
-	private Block from;
-	private Block nextBlock;
+	private List<Block> connectedBlocks = new ArrayList<Block>();
 	private boolean open = true;
 	
 	/*
@@ -28,15 +29,20 @@ public class Block {
 		throw new UnsupportedOperationException("You can't create a block class or subclass with a default constructor");
 	}
 	public Block(String[] blockDescriptor){
-		section = blockDescriptor[1].charAt(1);
+		section = blockDescriptor[1].charAt(0);
 		blockNumber = Integer.parseInt(blockDescriptor[2]);
-		blockLength = Integer.parseInt(blockDescriptor[3]);
+		blockLength = Double.parseDouble(blockDescriptor[3]);
 		grade = Double.parseDouble(blockDescriptor[4]);
 		speed = Integer.parseInt(blockDescriptor[5]);
 		infrastructure = Arrays.asList(blockDescriptor[6].split(";"));
 		elevation = Double.parseDouble(blockDescriptor[7]);
 		cumulativeElevation = Double.parseDouble(blockDescriptor[8]);
-		switchId = Integer.parseInt(blockDescriptor[9]);
+		if (!blockDescriptor[9].equals("")){
+			switchId = Integer.parseInt(blockDescriptor[9].substring(7));
+		}
+		else{
+			switchId = null;
+		}
 		arrowDirection = blockDescriptor[10].split(";");
 		boolean arrows = false;
 		if (arrowDirection != null){
@@ -74,7 +80,7 @@ public class Block {
 		return blockNumber;
 	}
 	
-	public int getBlockLength(){
+	public double getBlockLength(){
 		return blockLength;
 	}
 	
@@ -110,16 +116,20 @@ public class Block {
 		return arrowDirection;
 	}
 
-	public Block getPreviousBlock(){
-		return from;
+	@SuppressWarnings("unchecked")
+	public List<Block> getConnectedBlocks(){
+		return (List<Block>)((ArrayList<Block>)connectedBlocks).clone();
 	}
 	
-	public Block getNextBlock(){
-		return nextBlock;		
+	public void setConnectedBlocks(List<Block> connected){
+		if (!connectedBlocks.contains(connected)){
+			connectedBlocks = connected;			
+		}
 	}
 	
-	public Block setNextBlock(Block next){
-		return nextBlock;		
+	public void addConnectedBlock(Block connected){
+		connectedBlocks.add(connected);
+		return;
 	}
 	
 }

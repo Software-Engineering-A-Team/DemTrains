@@ -23,11 +23,10 @@ public class CTCOfficeApplication {
 		frame.setResizable(false);
 		frame.setBounds(100, 100, 836, 530);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		
-		
-		
-		
+	}
+
+	public void drawTrackLayout(TrackLayout blueLineTrackLayout) {
+		// TODO Auto-generated method stub
 		
 	}
 
