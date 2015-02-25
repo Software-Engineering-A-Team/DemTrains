@@ -1,6 +1,8 @@
 package ctcOffice;
 
 
+import java.util.List;
+
 import javax.swing.JFrame;
 
 public class CTCOfficeApplication {
@@ -27,7 +29,10 @@ public class CTCOfficeApplication {
 
 	public void drawTrackLayout(TrackLayout blueLineTrackLayout) {
 		// TODO Auto-generated method stub
-		
+		List<Infrastructure> trackIterator = blueLineTrackLayout.createIterator();
+		for (Infrastructure nextBlock : trackIterator){
+			
+		}
 	}
 
 }

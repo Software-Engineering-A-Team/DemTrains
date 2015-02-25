@@ -1,6 +1,5 @@
 package ctcOffice;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 
@@ -21,9 +20,6 @@ public class CTCOffice {
 		CTCOfficeApplication window = new CTCOfficeApplication();
 		window.drawTrackLayout(blueLineTrackLayout);
 		
-		
-		
-
 	}
 
 }

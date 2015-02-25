@@ -1,17 +1,16 @@
 package ctcOffice;
 
-import java.io.BufferedReader;
+
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 /*
  * Object that stores the layout of the track as a graph.
@@ -86,7 +85,6 @@ public class TrackLayout {
 	    		// Search the ArrayList and find the two blocks it points to
 	    		int count = 0;
 	    		Switch currSwitch = (Switch)trackBlocks.get(i);
-	    		List<Block> connectedBlocks = new ArrayList<Block>();
 	    		Block[] switchBlocks = new Block[2];
 	    		for (int j=0; i< trackBlocks.size(); j++){
 	    			if (i != j){
@@ -101,7 +99,6 @@ public class TrackLayout {
 	    			}
 	    		}
 	    		currSwitch.setSwitchBlocks(switchBlocks);
-	    		connectedBlocks = Arrays.asList(switchBlocks);
 	    		for (Block tempBlock : switchBlocks){
 	    			if (!currSwitch.getConnectedBlocks().contains(tempBlock)){
 	    				// add the current block as a connection for the next blocks
@@ -139,11 +136,35 @@ public class TrackLayout {
 		    				tempBlock.addConnectedBlock(trackBlock);
 		    			}
 	    		}
-	    	//}
+	    	}
 	    }
-	}
 	
 	public Block[] getYardYardConnections(){
 		return yardConnections.toArray(new Block[yardConnections.size()]);
+	}
+	
+	public List<Infrastructure> createIterator(){
+		Queue<Infrastructure> blockQueue = new LinkedList<Infrastructure>();
+		List<Infrastructure> visitedList = new LinkedList<Infrastructure>();
+		List<Infrastructure> iterator = new LinkedList<Infrastructure>();
+		List<Block> nextBlocks = new LinkedList<Block>();
+		
+		// get the element connected to the yard
+		Infrastructure current = yardConnections.get(0);
+		for (int i=0; i<trackBlocks.size(); i++){
+			nextBlocks = current.getConnectedBlocks();
+			nextBlocks.remove(current);
+			for (Block tempBlock : nextBlocks){
+				// Add the blocks it connects to to the queue if the block hasn't been visited before.
+				if (!visitedList.contains(tempBlock)){
+					blockQueue.add(tempBlock);
+				}
+			}
+			visitedList.add(current);
+			iterator.add(current);
+			current = blockQueue.remove();
+		}
+		
+		return iterator;
 	}
 }

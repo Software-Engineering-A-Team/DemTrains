@@ -9,8 +9,7 @@ public class Switch extends Block {
 
 	public Switch(String[] blockDescriptor){
 		super(blockDescriptor);
-	}
-	
+	}	
 	
 	public Block getNextblock(){
 		return switchBlocks[pointingToBlock];
