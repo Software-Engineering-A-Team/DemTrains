@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+
 /*
  * Object that stores the layout of the track as a graph.
  */
@@ -162,7 +163,6 @@ public class TrackLayout {
 		Infrastructure[] blocks = {null, current};
 		for (int i=0; i<trackBlocks.size(); i++){
 			nextBlocks = current.getConnectedBlocks();
-			nextBlocks.remove(current);
 			visitedList.add(current);
 			iterator.add(blocks);
 			for (Block tempBlock : nextBlocks){
@@ -189,6 +189,7 @@ public class TrackLayout {
 	public List<Infrastructure> iterateSequentially(){
 		return (List<Infrastructure>)((ArrayList<Infrastructure>)trackBlocks).clone();
 	}
+	
 	public Block getBlockAt(int blockNumber){
 		for (Infrastructure trackBlock : trackBlocks){
 			if (trackBlock.getBlockNumber() == blockNumber){
@@ -197,4 +198,38 @@ public class TrackLayout {
 		}
 		return null;
 	}
+	
+	public static List<Infrastructure> generatePath(Infrastructure startBlock, Infrastructure endBlock){
+		List<Infrastructure> currentPath = new LinkedList<Infrastructure>();
+		currentPath.add(startBlock);
+		if(pathFinder(startBlock, endBlock, currentPath)){
+			return currentPath;
+		}
+		return null;
+
+    }
+	private static boolean pathFinder(Infrastructure curr, Infrastructure end, List<Infrastructure> currentPath){
+
+		List<Block> nextBlocks = curr.getConnectedBlocks();
+		for(Block nextBlock : nextBlocks){
+			if (!currentPath.contains(nextBlock)){
+				currentPath.add(nextBlock);
+				if (nextBlock == end){
+					return true;
+				}
+				Infrastructure tempBlock = curr;
+				curr = nextBlock;
+				if(pathFinder(curr, end, currentPath)){
+					return true;
+				}
+				// Remove the path and all of
+				currentPath.remove(nextBlock);
+			}
+		}
+		
+		
+		return false;
+	}
+		
+	
 }

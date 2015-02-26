@@ -10,7 +10,7 @@ public class Block implements Infrastructure{
 	private final int blockNumber;
 	private final double blockLength;
 	private final double grade;
-	private final int speed;
+	private final int speedLimit;
 	private final List<String> infrastructure; // null is nothing
 	private final double elevation;
 	private final double cumulativeElevation;
@@ -18,6 +18,7 @@ public class Block implements Infrastructure{
 	private final Integer switchId;
 	private List<Block> connectedBlocks = new ArrayList<Block>();
 	private boolean open = true;
+	private final String line;
 	
 	/*
 	 * Java requires a default constructor for child classes, but
@@ -28,11 +29,12 @@ public class Block implements Infrastructure{
 		throw new UnsupportedOperationException("You can't create a block class or subclass with a default constructor");
 	}
 	public Block(String[] blockDescriptor){
+		line = blockDescriptor[0];
 		section = blockDescriptor[1].charAt(0);
 		blockNumber = Integer.parseInt(blockDescriptor[2]);
 		blockLength = Double.parseDouble(blockDescriptor[3]);
 		grade = Double.parseDouble(blockDescriptor[4]);
-		speed = Integer.parseInt(blockDescriptor[5]);
+		speedLimit = Integer.parseInt(blockDescriptor[5]);
 		infrastructure = Arrays.asList(blockDescriptor[6].split(";"));
 		elevation = Double.parseDouble(blockDescriptor[7]);
 		cumulativeElevation = Double.parseDouble(blockDescriptor[8]);
@@ -88,7 +90,7 @@ public class Block implements Infrastructure{
 	}
 	
 	public int getSpeed(){
-		return speed;
+		return speedLimit;
 	}
 	
 	public boolean containsSwitch(){
@@ -130,11 +132,27 @@ public class Block implements Infrastructure{
 		connectedBlocks.add(connected);
 		return;
 	}
+	public void openBlock(){
+		open = true;
+	}
 	public void closeBlock(){
 		open = false;
 	}
 	public boolean isOpen(){
 		return open;
+	}
+	
+	public String toString(){
+		String displayString = "<html><body>";
+		displayString += "Section:\t" + section + "<br>";
+		displayString += "Block Number:\t" + blockNumber + "<br>";
+		displayString += "BlockLength:\t" + blockLength + "<br>";
+		displayString += "Block Grade(%):\t" + grade + "<br>";
+		displayString += "Speed Limit (KM/Hr):\t" + speedLimit + "<br>";
+		displayString += "Elevation (M):\t" + elevation + "<br>";
+		displayString += "Cumalitive Elevation (M):\t" + cumulativeElevation + "<br>";
+		
+		return displayString + "</body></html>";
 	}
 	
 }

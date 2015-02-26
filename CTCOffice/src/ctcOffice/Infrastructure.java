@@ -34,6 +34,8 @@ public interface Infrastructure {
 	public void addConnectedBlock(Block connected);
 	
 	public void closeBlock();
+	
+	public void openBlock();
 
 	public boolean isOpen();
 }

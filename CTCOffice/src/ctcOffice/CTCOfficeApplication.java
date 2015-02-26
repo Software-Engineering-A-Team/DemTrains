@@ -46,7 +46,7 @@ public class CTCOfficeApplication {
 		blueLineTrackLayout.parseCsvFile(excelFilePointer);
 		frame = new CTCOfficeGUIImplementation(blueLineTrackLayout);
 		frame.setResizable(false);
-		frame.setBounds(100, 100, 836, 600);
+		frame.setBounds(100, 100, 902, 388);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);		
 	}
 

@@ -30,5 +30,13 @@ public class Switch extends Block {
 	public Block[] getSwitchBlocks(){
 		return Arrays.copyOf(switchBlocks, switchBlocks.length);
 	}
+	public void pointToBlock(Block b){
+		for (int i=0; i<switchBlocks.length; i++){
+			if (switchBlocks[i] == b){
+				pointingToBlock = i;
+				break;
+			}
+		}
+	}
 	
 }
