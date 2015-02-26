@@ -14,5 +14,5 @@ public interface PLCInterface {
 	
 	 public int ctrlLights(int lights, boolean trackSig, boolean open, boolean broken);
 	
-	 public TrackBlock changeSwitch(Switch s, List<TrackBlock> route);
+	 public TrackBlock changeSwitch(Switch s, List<TrackBlock> route, boolean trackSig);
 }

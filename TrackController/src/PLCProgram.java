@@ -15,13 +15,14 @@ public class PLCProgram implements PLCInterface {
 		else return 0; //lights set green
 	}
 
-	public TrackBlock changeSwitch(Switch s, List<TrackBlock> route) {
+	public TrackBlock changeSwitch(Switch s, List<TrackBlock> route, boolean trackSig) {
 		TrackBlock switchP = s.getNextblock();
 		int currentPos = route.indexOf(s);						//get position in route
 		TrackBlock next = route.get(currentPos+1);				//find next block to pass through
 		List<TrackBlock> connected = s.getConnectedBlocks();	//get the list of connected blocks
 		TrackBlock curCon = s.getNextblock();
-		if(curCon.getBlockNumber() != next.getBlockNumber()){ 	//if next is not already connected to switch
+		System.out.println(s.trackSigHigh());
+		if(trackSig && curCon.getBlockNumber() != next.getBlockNumber()){ 	//if next is not already connected to switch
 			if(connected.contains(next)){						//does the connected blocks list contain next
 				int i = connected.indexOf(next) - 1;
 				if(s.setSwitchPosition(i)){
