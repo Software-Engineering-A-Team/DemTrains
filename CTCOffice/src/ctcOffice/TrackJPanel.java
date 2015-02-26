@@ -46,7 +46,7 @@ public class TrackJPanel extends JPanel {
         private String routeTrain = null;
         private boolean trainMoving = false;
 		
-		TrackJPanel(TrackLayout tLayout, JPanel trackInfoPanel) {
+	public TrackJPanel(TrackLayout tLayout, JPanel trackInfoPanel) {
 			infoPanel = trackInfoPanel;
             // set a preferred size for the custom panel.
             setPreferredSize(new Dimension(2000,400));
