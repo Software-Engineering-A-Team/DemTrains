@@ -45,7 +45,7 @@ public class TrainControllerGui {
    */
   private void initialize() {
     frame = new JFrame();
-    frame.setBounds(100, 100, 450, 300);
+    frame.setBounds(100, 100, 500, 300);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.getContentPane().setLayout(null);
     
@@ -72,7 +72,7 @@ public class TrainControllerGui {
     
     JLabel lblTrainController = new JLabel("Train Controller");
     lblTrainController.setFont(new Font("Dialog", Font.BOLD, 16));
-    lblTrainController.setBounds(153, 12, 151, 15);
+    lblTrainController.setBounds(172, 12, 151, 15);
     frame.getContentPane().add(lblTrainController);
     
     JLabel lblEnginePower = new JLabel("Engine Power (kW)");
@@ -117,6 +117,9 @@ public class TrainControllerGui {
         
         //enginePowerTextField.setText(Double.toString(trainController.CalcEnginePowerKw()));
         enginePowerTextField.setText(String.format("%.3f", trainController.CalcEnginePowerKw()));
+
+        targetVelocityTextField.setText(String.format("%.3f", trainController.GetTargetVelocityEng()));
+        feedbackVelocityTextField.setText(String.format("%.3f", trainController.GetFeedbackVelocityEng()));
         
         if (trainController.CheckBrakeState())
         {
@@ -130,5 +133,13 @@ public class TrainControllerGui {
     });
     btnUpdateOutputs.setBounds(12, 206, 148, 25);
     frame.getContentPane().add(btnUpdateOutputs);
+    
+    JLabel lblMax = new JLabel("max: 120");
+    lblMax.setBounds(379, 101, 70, 15);
+    frame.getContentPane().add(lblMax);
+    
+    JLabel lblMax_1 = new JLabel("max: 43.496");
+    lblMax_1.setBounds(122, 101, 91, 15);
+    frame.getContentPane().add(lblMax_1);
   }
 }
