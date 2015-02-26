@@ -3,6 +3,7 @@
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 
 import java.awt.Canvas;
@@ -19,6 +20,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.JSlider;
 
 import java.awt.Font;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -27,7 +29,7 @@ public class MBOGUIImplementation extends JFrame {
     /**
      * Create the panel.
      */
-    public MBOGUIImplementation() {
+    public MBOGUIImplementation(String schedule) {
     	setResizable(false);
         getContentPane().setBackground(Color.WHITE);
         setBackground(Color.WHITE);
@@ -36,21 +38,34 @@ public class MBOGUIImplementation extends JFrame {
         toolbar.setBorder(new LineBorder(new Color(0, 0, 0)));
         toolbar.setBackground(Color.WHITE);
 
-        JPanel simulationSpeed = new JPanel();
-        simulationSpeed.setBounds(24, 2, 175, 29);
-        simulationSpeed.setBackground(Color.WHITE);
-        simulationSpeed.setLayout(null);
+        JPanel topSection = new JPanel();
+        topSection.setBounds(24, 2, 325, 29);
+        topSection.setBackground(Color.WHITE);
+        topSection.setLayout(null);
 
-        JLabel simulationSpeedLabel = new JLabel("Simulation Speed");
-        simulationSpeedLabel.setBounds(10, 8, 81, 14);
-        simulationSpeed.add(simulationSpeedLabel);
+        JLabel enterTimeLabel = new JLabel("Enter Start Time:");
+        enterTimeLabel.setBounds(10, 8, 100, 14);
+        topSection.add(enterTimeLabel);
         
-        JSlider slider = new JSlider();
-        slider.setForeground(Color.BLACK);
-        slider.setBounds(101, 9, 50, 10);
-        simulationSpeed.add(slider);
+        JTextField enterTimeField = new JTextField(20);
+        enterTimeField.setBounds(10, 15, 20, 14);
+        enterTimeField.setSize(40,15);
+        topSection.add(enterTimeField);
+        enterTimeField.move(120, 10);
+        
+        JButton enterTimeButton = new JButton("Creat Schedule");
+        enterTimeButton.setBounds(10, 15, 20, 14);
+        enterTimeButton.setSize(125,15);
+        topSection.add(enterTimeButton);
+        enterTimeButton.move(170, 10);
+        
+        
+        //JSlider slider = new JSlider();
+        //slider.setForeground(Color.BLACK);
+        //slider.setBounds(101, 9, 50, 10);
+        //simulationSpeed.add(slider);
         toolbar.setLayout(null);
-        toolbar.add(simulationSpeed);
+        toolbar.add(topSection);
 
         JScrollPane trackLayoutScrollPane = new JScrollPane();
         
@@ -58,15 +73,23 @@ public class MBOGUIImplementation extends JFrame {
         trackLayoutPanel.setBorder(new LineBorder(new Color(0, 0, 0)));
         trackLayoutPanel.setBackground(Color.WHITE);
         trackLayoutScrollPane.setViewportView(trackLayoutPanel);
-        trackLayoutPanel.add(new Canvas());
+        
+        JLabel scheduleLabel = new JLabel(schedule);
+        //scheduleLabel.setText("<html><body>with<br>linebreak</body></html>");
         GroupLayout gl_trackLayoutPanel = new GroupLayout(trackLayoutPanel);
         gl_trackLayoutPanel.setHorizontalGroup(
         	gl_trackLayoutPanel.createParallelGroup(Alignment.LEADING)
-        		.addGap(0, 650, Short.MAX_VALUE)
+        		.addGroup(gl_trackLayoutPanel.createSequentialGroup()
+        			.addContainerGap()
+        			.addComponent(scheduleLabel)
+        			.addContainerGap(582, Short.MAX_VALUE))
         );
         gl_trackLayoutPanel.setVerticalGroup(
         	gl_trackLayoutPanel.createParallelGroup(Alignment.LEADING)
-        		.addGap(0, 495, Short.MAX_VALUE)
+        		.addGroup(gl_trackLayoutPanel.createSequentialGroup()
+        			.addGap(32)
+        			.addComponent(scheduleLabel)
+        			.addContainerGap(447, Short.MAX_VALUE))
         );
         trackLayoutPanel.setLayout(gl_trackLayoutPanel);
 
@@ -78,6 +101,12 @@ public class MBOGUIImplementation extends JFrame {
         trackInfoPanel.setBackground(Color.WHITE);
         trackInfoScrollPane.setViewportView(trackInfoPanel);
         trackInfoPanel.setLayout(new GridLayout(1, 0, 0, 0));
+        trackInfoPanel.setBounds(200, 1000,200, 1000);
+        
+        JLabel safeDistanceLabel = new JLabel("Safe Stopping Distance:");
+        safeDistanceLabel.setBounds(10, 8, 10, 14);        
+        trackInfoPanel.add(safeDistanceLabel);        
+        safeDistanceLabel.setVerticalAlignment(1);
         
         JPanel CTCOfficeLabel = new JPanel();
         CTCOfficeLabel.setBorder(new LineBorder(new Color(0, 0, 0)));
@@ -106,7 +135,7 @@ public class MBOGUIImplementation extends JFrame {
         		.addComponent(CTCOfficeLabel, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)
         );
         
-        JLabel lblCtcOffice = new JLabel("CTC Office");
+        JLabel lblCtcOffice = new JLabel("MBO");
         lblCtcOffice.setFont(new Font("Tahoma", Font.BOLD, 14));
         CTCOfficeLabel.add(lblCtcOffice);
         getContentPane().setLayout(groupLayout);
