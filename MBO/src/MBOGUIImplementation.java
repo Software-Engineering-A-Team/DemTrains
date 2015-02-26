@@ -20,16 +20,26 @@ import javax.swing.border.LineBorder;
 import javax.swing.JSlider;
 
 import java.awt.Font;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 public class MBOGUIImplementation extends JFrame {
-
+	String schedule;
+	 JLabel scheduleLabel = new JLabel();
+	
     /**
      * Create the panel.
      */
-    public MBOGUIImplementation(String schedule) {
+    public MBOGUIImplementation() {
+    	
+    	
+    	//String schedule = "";
     	setResizable(false);
         getContentPane().setBackground(Color.WHITE);
         setBackground(Color.WHITE);
@@ -47,17 +57,34 @@ public class MBOGUIImplementation extends JFrame {
         enterTimeLabel.setBounds(10, 8, 100, 14);
         topSection.add(enterTimeLabel);
         
-        JTextField enterTimeField = new JTextField(20);
+        final JTextField enterTimeField = new JTextField(20);
         enterTimeField.setBounds(10, 15, 20, 14);
         enterTimeField.setSize(40,15);
         topSection.add(enterTimeField);
         enterTimeField.move(120, 10);
         
-        JButton enterTimeButton = new JButton("Creat Schedule");
+        JButton enterTimeButton = new JButton("Create Schedule");
         enterTimeButton.setBounds(10, 15, 20, 14);
-        enterTimeButton.setSize(125,15);
+        enterTimeButton.setSize(130,15);
         topSection.add(enterTimeButton);
         enterTimeButton.move(170, 10);
+        
+        
+        enterTimeButton.addActionListener(new ActionListener(){
+
+        	 public void actionPerformed(ActionEvent event){    
+        			String startTime = enterTimeField.getText().toString();
+        			try {
+        				schedule = generateCrewSchedule(startTime,"30");
+        			} catch (ParseException e) {
+        				// TODO Auto-generated catch block
+        				e.printStackTrace();
+        			}
+        			System.out.println(startTime);
+        			System.out.println(schedule);
+        			scheduleLabel.setText(schedule);
+        	 }
+        	});
         
         
         //JSlider slider = new JSlider();
@@ -74,7 +101,7 @@ public class MBOGUIImplementation extends JFrame {
         trackLayoutPanel.setBackground(Color.WHITE);
         trackLayoutScrollPane.setViewportView(trackLayoutPanel);
         
-        JLabel scheduleLabel = new JLabel(schedule);
+        //JLabel scheduleLabel = new JLabel(schedule);
         //scheduleLabel.setText("<html><body>with<br>linebreak</body></html>");
         GroupLayout gl_trackLayoutPanel = new GroupLayout(trackLayoutPanel);
         gl_trackLayoutPanel.setHorizontalGroup(
@@ -140,5 +167,61 @@ public class MBOGUIImplementation extends JFrame {
         CTCOfficeLabel.add(lblCtcOffice);
         getContentPane().setLayout(groupLayout);
 
+    
+        
     }
+
+    private  String generateCrewSchedule(String startTime,String sFrequency) throws ParseException{
+		//int[] schedule = {0,0,0};
+		int frequency;
+		int count;
+		frequency = Integer.parseInt(sFrequency);
+		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
+		Calendar departureTime = Calendar.getInstance();
+		Calendar breakTime = Calendar.getInstance();
+		Calendar shiftEnd = Calendar.getInstance();
+		Date time = dateFormat.parse(startTime);
+		departureTime.setTime(time);
+		breakTime.setTime(time);
+		breakTime.add(Calendar.HOUR,4);
+		shiftEnd.setTime(time);
+		shiftEnd.add(Calendar.HOUR, 8);
+		shiftEnd.add(Calendar.MINUTE, 30);
+		String[] weekDays = {"Monday:", "<br><br>Tuesday:", "<br><br>Wednesday:", "<br><br>Thursday:", 
+				"<br><br>Friday:", "<br><br>Saturday:", "<br><br>Sunday:"};
+		String schedule = "<html><body>";
+		
+		//mon-fri trains depart in 30 min intervals
+		//sat sun trains depart in 15 min intervals
+		
+		for(int i=0; i<7; i++){
+			schedule += weekDays[i];
+			//System.out.println(weekDays[i]);
+			count = 1;
+			for(int j=0; j<((60/frequency)*24); j++){
+				
+				schedule += " <br>Train "+String.format("%02d", count);
+				schedule += "<&emsp DepartureTime: "+(dateFormat.format(departureTime.getTime()))+
+								"<&emsp BreakTime: "+(dateFormat.format(breakTime.getTime()))+
+								"<&emsp ShiftEnd: "+(dateFormat.format(shiftEnd.getTime()));
+				
+				//System.out.println("DepartureTime: "+(dateFormat.format(departureTime.getTime()))+
+				//		"\tBreakTime: "+(dateFormat.format(breakTime.getTime()))+
+				//		"\tShiftEnd: "+(dateFormat.format(shiftEnd.getTime())));
+				
+				
+				departureTime.add(Calendar.MINUTE, frequency);
+				breakTime.add(Calendar.MINUTE, frequency);
+				shiftEnd.add(Calendar.MINUTE, frequency);
+				count++;
+			}
+		}
+		
+		schedule += "<body><html>";
+		return schedule;
+    
+    }
+   
+    
 }
+

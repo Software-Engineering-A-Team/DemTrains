@@ -38,7 +38,7 @@ public class MBOApplication {
 					//schedule = generateCrewSchedule(8);
 					String schedule=generateCrewSchedule("8:00", "30");
 					//System.out.println(schedule);
-					MBOApplication window = new MBOApplication(schedule);
+					MBOApplication window = new MBOApplication();
 					window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -50,15 +50,15 @@ public class MBOApplication {
 	/**
 	 * Create the application.
 	 */
-	public MBOApplication(String schedule) {
-		initialize(schedule);
+	public MBOApplication() {
+		initialize();
 	}
 
 	/**
 	 * Initialize the contents of the frame.
 	 */
-	private void initialize(String schedule) {
-		frame = new MBOGUIImplementation(schedule);
+	private void initialize() {
+		frame = new MBOGUIImplementation();
 		frame.setResizable(false);
 		frame.setBounds(100, 100, 836, 530);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -86,7 +86,8 @@ public class MBOApplication {
 		shiftEnd.setTime(time);
 		shiftEnd.add(Calendar.HOUR, 8);
 		shiftEnd.add(Calendar.MINUTE, 30);
-		String[] weekDays = {"Monday:<br>", "<br><br>Tuesday:", "<br><br>Wednesday:", "<br><br>Thursday:", "<br><br>Friday:", "<br><br>Saturday:", "<br><br>Sunday:"};
+		String[] weekDays = {"Monday:<br>", "<br><br>Tuesday:<br>", "<br><br>Wednesday:<br>", "<br><br>Thursday:<br>", 
+				"<br><br>Friday:<br>", "<br><br>Saturday:<br>", "<br><br>Sunday:<br>"};
 		String schedule = "<html><body>";
 		
 		//mon-fri trains depart in 30 min intervals
