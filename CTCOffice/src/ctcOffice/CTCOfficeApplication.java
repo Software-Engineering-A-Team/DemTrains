@@ -1,38 +1,55 @@
 package ctcOffice;
 
 
-import java.util.List;
+import java.awt.EventQueue;
+import java.io.IOException;
 
 import javax.swing.JFrame;
 
 public class CTCOfficeApplication {
 
-	private JFrame frame;
+	private CTCOfficeGUIImplementation frame;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					CTCOfficeApplication window = new CTCOfficeApplication();
+					window.frame.setVisible(true);
+					
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
 
 	/**
 	 * Create the application.
+	 * @throws IOException 
 	 */
-	public CTCOfficeApplication() {
+	public CTCOfficeApplication() throws IOException {
 		initialize();
-		frame.setVisible(true);
 	}
 
 	/**
 	 * Initialize the contents of the frame.
+	 * @throws IOException 
 	 */
-	private void initialize() {
-		frame = new CTCOfficeGUIImplementation();
+	private void initialize() throws IOException {
+		// Create the track Layout
+		String excelFilePointer = "track_layout.csv";
+		TrackLayout blueLineTrackLayout = new TrackLayout();
+		blueLineTrackLayout.parseCsvFile(excelFilePointer);
+		frame = new CTCOfficeGUIImplementation(blueLineTrackLayout);
 		frame.setResizable(false);
-		frame.setBounds(100, 100, 836, 530);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setBounds(100, 100, 836, 600);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);		
 	}
 
-	public void drawTrackLayout(TrackLayout blueLineTrackLayout) {
-		// TODO Auto-generated method stub
-		List<Infrastructure> trackIterator = blueLineTrackLayout.createIterator();
-		for (Infrastructure nextBlock : trackIterator){
-			
-		}
-	}
+
 
 }

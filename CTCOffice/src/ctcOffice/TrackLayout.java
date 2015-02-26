@@ -28,7 +28,7 @@ public class TrackLayout {
 	 * 		Line, Section, Block Number, Block Length (m), Block Grade (%), Speed Limit (Km/Hr), Infrastructure, ELEVATION (M), CUMALTIVE ELEVATION (M), Switch Block, Arrow Direction
 	 */
 	public void parseCsvFile(String fileName) throws IOException{
-		File file = new File("track_layout.csv");
+		File file = new File(fileName);
 	    List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
 	    String[][] trackBlockDescriptions = new String[lines.size()][lines.get(0).split(",").length];
 	    // Read in the blocks from a file and create the block objects
@@ -125,6 +125,16 @@ public class TrackLayout {
 		    				}
 	    				}
 	    			}
+		    		// Set the connections to the next block.
+		    		if (i < trackBlocks.size() - 1){
+	    				Block tempBlock = (Block) trackBlocks.get(i + 1);
+		    				// The block is connected to the block at i + 1
+			    			trackBlock.addConnectedBlock(tempBlock);
+			    			if (trackBlock.getSection() == tempBlock.getSection()){
+			    				tempBlock.addConnectedBlock(trackBlock);
+			    			}
+		    		}
+		    		continue;
 	    		}
 	    		
 	    		// Set the connections to the next block.
@@ -132,9 +142,7 @@ public class TrackLayout {
     				Block tempBlock = (Block) trackBlocks.get(i + 1);
 	    				// The block is connected to the block at i + 1
 		    			trackBlock.addConnectedBlock(tempBlock);
-		    			if (trackBlock.getSection() == tempBlock.getSection()){
-		    				tempBlock.addConnectedBlock(trackBlock);
-		    			}
+		    			tempBlock.addConnectedBlock(trackBlock);
 	    		}
 	    	}
 	    }
@@ -143,28 +151,50 @@ public class TrackLayout {
 		return yardConnections.toArray(new Block[yardConnections.size()]);
 	}
 	
-	public List<Infrastructure> createIterator(){
-		Queue<Infrastructure> blockQueue = new LinkedList<Infrastructure>();
+	public List<Infrastructure[]> createIterator(){
+		Queue<Infrastructure[]> blockQueue = new LinkedList<Infrastructure[]>();
 		List<Infrastructure> visitedList = new LinkedList<Infrastructure>();
-		List<Infrastructure> iterator = new LinkedList<Infrastructure>();
+		List<Infrastructure[]> iterator = new LinkedList<Infrastructure[]>(); //iterator[0] is current iterator[1] is previous
 		List<Block> nextBlocks = new LinkedList<Block>();
 		
 		// get the element connected to the yard
 		Infrastructure current = yardConnections.get(0);
+		Infrastructure[] blocks = {null, current};
 		for (int i=0; i<trackBlocks.size(); i++){
 			nextBlocks = current.getConnectedBlocks();
 			nextBlocks.remove(current);
+			visitedList.add(current);
+			iterator.add(blocks);
 			for (Block tempBlock : nextBlocks){
 				// Add the blocks it connects to to the queue if the block hasn't been visited before.
 				if (!visitedList.contains(tempBlock)){
-					blockQueue.add(tempBlock);
+					// Find a block tempBlock is connected to that has been placed in the queue or the iterator and set it as the previous Block
+					for (Block tempBlockPrevious : tempBlock.getConnectedBlocks()){
+						if (visitedList.contains(tempBlockPrevious)){
+							Infrastructure[] tempBlockArray = {tempBlockPrevious, tempBlock};
+							blockQueue.add(tempBlockArray);
+						}
+					}
 				}
 			}
-			visitedList.add(current);
-			iterator.add(current);
-			current = blockQueue.remove();
+			blocks = blockQueue.remove();
+			current = blocks[1];
 		}
 		
+		
 		return iterator;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Infrastructure> iterateSequentially(){
+		return (List<Infrastructure>)((ArrayList<Infrastructure>)trackBlocks).clone();
+	}
+	public Block getBlockAt(int blockNumber){
+		for (Infrastructure trackBlock : trackBlocks){
+			if (trackBlock.getBlockNumber() == blockNumber){
+				return (Block)trackBlock;
+			}
+		}
+		return null;
 	}
 }

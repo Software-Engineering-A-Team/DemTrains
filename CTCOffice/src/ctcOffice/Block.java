@@ -2,7 +2,6 @@ package ctcOffice;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class Block implements Infrastructure{
@@ -130,6 +129,12 @@ public class Block implements Infrastructure{
 	public void addConnectedBlock(Block connected){
 		connectedBlocks.add(connected);
 		return;
+	}
+	public void closeBlock(){
+		open = false;
+	}
+	public boolean isOpen(){
+		return open;
 	}
 	
 }
