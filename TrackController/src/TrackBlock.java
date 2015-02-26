@@ -1,14 +1,16 @@
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class TrackBlock {
+	private final String line;
 	private final char section;
 	private final int blockNumber;
 	private final int speed;
 	private final List<String> infrastructure; // null is nothing
 	private final Integer switchId;
-	private TrackBlock from;
-	private TrackBlock nextBlock;
+	private final String[] arrowDirection;
+	private List<TrackBlock> connectedBlocks = new ArrayList<TrackBlock>();
 	private boolean open = true;
 	private boolean trackSig = false;
 	private int lights = 0; 	/*0 is green, 1 is red may be changed to include yellow light*/
@@ -25,11 +27,22 @@ public class TrackBlock {
 	}
 	
 	public TrackBlock(String[] blockDescriptor){
-		section = blockDescriptor[0].charAt(0);
-		blockNumber = Integer.parseInt(blockDescriptor[1]);
-		speed = Integer.parseInt(blockDescriptor[2]);
-		infrastructure = Arrays.asList(blockDescriptor[3].split(";"));
-		switchId = Integer.parseInt(blockDescriptor[4]);
+		line = blockDescriptor[0];
+		section = blockDescriptor[1].charAt(0);
+		blockNumber = Integer.parseInt(blockDescriptor[2]);
+		speed = Integer.parseInt(blockDescriptor[3]);
+		infrastructure = Arrays.asList(blockDescriptor[4].split(";"));
+		if (!blockDescriptor[5].equals("")){
+			switchId = Integer.parseInt(blockDescriptor[5].substring(7));
+		}
+		else{
+			switchId = null;
+		}
+		arrowDirection = blockDescriptor[6].split(";");
+	}
+	
+	public String getLine(){
+		return line;
 	}
 	
 	public int getBlockNumber(){
@@ -39,7 +52,7 @@ public class TrackBlock {
 	public char getSection(){
 		return section;
 	}
-	
+		
 	public int getSpeed(){
 		return speed;
 	}
@@ -76,7 +89,6 @@ public class TrackBlock {
 		return lights;
 	}
 	
-
 	public boolean setLights(int n){
 		if(n==0 || n==1){
 			lights = n;
@@ -93,16 +105,23 @@ public class TrackBlock {
 		return broken;
 	}
 	
-	public TrackBlock getPreviousBlock(){
-		return from;
+	public String[] getArrowDirection(){
+		return arrowDirection;
 	}
 	
-	public TrackBlock getNextBlock(){
-		return nextBlock;		
+	@SuppressWarnings("unchecked")
+	public List<TrackBlock> getConnectedBlocks(){
+		return (List<TrackBlock>)((ArrayList<TrackBlock>)connectedBlocks).clone();
 	}
 	
-	public TrackBlock setNextBlock(TrackBlock next){
-		nextBlock = next;
-		return nextBlock;		
-	}	
+	public void setConnectedBlocks(List<TrackBlock> connected){
+		if (!connectedBlocks.contains(connected)){
+			connectedBlocks = connected;			
+		}
+	}
+	
+	public void addConnectedBlock(TrackBlock connected){
+		connectedBlocks.add(connected);
+		return;
+	}
 }

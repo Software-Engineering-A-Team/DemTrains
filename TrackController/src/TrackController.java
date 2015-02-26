@@ -6,8 +6,7 @@ public class TrackController{
 	private final int speed;
 	private final List<String> infrastructure; // null is nothing
 	private final Integer switchId;
-	private TrackBlock from;
-	private TrackBlock nextBlock;
+	private TrackBlock block;
 	private boolean open;
 	private boolean trackSig;
 	private int lights;
@@ -17,6 +16,7 @@ public class TrackController{
 	private List<String> weather; //null is clear weather
 	private boolean broken;
 	private String[] beaconInfo;
+	private List<TrackBlock> route;
 	private PLCProgram plc;
 		
 	/*
@@ -29,13 +29,12 @@ public class TrackController{
 	}
 	
 	public TrackController(TrackBlock b){
+		block = b;
 		section = b.getSection();
 		blockNumber = b.getBlockNumber();
 		speed = b.getSpeed();
 		infrastructure = b.getInfrastructure();
 		switchId = b.getSwitchId();
-		from = b.getPreviousBlock();
-		nextBlock = b.getNextBlock();
 		open = b.isOpen();
 		trackSig = b.trackSigHigh();
 		lights = b.getLights();
@@ -44,12 +43,34 @@ public class TrackController{
 		plc = new PLCProgram();
 	}
 	
-	public void setTrackSig(boolean sig){
-		trackSig = sig;
+	public TrackController(Switch s){
+		section = s.getSection();
+		blockNumber = s.getBlockNumber();
+		speed = s.getSpeed();
+		infrastructure = s.getInfrastructure();
+		switchId = s.getSwitchId();
+		open = s.isOpen();
+		trackSig = s.trackSigHigh();
+		lights = s.getLights();
+		heater = s.getHeater();
+		broken = s.isBroken();
+		plc = new PLCProgram();
 	}
 	
+	public void setTrackSig(boolean sig){
+		trackSig = sig;
+		//System.out.println(trackSig);
+	}
+	
+	public int getSpeed(){
+		return speed;
+	}
+	
+	public boolean isOccupied(){
+		return trackSig;
+	}
 	public void checkLights(){
-		plc.ctrlLights(lights, trackSig, open);
+		setLights(plc.ctrlLights(lights, trackSig, open, broken));
 	}
 	
 	public void setBroken(boolean b){
@@ -64,16 +85,28 @@ public class TrackController{
 		return lights;
 	}
 	
-	public static void main (String [] args){
-		String[] specs = new String[]{"A", "2", "50", "", "6"};
-		TrackBlock b = new TrackBlock(specs);
-		TrackController t = new TrackController(b);
-	    
-		t.setTrackSig(true);
+	public void setLights(int l){
+		lights = l;
 		
-		if(t.getLights()==1){
-			System.out.println("The lights are red.");
+	}
+	
+	public void setOpen(boolean c){
+		open=c;
+	}
+	
+	public boolean isOpen(){
+		return open;
+	}
+	
+	public boolean isBroken(){
+		return broken;
+	}
+	
+	public TrackBlock chkSwitch(List<TrackBlock> route){
+		if(switchId!=null){
+		TrackBlock sp = plc.changeSwitch((Switch)block, route);
+		return sp;
 		}
-		else System.out.println("The lights are green.");
+		else return null;
 	}
 }
