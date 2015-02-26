@@ -1,5 +1,6 @@
 //package ctcOfficeGUI;
 
+import javax.management.timer.Timer;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -29,6 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+
 public class MBOGUIImplementation extends JFrame {
 	String schedule;
 	 JLabel scheduleLabel = new JLabel();
@@ -49,7 +51,7 @@ public class MBOGUIImplementation extends JFrame {
         toolbar.setBackground(Color.WHITE);
 
         JPanel topSection = new JPanel();
-        topSection.setBounds(24, 2, 325, 29);
+        topSection.setBounds(24, 2, 560, 29);
         topSection.setBackground(Color.WHITE);
         topSection.setLayout(null);
 
@@ -63,25 +65,37 @@ public class MBOGUIImplementation extends JFrame {
         topSection.add(enterTimeField);
         enterTimeField.move(120, 10);
         
+        JLabel frequencyLabel = new JLabel("Enter Frequency of Departure (Min):");
+        frequencyLabel.setBounds(10, 8, 200, 14);
+        topSection.add(frequencyLabel);
+        frequencyLabel.move(170, 10);
+        
+        final JTextField enterFrequencyField = new JTextField(20);
+        enterFrequencyField.setBounds(10, 15, 20, 14);
+        enterFrequencyField.setSize(40,15);
+        topSection.add(enterFrequencyField);
+        enterFrequencyField.move(380, 10);
+        
         JButton enterTimeButton = new JButton("Create Schedule");
         enterTimeButton.setBounds(10, 15, 20, 14);
         enterTimeButton.setSize(130,15);
         topSection.add(enterTimeButton);
-        enterTimeButton.move(170, 10);
+        enterTimeButton.move(430, 10);
         
         
         enterTimeButton.addActionListener(new ActionListener(){
 
         	 public void actionPerformed(ActionEvent event){    
         			String startTime = enterTimeField.getText().toString();
+        			String frequency = enterFrequencyField.getText().toString();
         			try {
-        				schedule = generateCrewSchedule(startTime,"30");
+        				schedule = generateCrewSchedule(startTime,frequency);
         			} catch (ParseException e) {
         				// TODO Auto-generated catch block
         				e.printStackTrace();
         			}
-        			System.out.println(startTime);
-        			System.out.println(schedule);
+        			//System.out.println(startTime);
+        			//System.out.println(schedule);
         			scheduleLabel.setText(schedule);
         	 }
         	});
@@ -124,16 +138,39 @@ public class MBOGUIImplementation extends JFrame {
         trackInfoScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         JPanel trackInfoPanel = new JPanel();
+       
         trackInfoPanel.setBorder(new LineBorder(new Color(0, 0, 0)));
         trackInfoPanel.setBackground(Color.WHITE);
         trackInfoScrollPane.setViewportView(trackInfoPanel);
-        trackInfoPanel.setLayout(new GridLayout(1, 0, 0, 0));
-        trackInfoPanel.setBounds(200, 1000,200, 1000);
+        //trackInfoPanel.setLayout(new GridLayout(1, 0, 0, 0));
+        trackInfoPanel.setLayout(null);
+        trackInfoPanel.setBounds(2000, 1000,2000, 1000);
         
         JLabel safeDistanceLabel = new JLabel("Safe Stopping Distance:");
-        safeDistanceLabel.setBounds(10, 8, 10, 14);        
+        safeDistanceLabel.setBounds(100, 20, 1000, 20);        
         trackInfoPanel.add(safeDistanceLabel);        
         safeDistanceLabel.setVerticalAlignment(1);
+        safeDistanceLabel.move(5, 0);
+        
+        JLabel safeDistanceTrainLabel = new JLabel("Train 1: ");
+        safeDistanceTrainLabel.setBounds(100, 20, 45, 20);
+        trackInfoPanel.add(safeDistanceTrainLabel);
+        safeDistanceTrainLabel.move(5,20);
+        
+        JLabel value1 = new JLabel("1 mile");
+        value1.setBounds(10,10,50,10);
+        trackInfoPanel.add(value1);
+        value1.move(50, 25);
+        
+        JLabel safeDistanceTrainLabel2 = new JLabel("Train 2: ");
+        safeDistanceTrainLabel2.setBounds(100, 20, 45, 20);
+        trackInfoPanel.add(safeDistanceTrainLabel2);
+        safeDistanceTrainLabel2.move(5,40);
+        
+        JLabel value2 = new JLabel("2 miles");
+        value2.setBounds(10,10,50,10);
+        trackInfoPanel.add(value2);
+        value2.move(50, 45);
         
         JPanel CTCOfficeLabel = new JPanel();
         CTCOfficeLabel.setBorder(new LineBorder(new Color(0, 0, 0)));
@@ -167,8 +204,7 @@ public class MBOGUIImplementation extends JFrame {
         CTCOfficeLabel.add(lblCtcOffice);
         getContentPane().setLayout(groupLayout);
 
-    
-        
+               
     }
 
     private  String generateCrewSchedule(String startTime,String sFrequency) throws ParseException{
