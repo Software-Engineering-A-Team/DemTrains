@@ -9,15 +9,20 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JLabel;
 import java.awt.Font;
+import javax.swing.JToggleButton;
+import javax.swing.JRadioButton;
+import javax.swing.JProgressBar;
+import javax.swing.JSlider;
 
 public class TrainControllerGui {
 
   private JFrame frame;
-  private JTextField targetVelocityTextField;
-  private JTextField feedbackVelocityTextField;
   private JTextField enginePowerTextField;
   private JTextField serviceBrakeTextField;
   private TrainController trainController;
+  private JTextField textField;
+  private JTextField textField_1;
+  private JTextField textField_2;
 
   /**
    * Launch the application.
@@ -47,30 +52,18 @@ public class TrainControllerGui {
    */
   private void initialize() {
     frame = new JFrame();
-    frame.setBounds(100, 100, 500, 300);
+    frame.setBounds(100, 100, 500, 569);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.getContentPane().setLayout(null);
     
-    targetVelocityTextField = new JTextField();
-    targetVelocityTextField.setText("0");
-    targetVelocityTextField.setBounds(12, 99, 100, 19);
-    frame.getContentPane().add(targetVelocityTextField);
-    targetVelocityTextField.setColumns(10);
-    
     JLabel lblTargetVelocity = new JLabel("Target Velocity (mph)");
     lblTargetVelocity.setFont(new Font("Dialog", Font.BOLD, 12));
-    lblTargetVelocity.setBounds(12, 78, 167, 15);
+    lblTargetVelocity.setBounds(12, 120, 167, 15);
     frame.getContentPane().add(lblTargetVelocity);
     
-    JLabel lblFeedbackVelocity = new JLabel("Feedback Velocity (mph)");
-    lblFeedbackVelocity.setBounds(12, 133, 187, 19);
+    JLabel lblFeedbackVelocity = new JLabel("Current Velocity (mph)");
+    lblFeedbackVelocity.setBounds(12, 168, 187, 19);
     frame.getContentPane().add(lblFeedbackVelocity);
-    
-    feedbackVelocityTextField = new JTextField();
-    feedbackVelocityTextField.setText("0");
-    feedbackVelocityTextField.setBounds(12, 153, 100, 19);
-    frame.getContentPane().add(feedbackVelocityTextField);
-    feedbackVelocityTextField.setColumns(10);
     
     JLabel lblTrainController = new JLabel("Train Controller");
     lblTrainController.setFont(new Font("Dialog", Font.BOLD, 16));
@@ -78,70 +71,64 @@ public class TrainControllerGui {
     frame.getContentPane().add(lblTrainController);
     
     JLabel lblEnginePower = new JLabel("Engine Power (kW)");
-    lblEnginePower.setBounds(269, 78, 151, 15);
+    lblEnginePower.setBounds(270, 91, 151, 15);
     frame.getContentPane().add(lblEnginePower);
     
     JLabel lblServiceBrake = new JLabel("Service Brake");
-    lblServiceBrake.setBounds(269, 135, 114, 15);
+    lblServiceBrake.setBounds(270, 120, 114, 15);
     frame.getContentPane().add(lblServiceBrake);
     
     enginePowerTextField = new JTextField();
     enginePowerTextField.setEditable(false);
     enginePowerTextField.setText("0");
-    enginePowerTextField.setBounds(269, 99, 100, 19);
+    enginePowerTextField.setBounds(416, 89, 70, 19);
     frame.getContentPane().add(enginePowerTextField);
     enginePowerTextField.setColumns(10);
     
     serviceBrakeTextField = new JTextField();
     serviceBrakeTextField.setEditable(false);
     serviceBrakeTextField.setText("disengaged");
-    serviceBrakeTextField.setBounds(269, 153, 100, 19);
+    serviceBrakeTextField.setBounds(386, 118, 100, 19);
     frame.getContentPane().add(serviceBrakeTextField);
     serviceBrakeTextField.setColumns(10);
     
-    JLabel lblInputs = new JLabel("Inputs");
-    lblInputs.setFont(new Font("Dialog", Font.BOLD, 14));
-    lblInputs.setBounds(12, 51, 70, 15);
-    frame.getContentPane().add(lblInputs);
-    
-    JLabel lblOutputs = new JLabel("Outputs");
-    lblOutputs.setFont(new Font("Dialog", Font.BOLD, 14));
-    lblOutputs.setBounds(269, 51, 70, 15);
-    frame.getContentPane().add(lblOutputs);
-    
     trainController = new TrainController();
     
-    JButton btnUpdateOutputs = new JButton("Update Outputs");
-    btnUpdateOutputs.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        trainController.SetTargetVelocityEng(Double.parseDouble(targetVelocityTextField.getText()));
-        trainController.SetCurrentVelocityEng(Double.parseDouble(feedbackVelocityTextField.getText()));
-        
-        //enginePowerTextField.setText(Double.toString(trainController.CalcEnginePowerKw()));
-        enginePowerTextField.setText(String.format("%.3f", trainController.CalcEnginePowerKw()));
-
-        targetVelocityTextField.setText(String.format("%.3f", trainController.GetTargetVelocityEng()));
-        feedbackVelocityTextField.setText(String.format("%.3f", trainController.GetFeedbackVelocityEng()));
-        
-        if (trainController.CheckBrakeState())
-        {
-          serviceBrakeTextField.setText("engaged");
-        }
-        else
-        {
-          serviceBrakeTextField.setText("disengaged");
-        }
-      }
-    });
-    btnUpdateOutputs.setBounds(12, 206, 148, 25);
-    frame.getContentPane().add(btnUpdateOutputs);
+    JRadioButton rdbtnManual = new JRadioButton("Manual");
+    rdbtnManual.setBounds(12, 33, 149, 23);
+    frame.getContentPane().add(rdbtnManual);
     
-    JLabel lblMax = new JLabel("max: 120");
-    lblMax.setBounds(379, 101, 70, 15);
-    frame.getContentPane().add(lblMax);
+    JRadioButton rdbtnAutomatic = new JRadioButton("Automatic");
+    rdbtnAutomatic.setBounds(12, 60, 149, 23);
+    frame.getContentPane().add(rdbtnAutomatic);
     
-    JLabel lblMax_1 = new JLabel("max: 43.496");
-    lblMax_1.setBounds(122, 101, 91, 15);
-    frame.getContentPane().add(lblMax_1);
+    JSlider slider = new JSlider();
+    slider.setBounds(12, 147, 240, 16);
+    frame.getContentPane().add(slider);
+    
+    textField = new JTextField();
+    textField.setEditable(false);
+    textField.setBounds(182, 118, 70, 19);
+    frame.getContentPane().add(textField);
+    textField.setColumns(10);
+    
+    JLabel lblSpeedLimit = new JLabel("Speed Limit (mph)");
+    lblSpeedLimit.setBounds(12, 91, 134, 15);
+    frame.getContentPane().add(lblSpeedLimit);
+    
+    textField_1 = new JTextField();
+    textField_1.setBounds(182, 89, 70, 19);
+    frame.getContentPane().add(textField_1);
+    textField_1.setColumns(10);
+    
+    textField_2 = new JTextField();
+    textField_2.setEditable(false);
+    textField_2.setBounds(181, 168, 70, 19);
+    frame.getContentPane().add(textField_2);
+    textField_2.setColumns(10);
+    
+    JToggleButton tglbtnEmergencyBrake = new JToggleButton("Emergency Brake");
+    tglbtnEmergencyBrake.setBounds(270, 162, 167, 25);
+    frame.getContentPane().add(tglbtnEmergencyBrake);
   }
 }

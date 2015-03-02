@@ -5,10 +5,15 @@ public class TrainController {
   final private double SECONDS_PER_HOUR = 3600;
   final private double MAX_SPEED_SI = 19.444444444;   // meters/second
   final private double MAX_POWER_W = 120000;       // watts
+  final private double propGain = 1;
+  final private double intGain = 1;
   private double targetVelSi;   // meters/second
   private double feedbackVelSi;  // meters/second
   private double enginePowerW;  // watts
   private boolean serviceBrakeState;
+  private double lastIntCoeff;
+  private double lastVelError;
+  
   
   public TrainController(){
     targetVelSi = 0;
@@ -48,23 +53,25 @@ public class TrainController {
     feedbackVelSi = ConvertVelocityEngToSi(currentVelEng);
   }
   
-  public double CalcEnginePowerKw(){
-    // If the current velocity is above the target or the max, set
-    // engine power to zero
-    if (feedbackVelSi > targetVelSi || feedbackVelSi > MAX_SPEED_SI)
-    {
-      enginePowerW = 0;
+  public double CalcEnginePowerKw(double timestepS){
+    double intCoeff;
+    double velError;
+    
+    velError = targetVelSi - feedbackVelSi;
+    
+    if (enginePowerW < MAX_POWER_W){
+      
+      intCoeff = lastIntCoeff + (timestepS * (velError + lastVelError) / 2);
     }
-    // Otherwise, calculate the engine power.
-    else
-    {
-      enginePowerW = MAX_POWER_W * (targetVelSi - feedbackVelSi) / MAX_SPEED_SI;
+    else{
+      intCoeff = lastIntCoeff;
     }
     
-    if (enginePowerW > MAX_POWER_W)
-    {
-      enginePowerW = MAX_POWER_W;
-    }
+    
+    enginePowerW = (propGain * velError) + (intGain * intCoeff);
+        
+    lastIntCoeff = intCoeff;
+    lastVelError = velError;
     
     return enginePowerW / 1000.0;
   }
