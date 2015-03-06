@@ -178,7 +178,6 @@ public class TrainControllerGui {
     frame.getContentPane().add(lblSafeStoppingDistance);
     
     textField_5 = new JTextField();
-    textField_5.setEditable(false);
     textField_5.setBounds(238, 284, 70, 19);
     frame.getContentPane().add(textField_5);
     textField_5.setColumns(10);

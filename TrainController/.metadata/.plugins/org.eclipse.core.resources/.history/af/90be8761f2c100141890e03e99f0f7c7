@@ -174,12 +174,11 @@ public class TrainControllerGui {
     frame.getContentPane().add(chckbxStopRequired);
     
     JLabel lblSafeStoppingDistance = new JLabel("Safe Stopping Distance (miles)");
-    lblSafeStoppingDistance.setBounds(12, 286, 229, 15);
+    lblSafeStoppingDistance.setBounds(12, 449, 229, 15);
     frame.getContentPane().add(lblSafeStoppingDistance);
     
     textField_5 = new JTextField();
-    textField_5.setEditable(false);
-    textField_5.setBounds(238, 284, 70, 19);
+    textField_5.setBounds(238, 447, 70, 19);
     frame.getContentPane().add(textField_5);
     textField_5.setColumns(10);
     
