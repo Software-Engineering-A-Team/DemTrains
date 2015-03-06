@@ -104,7 +104,7 @@ public class TrackController{
 	
 	public TrackBlock chkSwitch(List<TrackBlock> route){
 		if(switchId!=null){
-		TrackBlock sp = plc.changeSwitch((Switch)block, route);
+		TrackBlock sp = plc.changeSwitch((Switch)block, route, trackSig);
 		return sp;
 		}
 		else return null;
