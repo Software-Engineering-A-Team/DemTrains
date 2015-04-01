@@ -1,0 +1,19 @@
+package TrainController;
+
+class BeaconMessage{
+  
+}
+
+class TrainController{
+  TrainController(){
+    
+  }
+  
+  void setCurrentVelocity(float currVelMph){
+    
+  }
+  
+  void setSpeedLimit(float speedLimMph){
+    
+  }
+}

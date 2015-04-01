@@ -18,10 +18,6 @@ class TrainController{
     
   }
   
-  public void setTargetVelocity(float targetVelMph){
-    
-  }
-  
   public void setSpeedLimit(float speedLimMph){
     
   }
@@ -34,19 +30,5 @@ class TrainController{
     
   }
   
-  public void setSpeedAuthCmd(SpeedAuthCmd cmd){
-    
-  }
   
-  public float calcPower(){
-    return 0;
-  }
-  
-  public boolean getServiceBrake(){
-    return false;
-  }
-  
-  public boolean getEmergencyBrake(){
-    return false;
-  }
 }

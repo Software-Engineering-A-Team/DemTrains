@@ -1,0 +1,15 @@
+package TrainController;
+
+class BeaconMessage{
+  
+}
+
+class TrainController{
+  TrainController(){
+    
+  }
+  
+  setCurrentVelocity(float currVel){
+    
+  }
+}

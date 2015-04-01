@@ -1,0 +1,30 @@
+package TrainController;
+
+class BeaconMessage{
+  
+}
+
+class SpeedAuthCmd{
+  public float suggestedSpeedMph;
+  public float suggestedAuthMiles;
+}
+
+class TrainController{  
+  public void setCurrentVelocity(float currVelMph){
+    
+  }
+  
+  public void setSpeedLimit(float speedLimMph){
+    
+  }
+  
+  public void setServiceBrake(boolean sBrake){
+    
+  }
+  
+  public void setEmergencyBrake(boolean eBrake){
+    
+  }
+  
+  
+}
