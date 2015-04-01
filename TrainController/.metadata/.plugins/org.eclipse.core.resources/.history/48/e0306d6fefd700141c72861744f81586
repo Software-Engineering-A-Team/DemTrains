@@ -14,7 +14,6 @@ import javax.swing.JRadioButton;
 import javax.swing.JProgressBar;
 import javax.swing.JSlider;
 import javax.swing.JCheckBox;
-import javax.swing.ButtonGroup;
 
 public class TrainControllerGui extends JFrame{
   private JTextField enginePowerTextField;
@@ -90,10 +89,6 @@ public class TrainControllerGui extends JFrame{
     JRadioButton rdbtnAutomatic = new JRadioButton("Automatic");
     rdbtnAutomatic.setBounds(12, 75, 149, 23);
     this.getContentPane().add(rdbtnAutomatic);
-    
-    ButtonGroup modeButtons = new ButtonGroup();
-    modeButtons.add(rdbtnManual);
-    modeButtons.add(rdbtnAutomatic);
     
     JSlider slider = new JSlider();
     slider.setBounds(12, 162, 240, 16);

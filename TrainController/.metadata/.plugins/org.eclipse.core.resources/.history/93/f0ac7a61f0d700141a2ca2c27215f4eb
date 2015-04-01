@@ -92,8 +92,7 @@ public class TrainControllerGui extends JFrame{
     this.getContentPane().add(rdbtnAutomatic);
     
     ButtonGroup modeButtons = new ButtonGroup();
-    modeButtons.add(rdbtnManual);
-    modeButtons.add(rdbtnAutomatic);
+    modeButtons.add();
     
     JSlider slider = new JSlider();
     slider.setBounds(12, 162, 240, 16);

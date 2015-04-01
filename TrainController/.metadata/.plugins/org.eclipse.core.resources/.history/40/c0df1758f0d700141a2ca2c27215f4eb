@@ -91,10 +91,6 @@ public class TrainControllerGui extends JFrame{
     rdbtnAutomatic.setBounds(12, 75, 149, 23);
     this.getContentPane().add(rdbtnAutomatic);
     
-    ButtonGroup modeButtons = new ButtonGroup();
-    modeButtons.add(rdbtnManual);
-    modeButtons.add(rdbtnAutomatic);
-    
     JSlider slider = new JSlider();
     slider.setBounds(12, 162, 240, 16);
     this.getContentPane().add(slider);
@@ -191,5 +187,8 @@ public class TrainControllerGui extends JFrame{
     textField_6.setBounds(412, 190, 70, 19);
     this.getContentPane().add(textField_6);
     textField_6.setColumns(10);
+    
+    ButtonGroup modeButtons = new ButtonGroup();
+    modeButtons.add();
   }
 }
