@@ -2,9 +2,8 @@ package MBO;
 
 public abstract class AuthorityCalculator {
 
-	public double getAuthority(){
-		double x = 0;
-		return x;
-	}
+	protected double trainSpeed = 0;
+	
+	abstract public double getAuthority();
 	
 }
