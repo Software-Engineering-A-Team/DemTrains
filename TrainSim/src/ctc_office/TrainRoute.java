@@ -1,4 +1,4 @@
-package ctcOffice;
+package ctc_office;
 
 import java.util.List;
 
