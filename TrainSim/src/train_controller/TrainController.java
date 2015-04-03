@@ -4,7 +4,7 @@ import system_wrapper.SpeedAuthCmd;
 
 
 
-class TrainController {  
+public class TrainController {  
   public void setCurrentVelocity(float currVelMph) {
     
   }

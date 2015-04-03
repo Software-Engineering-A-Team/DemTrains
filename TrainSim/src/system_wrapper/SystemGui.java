@@ -28,7 +28,10 @@ import java.awt.BorderLayout;
 import javax.swing.JPanel;
 
 public class SystemGui extends JFrame {
+
   public static void main(String[] args) {
+    
+    
     EventQueue.invokeLater(new Runnable() {
       public void run() {
         try {
@@ -61,7 +64,8 @@ public class SystemGui extends JFrame {
     JPanel panelTrainModel = new JPanel();
     tabbedPane.addTab("Train Model", null, panelTrainModel, null);
     
-    JFrame frameTrainController = new TrainControllerGui();
-    tabbedPane.addTab("Train Controller", null, frameTrainController.getContentPane(), null);
+    tabbedPane.addTab("Train Controller", null, trainControllerGui.getContentPane(), null);
   }
+  
+  private JFrame trainControllerGui = new TrainControllerGui();
 }
