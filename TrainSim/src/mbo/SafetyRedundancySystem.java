@@ -5,13 +5,15 @@ import java.util.List;
 
 public class SafetyRedundancySystem {
 
-	private List<AuthorityCalculator> ac;
+	private List<AuthorityCalculator> calculatorList;
 	
 	public void SRS() {
 		
-		ac = new ArrayList<AuthorityCalculator>();
-		double[] calc1 = ac[0].getAuthority();
-		double[] authority = compare(calc1, calc2, calc3);
+		calculatorList = new ArrayList<AuthorityCalculator>();
+		Calculator1 calc1 = new Calculator1();
+		calculatorList.add(0,calc1);
+		double abc = calculatorList.get(0).calculateAuthorityDistance(3); ///ohhhhhhh yeahh
+		double authority = compare(calc1, calc2, calc3);
 		
 		
 		
@@ -19,9 +21,8 @@ public class SafetyRedundancySystem {
 		
 	}
 	
-	private double[] compare(double[] x,double[] y,double[] z){
-		double[] result = {0,1} ;  //going to contain the safe stopping distance and commanded speed		
-		return result;
+	private double compare(double x,double y,double z) {		
+		return x;
 	}
 	
 }

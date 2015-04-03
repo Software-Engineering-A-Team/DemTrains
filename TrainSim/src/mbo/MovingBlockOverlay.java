@@ -13,7 +13,7 @@ public class MovingBlockOverlay {
 		
 	}
 	
-	public void getSafeMovingBlock(double trainPosition, String trainID){
+	public void getSafeMovingBlock(String trainID, double trainPosition){
 		SafetyRedundancySystem SRS = new SafetyRedundancySystem();
 		
 	}
