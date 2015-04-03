@@ -1,5 +1,7 @@
 package train_controller;
 
+import system_wrapper.SpeedAuthCmd;
+
 class BeaconMessage{
   public String stationName;
   public float distanceFromStation;
@@ -8,45 +10,41 @@ class BeaconMessage{
   boolean leftSide;
 }
 
-class SpeedAuthCmd{
-  public float suggestedSpeedMph;
-  public float suggestedAuthMiles;
-}
 
-class TrainController{  
-  public void setCurrentVelocity(float currVelMph){
+class TrainController {  
+  public void setCurrentVelocity(float currVelMph) {
     
   }
   
-  public void setTargetVelocity(float targetVelMph){
+  public void setTargetVelocity(float targetVelMph) {
     
   }
   
-  public void setSpeedLimit(float speedLimMph){
+  public void setSpeedLimit(float speedLimMph) {
     
   }
   
-  public void setServiceBrake(boolean sBrake){
+  public void setServiceBrake(boolean sBrake) {
     
   }
   
-  public void setEmergencyBrake(boolean eBrake){
+  public void setEmergencyBrake(boolean eBrake) {
     
   }
   
-  public void setSpeedAuthCmd(SpeedAuthCmd cmd){
+  public void setSpeedAuthCmd(SpeedAuthCmd cmd) {
     
   }
   
-  public float calcPower(){
+  public float calcPower() {
     return 0;
   }
   
-  public boolean getServiceBrake(){
+  public boolean getServiceBrake() {
     return false;
   }
   
-  public boolean getEmergencyBrake(){
+  public boolean getEmergencyBrake() {
     return false;
   }
 }
