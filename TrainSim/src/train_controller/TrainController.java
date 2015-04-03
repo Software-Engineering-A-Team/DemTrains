@@ -2,13 +2,6 @@ package train_controller;
 
 import system_wrapper.SpeedAuthCmd;
 
-class BeaconMessage{
-  public String stationName;
-  public float distanceFromStation;
-  public int trainID;
-  boolean rightSide;
-  boolean leftSide;
-}
 
 
 class TrainController {  
