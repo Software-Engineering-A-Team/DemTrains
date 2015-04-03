@@ -1,4 +1,4 @@
-package ctcOffice;
+package ctc_office;
 
 public class StopData {
 	public final String startStation;
