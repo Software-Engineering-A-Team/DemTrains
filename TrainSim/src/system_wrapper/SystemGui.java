@@ -45,6 +45,8 @@ public class SystemGui extends JFrame {
   }
   
   public SystemGui() {
+
+    this.setBounds(100, 100, 500, 569);
     
     JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
     getContentPane().add(tabbedPane, BorderLayout.CENTER);
