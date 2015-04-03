@@ -1,5 +1,6 @@
 package system_wrapper;
 
+// SimClock class for measuring the passage of simulation time
 public class SimClock {
   private int deltaMs;
   
@@ -11,6 +12,7 @@ public class SimClock {
   private int hour = 0;
   private int day = 0;
 
+  // Initialize with a value to add to the time each clock tick
   public SimClock(int deltaMs) {
     this.deltaMs = deltaMs;
   }
@@ -39,6 +41,7 @@ public class SimClock {
     return day;
   }
 
+  // Add time to the clock
   public void tick() {
     totalMs += deltaMs;
 
