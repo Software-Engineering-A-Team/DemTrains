@@ -3,11 +3,11 @@ package ctc_office;
 import java.util.List;
 
 public class TrainRoute {
-	public int authority;
-	public int speed;
+	public double authority;
+	public double speed;
 	public int startingBlock;
 	public List<Integer> route;
-	public TrainRoute(int sBlock, List<Integer> routePath, int trainSpeed, int trainAuthority){
+	public TrainRoute(int sBlock, List<Integer> routePath, double trainSpeed, double trainAuthority){
 		authority = trainAuthority;
 		speed = trainSpeed;
 		startingBlock = sBlock;
