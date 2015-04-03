@@ -1,6 +1,6 @@
-package MBO;
+package mbo;
 
-public class Calculator3 extends AuthorityCalculator{
+public class Calculator2 extends AuthorityCalculator{
 
 	public double[] getAuthority(double trainPosition){
 		double[] x = {1,2};

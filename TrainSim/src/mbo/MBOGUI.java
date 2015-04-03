@@ -1,4 +1,4 @@
-package MBO;
+package mbo;
 
 public class MBOGUI {
 

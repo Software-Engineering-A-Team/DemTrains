@@ -1,4 +1,4 @@
-package MBO;
+package mbo;
 import java.util.ArrayList;
 import java.util.List;
 

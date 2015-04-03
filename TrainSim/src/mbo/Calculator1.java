@@ -1,4 +1,4 @@
-package MBO;
+package mbo;
 
 public class Calculator1 extends AuthorityCalculator{	
 	
