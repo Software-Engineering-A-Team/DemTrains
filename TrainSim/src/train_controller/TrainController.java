@@ -4,16 +4,16 @@ import system_wrapper.SpeedAuthCmd;
 
 
 
-public class TrainController {  
-  public void setCurrentVelocity(float currVelMph) {
+public class TrainController {
+  public void setCurrentSpeed(double currSpeedMph) {
     
   }
   
-  public void setTargetVelocity(float targetVelMph) {
+  public void setTargetSpeed(double targetSpeedMph) {
     
   }
   
-  public void setSpeedLimit(float speedLimMph) {
+  public void setSpeedLimit(double speedLimitMph) {
     
   }
   
@@ -29,7 +29,7 @@ public class TrainController {
     
   }
   
-  public float calcPower() {
+  public double calcPower() {
     return 0;
   }
   

@@ -71,4 +71,12 @@ public class SimClock {
       }
     }
   }
+  
+  public int getDeltaMs() {
+    return deltaMs;
+  }
+  
+  public double getDeltaS() {
+    return (1000.0 * (double) deltaMs);
+  }
 }
