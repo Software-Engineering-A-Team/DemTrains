@@ -11,6 +11,7 @@ import org.jgrapht.graph.DirectedMultigraph;
 import track_controller.WaysideController;
 
 public class TrackLayout {
+	private ArrayList<TrainModel> trainModels;
 	private final ArrayList<TrackBlock> blockData = new ArrayList<TrackBlock>();
 	private final DirectedMultigraph<Integer, DefaultEdge> layout;
 	private final  HashMap<Integer, WaysideController> blockToControllerMap;
@@ -18,8 +19,9 @@ public class TrackLayout {
 	private final TrainRouter trainRouter = new TrainRouter();
 	private final char trainIdPrefix;
 
-	public TrackLayout(DirectedMultigraph<Integer, DefaultEdge> tLayout, List<track_model.TrackBlock> tBlockData,  HashMap<Integer, WaysideController> controllerMap, char tPrefix) {
+	public TrackLayout(ArrayList<TrainModel> tModels, DirectedMultigraph<Integer, DefaultEdge> tLayout, List<track_model.TrackBlock> tBlockData,  HashMap<Integer, WaysideController> controllerMap, char tPrefix) {
 		// TODO
+		trainModels = tModel;
 		layout = tLayout;
 		blockToControllerMap = controllerMap;
 		trainIdPrefix = tPrefix;
