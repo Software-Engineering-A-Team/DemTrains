@@ -62,7 +62,7 @@ public class SystemGui extends JFrame {
     tabbedPane.addTab("Track Model", null, panelTrackModel, null);
     
     JPanel panelTrackController = new JPanel();
-    tabbedPane.addTab("Track Controller", null, TrackControllerGUI.getContentPane(), null);
+    tabbedPane.addTab("Track Controller", null, panelTrackController, null);
     
     JPanel panelTrainModel = new JPanel();
     tabbedPane.addTab("Train Model", null, panelTrainModel, null);
