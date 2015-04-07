@@ -5,18 +5,27 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JButton;
 import javax.swing.JTextField;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+
 import javax.swing.JLabel;
+
+import javax.swing.Timer;
+
 import java.awt.Font;
+
 import javax.swing.JToggleButton;
 import javax.swing.JRadioButton;
 import javax.swing.JProgressBar;
 import javax.swing.JSlider;
 import javax.swing.JCheckBox;
 import javax.swing.ButtonGroup;
+
 import java.awt.Component;
+
 import javax.swing.Box;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -43,6 +52,7 @@ public class TrainControllerGui extends JFrame {
           TrainControllerGui window = new TrainControllerGui();
           
           window.setVisible(true);
+          
         } catch (Exception e) {
           e.printStackTrace();
         }
@@ -55,6 +65,7 @@ public class TrainControllerGui extends JFrame {
    */
   public TrainControllerGui() {
     initialize();
+    timer.start();
   }
 
   /**
@@ -91,6 +102,7 @@ public class TrainControllerGui extends JFrame {
     enginePowerTextField.setColumns(10);
     
     JRadioButton rdbtnManual = new JRadioButton("Manual");
+    rdbtnManual.setSelected(trainController.isManualMode());
     rdbtnManual.addMouseListener(new MouseAdapter() {
       @Override
       public void mouseClicked(MouseEvent e) {
@@ -101,7 +113,13 @@ public class TrainControllerGui extends JFrame {
     this.getContentPane().add(rdbtnManual);
     
     JRadioButton rdbtnAutomatic = new JRadioButton("Automatic");
-    rdbtnAutomatic.setSelected(true);
+    rdbtnAutomatic.setSelected(!trainController.isManualMode());
+    rdbtnAutomatic.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        trainController.setManualMode(false);
+      }
+    });
     rdbtnAutomatic.setBounds(12, 75, 149, 23);
     this.getContentPane().add(rdbtnAutomatic);
     
@@ -214,6 +232,22 @@ public class TrainControllerGui extends JFrame {
   }
   
   public void updateDisplayData() {
-    textFieldTargetSpeed.setText(Double.toString(trainController.getTargetSpeed()));
+    if (!trainController.isManualMode()) {
+      textFieldTargetSpeed.setText(Double.toString(trainController.getTargetSpeed()));
+    }
+    
+    textFieldSafeStoppingDistance.setText(Double.toString(trainController.getSafeStoppingDistance()));
+    enginePowerTextField.setText(Double.toString(trainController.getPower()));
+    textFieldCurrentSpeed.setText(Double.toString(trainController.getCurrentSpeed()));
   }
+  
+  private Timer timer = new Timer(100, new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      trainController.setCurrentSpeed(trainController.getCurrentSpeed() + 0.01);
+      updateDisplayData();
+      repaint();
+      
+    }
+  });
 }

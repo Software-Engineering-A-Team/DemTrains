@@ -19,6 +19,7 @@ public class TrainController {
   private double targetSpeedMph;
   private double speedLimitMph;
   private double powerW;
+  private double safeStoppingDistanceMi;
   
   // Current speed reported by TrainModel
   public void setCurrentSpeed(double currentSpeedMph) {
@@ -59,6 +60,10 @@ public class TrainController {
     }
   }
   
+  public void setSafeStoppingDistance(double safeStoppingDistanceMi) {
+    this.safeStoppingDistanceMi = safeStoppingDistanceMi;
+  }
+  
   // Used by the driver to switch between manual and automatic control.
   public void setManualMode(boolean manualMode) {
     this.manualMode = manualMode;
@@ -71,6 +76,7 @@ public class TrainController {
     vitalPrimary.targetSpeedMph = targetSpeedMph;
     vitalPrimary.speedLimitMph = speedLimitMph;
     vitalPrimary.authorityMi = speedAuthCmd.suggestedAuthMiles;
+    vitalPrimary.safeStoppingDistanceMi = safeStoppingDistanceMi;
   }
   
   private void getVitalControlOutputs() {
@@ -98,6 +104,22 @@ public class TrainController {
     return targetSpeedMph;
   }
   
+  public double getPower() {
+    return powerW;
+  }
+  
+  public double getSafeStoppingDistance() {
+    return safeStoppingDistanceMi;
+  }
+  
+  public double getCurrentSpeed() {
+    return currentSpeedMph;
+  }
+  
+  public SpeedAuthCmd getSpeedAuthCmd() {
+    return speedAuthCmd;
+  }
+  
   public boolean isServiceBrakeOn() {
     return serviceBrake;
   }
@@ -118,4 +140,7 @@ public class TrainController {
     return rightDoorOpen;
   }
   
+  public boolean isManualMode() {
+    return manualMode;
+  }
 }
