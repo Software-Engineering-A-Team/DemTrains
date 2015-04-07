@@ -25,6 +25,17 @@ public class CTCDriver {
 	}
 
 	/*
+	 * Completes all of the functions of the CTC including routing and dispatching new trains
+	 */
+	 public boolean runCTC() {
+	 	// TODO: for each track
+	 	// dispatch all new trains and calculate their routes.
+	 	// pass those routes to the 
+	 	// if in fixed block mode, calculate the estimated positions of those trains.
+	 	return true;
+	 }
+	 
+	/*
 	 * Sets the trackLayout and the scheduler to fixed block mode
 	 */
 	public boolean disableMBOMode() {
