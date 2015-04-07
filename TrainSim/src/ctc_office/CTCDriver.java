@@ -11,17 +11,20 @@ import org.jgrapht.graph.DirectedMultigraph;
 
 import system_wrapper.SimClock;
 import track_controller.WaysideController;
+import train_model.TrainModel;
 
 public class CTCDriver {
-	HashMap <String, TrackLayout> lines;
-	HashMap <String, HashSet<String>> manuallyRoutedTrains;
-	SimClock systemClock;
+	private HashMap <String, TrackLayout> lines;
+	private HashMap <String, HashSet<String>> manuallyRoutedTrains;
+	private final SimClock systemClock;
+	private ArrayList<TrainModel> trainModels;
 	public boolean MBOModeEnabled = false;
 
-	public CTCDriver(SimClock sysClock) {
+	public CTCDriver(SimClock sysClock, ArrayList<TrainModel> tModels) {
 		lines = new HashMap<String, TrackLayout>();
 		manuallyRoutedTrains = new HashMap<String, HashSet<String>>();
 		systemClock = sysClock;
+		trainModels = tModels;
 	}
 
 	/*
