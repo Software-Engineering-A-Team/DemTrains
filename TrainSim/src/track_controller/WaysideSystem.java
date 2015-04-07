@@ -6,12 +6,12 @@ import java.util.HashMap;
 public class WaysideSystem {
 	TrackModel tracks;
 	String failure = null;
-	HashMap<Integer, WaysideController> controllerMap;
+	HashMap<String, HashMap<Integer, WaysideController>> controllerMap;
 	
 	/*
 	 * Constructs a wayside system with a given track model
 	 */
-	WaysideSystem(TrackModel t) {}
+	public WaysideSystem(TrackModel t) {}
 	
 	
 	/*
@@ -28,8 +28,10 @@ public class WaysideSystem {
 	 * Updates the PLCProgram for the controller of
 	 * the block number provided
 	 */
-	public boolean updatePLC(int blockNum) {
-		return true;
+	public boolean updatePLC(int blockNum, String filename) {
+		WaysideController temp = controllerMap.get(blockNum);
+		boolean success = temp.updatePLC(filename);
+		return success;
 	}
 	
 	/*
@@ -67,19 +69,7 @@ public class WaysideSystem {
 	public boolean setOccupancy(int blockNum) {
 		return true;
 	}
-	
-	/*
-	 *  
-	 */
-	public boolean setSwitchState(int blockNum, boolean state) {
-		return true;
-	}
-	/*
-	 *  
-	 */
-	public boolean setCrossingState(int blockNum, boolean state) {
-		return true;
-	}
+
 	
 	/*
 	 * Receives string failure mode from TrackModel
