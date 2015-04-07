@@ -11,6 +11,7 @@ public abstract class VitalTrainControl {
   public boolean serviceBrake = false;
   public double authorityMi = 0;
   public double safeStopDistanceMi = 0;
+  public boolean manualMode = false;
   
   protected double powerW = 0;
   
@@ -19,4 +20,5 @@ public abstract class VitalTrainControl {
   protected final double Ki = 0.1;
   
   public abstract double calcPower();
+  public abstract void determineSafeSpeed();
 }
