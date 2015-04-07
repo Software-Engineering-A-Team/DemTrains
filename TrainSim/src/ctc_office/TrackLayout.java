@@ -9,6 +9,7 @@ import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
 
 import track_controller.WaysideController;
+import train_model.TrainModel;
 
 public class TrackLayout {
 	private ArrayList<TrainModel> trainModels;
