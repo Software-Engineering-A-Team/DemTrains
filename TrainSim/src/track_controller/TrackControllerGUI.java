@@ -51,6 +51,11 @@ public class TrackControllerGUI extends JFrame {
 	 * Create the frame.
 	 */
 	public TrackControllerGUI(WaysideSystem w) {
+		initialize();
+	}
+	
+	public void initialize() {
+
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 562, 367);
 		contentPane = new JPanel();
@@ -264,11 +269,11 @@ public class TrackControllerGUI extends JFrame {
 		btnUploadPlc.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				String path = PLCFileName.getText().toString();
-				System.out.println(path);
 				String line = linePicker.getSelectedItem().toString();
-				System.out.println(line);
 				int block = Integer.parseInt(blockPicker.getSelectedItem().toString());
-				System.out.println(block);
+				
+				WaysideController change = w.controllerMap.get(line).get(block);
+				boolean success = change.updatePLC(path);
 			}
 		});
 		btnUploadPlc.setBounds(292, 11, 100, 23);
@@ -280,7 +285,10 @@ public class TrackControllerGUI extends JFrame {
 		panel.add(lblCompilationSuccessful);
 		
 		JPanel panel_1 = new JPanel();
-		tabbedPane.addTab("Outputs", null, panel_1, null);
+		tabbedPane.addTab("Outputs", null, panel_1, null);		
+	}
 	
+	public void updateData() {
+		
 	}
 }
