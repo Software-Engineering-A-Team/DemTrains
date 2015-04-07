@@ -1,9 +1,11 @@
-import javax.tools.*;
-import track_model.TrackBlock;
 package track_controller;
+import javax.tools.*;
+//import track_model.TrackBlock;
+import ctc_office.*;
+import java.util.ArrayList;
 
 public class WaysideController {
-	List<TrackBlock> affectedBlocks;
+	ArrayList<TrackBlock> affectedBlocks = new ArrayList<TrackBlock>();
 	PLCInterface plc;
 	int span = 0;
 	
@@ -14,7 +16,7 @@ public class WaysideController {
 	WaysideController(TrackBlock[] b) {
 		for (int i=0; i<b.length; i++){
 			affectedBlocks.add(b[i]);
-			b[i].waysidecontroller = this;
+			//b[i].waysideController = this;
 			span++;
 		}	
 	}
@@ -48,8 +50,17 @@ public class WaysideController {
 	 */
 	public boolean addBlock(TrackBlock b) {
 		if(affectedBlocks.contains(b)) return false;
-		else affectedBlocks.add(b);
+		else {
+			affectedBlocks.add(b);
+			return true;
+		}
 	}
 	
+	public static void main (String[] args){
+		TrackBlock block = new TrackBlock();
+		TrackBlock[] b = {block};
+		WaysideController w = new WaysideController(b);
+		System.out.println(w.updatePLC("/TrainSim/src/track_controller/PLCCrossing.java"));
+	}
 	
 }
