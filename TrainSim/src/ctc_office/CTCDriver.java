@@ -9,6 +9,7 @@ import java.util.List;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
 
+import mbo.MovingBlockOverlay
 import system_wrapper.SimClock;
 import track_controller.WaysideController;
 import train_model.TrainModel;
@@ -19,12 +20,14 @@ public class CTCDriver {
 	private final SimClock systemClock;
 	private ArrayList<TrainModel> trainModels;
 	public boolean MBOModeEnabled = false;
+	private MovingBlockOverlay mboReference;
 
-	public CTCDriver(SimClock sysClock, ArrayList<TrainModel> tModels) {
+	public CTCDriver(SimClock sysClock, ArrayList<TrainModel> tModels, MovingBlockOverlay mbo) {
 		lines = new HashMap<String, TrackLayout>();
 		manuallyRoutedTrains = new HashMap<String, HashSet<String>>();
 		systemClock = sysClock;
 		trainModels = tModels;
+		mboReference = mbo;
 	}
 
 	/*
@@ -177,7 +180,7 @@ public class CTCDriver {
 	 * Creates a new track layout given a graph of blocks and a list of blockData
 	 */
 	public boolean setTrackLayout(String lineName, DirectedMultigraph<Integer, DefaultEdge> layout, List<track_model.TrackBlock> blockData, HashMap<Integer, WaysideController> controllerMap) {
-		lines.put(lineName, new TrackLayout(trainModels, layout, blockData, controllerMap, lineName.toLowerCase().charAt(0)));
+		lines.put(lineName, new TrackLayout(mboReference, trainModels, layout, blockData, controllerMap, lineName.toLowerCase().charAt(0)));
 	}
 
 	/*

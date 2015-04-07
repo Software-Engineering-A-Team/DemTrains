@@ -35,14 +35,6 @@ public class WaysideSystem {
 	}
 	
 	/*
-	 * Adds a track layout to this
-	 * instance of a wayside system
-	 */
-	public boolean setTrackLayout(String line, DirectedMultigraph layout, List<TrackBlock> blockData) {
-		return true;
-	}
-	
-	/*
 	 * Runs PLC to determine if it is safe
 	 * to close the provided block number. 
 	 * Can be called by user or CTC. 
