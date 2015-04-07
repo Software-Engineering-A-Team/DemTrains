@@ -9,35 +9,32 @@ import java.util.List;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
 
-import mbo.MovingBlockOverlay
-import system_wrapper.SimClock;
 import track_controller.WaysideController;
-import train_model.TrainModel;
 
 public class CTCDriver {
 	private HashMap <String, TrackLayout> lines;
 	private HashMap <String, HashSet<String>> manuallyRoutedTrains;
-	private final SimClock systemClock;
-	private ArrayList<TrainModel> trainModels;
 	public boolean MBOModeEnabled = false;
-	private MovingBlockOverlay mboReference;
 
-	public CTCDriver(SimClock sysClock, ArrayList<TrainModel> tModels, MovingBlockOverlay mbo) {
+	public CTCDriver() {
 		lines = new HashMap<String, TrackLayout>();
 		manuallyRoutedTrains = new HashMap<String, HashSet<String>>();
-		systemClock = sysClock;
-		trainModels = tModels;
-		mboReference = mbo;
 	}
 
 	/*
 	 * Completes all of the functions of the CTC including routing and dispatching new trains
 	 */
 	 public boolean runCTC() {
-	 	// TODO: for each track
-	 	// dispatch all new trains and calculate their routes.
-	 	// pass those routes to the 
-	 	// if in fixed block mode, calculate the estimated positions of those trains.
+	   // for each track
+	   for (TrackLayout t : lines.values()) {
+	       // dispatch all new trains and calculate their routes.
+	       t.dispatchNewTrains();
+	       t.getUpdatedTrainRoutes();
+	       // if in fixed block mode, calculate the estimated positions of those trains.
+	       if (!MBOModeEnabled) {
+	           t.setEstimatedTrainLocaitons();
+	       }
+	   }
 	 	return true;
 	 }
 	 
@@ -180,7 +177,8 @@ public class CTCDriver {
 	 * Creates a new track layout given a graph of blocks and a list of blockData
 	 */
 	public boolean setTrackLayout(String lineName, DirectedMultigraph<Integer, DefaultEdge> layout, List<track_model.TrackBlock> blockData, HashMap<Integer, WaysideController> controllerMap) {
-		lines.put(lineName, new TrackLayout(mboReference, trainModels, layout, blockData, controllerMap, lineName.toLowerCase().charAt(0)));
+		lines.put(lineName, new TrackLayout(layout, blockData, controllerMap, lineName.toLowerCase().charAt(0)));
+		return true;
 	}
 
 	/*
