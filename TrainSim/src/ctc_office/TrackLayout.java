@@ -8,6 +8,7 @@ import java.util.List;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
 
+import mbo.MovingBlockOverlay
 import track_controller.WaysideController;
 import train_model.TrainModel;
 
@@ -15,17 +16,19 @@ public class TrackLayout {
 	private ArrayList<TrainModel> trainModels;
 	private final ArrayList<TrackBlock> blockData = new ArrayList<TrackBlock>();
 	private final DirectedMultigraph<Integer, DefaultEdge> layout;
-	private final  HashMap<Integer, WaysideController> blockToControllerMap;
+	private final HashMap<Integer, WaysideController> blockToControllerMap;
 	private final Scheduler scheduler = new Scheduler();
 	private final TrainRouter trainRouter = new TrainRouter();
 	private final char trainIdPrefix;
+	private final MovingBlockOverlay mboReference;
 
-	public TrackLayout(ArrayList<TrainModel> tModels, DirectedMultigraph<Integer, DefaultEdge> tLayout, List<track_model.TrackBlock> tBlockData,  HashMap<Integer, WaysideController> controllerMap, char tPrefix) {
+	public TrackLayout(MovingBlockOverlay mbo, ArrayList<TrainModel> tModels, DirectedMultigraph<Integer, DefaultEdge> tLayout, List<track_model.TrackBlock> tBlockData,  HashMap<Integer, WaysideController> controllerMap, char tPrefix) {
 		// TODO
 		trainModels = tModel;
 		layout = tLayout;
 		blockToControllerMap = controllerMap;
 		trainIdPrefix = tPrefix;
+		mboReference = mbo;
 		for (track_model.TrackBlock blockData : tBlockData) {
 			// build the ctc trackBlocks from the actual trackBlocks
 			// TrackBlock b = new TrackBlock();
