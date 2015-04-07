@@ -11,17 +11,20 @@ import org.jgrapht.graph.DirectedMultigraph;
 
 import system_wrapper.SimClock;
 import track_controller.WaysideController;
+import train_model.TrainModel;
 
 public class CTCDriver {
-	HashMap <String, TrackLayout> lines;
-	HashMap <String, HashSet<String>> manuallyRoutedTrains;
-	SimClock systemClock;
+	private HashMap <String, TrackLayout> lines;
+	private HashMap <String, HashSet<String>> manuallyRoutedTrains;
+	private final SimClock systemClock;
+	private ArrayList<TrainModel> trainModels;
 	public boolean MBOModeEnabled = false;
 
-	public CTCDriver(SimClock sysClock) {
+	public CTCDriver(SimClock sysClock, ArrayList<TrainModel> tModels) {
 		lines = new HashMap<String, TrackLayout>();
 		manuallyRoutedTrains = new HashMap<String, HashSet<String>>();
 		systemClock = sysClock;
+		trainModels = tModels;
 	}
 
 	/*
@@ -174,7 +177,7 @@ public class CTCDriver {
 	 * Creates a new track layout given a graph of blocks and a list of blockData
 	 */
 	public boolean setTrackLayout(String lineName, DirectedMultigraph<Integer, DefaultEdge> layout, List<track_model.TrackBlock> blockData, HashMap<Integer, WaysideController> controllerMap) {
-		lines.put(lineName, new TrackLayout(layout, blockData, controllerMap, lineName.toLowerCase().charAt(0)));
+		lines.put(lineName, new TrackLayout(trainModels, layout, blockData, controllerMap, lineName.toLowerCase().charAt(0)));
 	}
 
 	/*
