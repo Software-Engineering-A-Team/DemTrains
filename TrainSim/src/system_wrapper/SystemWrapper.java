@@ -10,12 +10,10 @@ import train_model.*;
 
 public class SystemWrapper {
   public static SimClock simClock = new SimClock(10);
-  
+  public static TrackModel trackMod = new TrackModel();
+  public static WaysideSystem waysideSys = new WaysideSystem(trackMod);
+  public static JFrame trackControllerGui = new TrackControllerGUI(waysideSys);
   public static JFrame trainControllerGui = new TrainControllerGui();
-  
-  TrackModel trackMod = new TrackModel();
-  WaysideSystem waysideSys = new WaysideSystem(trackMod);
-  TrackControllerGUI tcGUI = new TrackControllerGUI(waysideSys);
   
   
 }
