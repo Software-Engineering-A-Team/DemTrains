@@ -15,17 +15,19 @@ import javax.swing.JProgressBar;
 import javax.swing.JSlider;
 import javax.swing.JCheckBox;
 import javax.swing.ButtonGroup;
+import java.awt.Component;
+import javax.swing.Box;
 
 public class TrainControllerGui extends JFrame{
   private JTextField enginePowerTextField;
-  private JTextField textField;
-  private JTextField textField_1;
-  private JTextField textField_2;
-  private JTextField textField_3;
-  private JTextField textField_4;
-  private JTextField textField_5;
-  private JTextField textField_6;
-  private TrainController trainController;
+  private JTextField textFieldTargetSpeed;
+  private JTextField textFieldSpeedLimit;
+  private JTextField textFieldCurrentSpeed;
+  private JTextField textFieldDistanceFromStation;
+  private JTextField textFieldStationName;
+  private JTextField textFieldSafeStoppingDistance;
+  private JTextField textFieldAuthority;
+  private TrainController trainController = new TrainController();
 
   /**
    * Launch the application.
@@ -37,6 +39,7 @@ public class TrainControllerGui extends JFrame{
       public void run() {
         try {
           TrainControllerGui window = new TrainControllerGui();
+          
           window.setVisible(true);
         } catch (Exception e) {
           e.printStackTrace();
@@ -60,14 +63,14 @@ public class TrainControllerGui extends JFrame{
     this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.getContentPane().setLayout(null);
     
-    JLabel lblTargetVelocity = new JLabel("Target Velocity (mph)");
-    lblTargetVelocity.setFont(new Font("Dialog", Font.BOLD, 12));
-    lblTargetVelocity.setBounds(12, 135, 167, 15);
-    this.getContentPane().add(lblTargetVelocity);
+    JLabel lblTargetSpeed = new JLabel("Target Speed (mph)");
+    lblTargetSpeed.setFont(new Font("Dialog", Font.BOLD, 12));
+    lblTargetSpeed.setBounds(12, 135, 167, 15);
+    this.getContentPane().add(lblTargetSpeed);
     
-    JLabel lblFeedbackVelocity = new JLabel("Current Velocity (mph)");
-    lblFeedbackVelocity.setBounds(12, 190, 187, 19);
-    this.getContentPane().add(lblFeedbackVelocity);
+    JLabel lblCurrentSpeed = new JLabel("Current Speed (mph)");
+    lblCurrentSpeed.setBounds(12, 190, 187, 19);
+    this.getContentPane().add(lblCurrentSpeed);
     
     JLabel lblTrainController = new JLabel("Train Controller");
     lblTrainController.setFont(new Font("Dialog", Font.BOLD, 16));
@@ -97,30 +100,30 @@ public class TrainControllerGui extends JFrame{
     modeButtons.add(rdbtnManual);
     modeButtons.add(rdbtnAutomatic);
     
-    JSlider slider = new JSlider();
-    slider.setBounds(12, 162, 240, 16);
-    this.getContentPane().add(slider);
+    JSlider sliderTargetSpeed = new JSlider();
+    sliderTargetSpeed.setBounds(12, 162, 240, 16);
+    this.getContentPane().add(sliderTargetSpeed);
     
-    textField = new JTextField();
-    textField.setEditable(false);
-    textField.setBounds(178, 133, 70, 19);
-    this.getContentPane().add(textField);
-    textField.setColumns(10);
+    textFieldTargetSpeed = new JTextField();
+    textFieldTargetSpeed.setEditable(false);
+    textFieldTargetSpeed.setBounds(178, 133, 70, 19);
+    this.getContentPane().add(textFieldTargetSpeed);
+    textFieldTargetSpeed.setColumns(10);
     
     JLabel lblSpeedLimit = new JLabel("Speed Limit (mph)");
     lblSpeedLimit.setBounds(12, 106, 134, 15);
     this.getContentPane().add(lblSpeedLimit);
     
-    textField_1 = new JTextField();
-    textField_1.setBounds(178, 104, 70, 19);
-    this.getContentPane().add(textField_1);
-    textField_1.setColumns(10);
+    textFieldSpeedLimit = new JTextField();
+    textFieldSpeedLimit.setBounds(178, 104, 70, 19);
+    this.getContentPane().add(textFieldSpeedLimit);
+    textFieldSpeedLimit.setColumns(10);
     
-    textField_2 = new JTextField();
-    textField_2.setEditable(false);
-    textField_2.setBounds(177, 190, 70, 19);
-    this.getContentPane().add(textField_2);
-    textField_2.setColumns(10);
+    textFieldCurrentSpeed = new JTextField();
+    textFieldCurrentSpeed.setEditable(false);
+    textFieldCurrentSpeed.setBounds(177, 190, 70, 19);
+    this.getContentPane().add(textFieldCurrentSpeed);
+    textFieldCurrentSpeed.setColumns(10);
     
     JCheckBox chckbxRightDoorsOpen = new JCheckBox("Right doors open");
     chckbxRightDoorsOpen.setBounds(12, 221, 149, 23);
@@ -147,51 +150,55 @@ public class TrainControllerGui extends JFrame{
     this.getContentPane().add(chckbxAirConditioning);
     
     JLabel lblBeacon = new JLabel("Beacon");
-    lblBeacon.setBounds(12, 315, 70, 15);
+    lblBeacon.setBounds(12, 328, 70, 15);
     this.getContentPane().add(lblBeacon);
     
-    JLabel lblDistanceFromStation = new JLabel("Distance from station");
-    lblDistanceFromStation.setBounds(12, 342, 167, 15);
+    JLabel lblDistanceFromStation = new JLabel("Distance from station (miles)");
+    lblDistanceFromStation.setBounds(12, 355, 204, 15);
     this.getContentPane().add(lblDistanceFromStation);
     
-    textField_3 = new JTextField();
-    textField_3.setEditable(false);
-    textField_3.setBounds(178, 340, 70, 19);
-    this.getContentPane().add(textField_3);
-    textField_3.setColumns(10);
+    textFieldDistanceFromStation = new JTextField();
+    textFieldDistanceFromStation.setEditable(false);
+    textFieldDistanceFromStation.setBounds(238, 353, 70, 19);
+    this.getContentPane().add(textFieldDistanceFromStation);
+    textFieldDistanceFromStation.setColumns(10);
     
     JLabel lblStationName = new JLabel("Station Name");
-    lblStationName.setBounds(12, 369, 96, 15);
+    lblStationName.setBounds(12, 382, 96, 15);
     this.getContentPane().add(lblStationName);
     
-    textField_4 = new JTextField();
-    textField_4.setEditable(false);
-    textField_4.setBounds(126, 367, 122, 19);
-    this.getContentPane().add(textField_4);
-    textField_4.setColumns(10);
+    textFieldStationName = new JTextField();
+    textFieldStationName.setEditable(false);
+    textFieldStationName.setBounds(186, 382, 122, 19);
+    this.getContentPane().add(textFieldStationName);
+    textFieldStationName.setColumns(10);
     
     JCheckBox chckbxStopRequired = new JCheckBox("Stop Required");
     chckbxStopRequired.setEnabled(false);
-    chckbxStopRequired.setBounds(12, 392, 129, 23);
+    chckbxStopRequired.setBounds(12, 405, 129, 23);
     this.getContentPane().add(chckbxStopRequired);
     
     JLabel lblSafeStoppingDistance = new JLabel("Safe Stopping Distance (miles)");
     lblSafeStoppingDistance.setBounds(12, 286, 229, 15);
     this.getContentPane().add(lblSafeStoppingDistance);
     
-    textField_5 = new JTextField();
-    textField_5.setEditable(false);
-    textField_5.setBounds(238, 284, 70, 19);
-    this.getContentPane().add(textField_5);
-    textField_5.setColumns(10);
+    textFieldSafeStoppingDistance = new JTextField();
+    textFieldSafeStoppingDistance.setEditable(false);
+    textFieldSafeStoppingDistance.setBounds(238, 284, 70, 19);
+    this.getContentPane().add(textFieldSafeStoppingDistance);
+    textFieldSafeStoppingDistance.setColumns(10);
     
-    JLabel lblAuthoritymiles = new JLabel("Authority (miles)");
-    lblAuthoritymiles.setBounds(266, 192, 129, 15);
-    this.getContentPane().add(lblAuthoritymiles);
+    JLabel lblAuthority = new JLabel("Authority (miles)");
+    lblAuthority.setBounds(266, 192, 129, 15);
+    this.getContentPane().add(lblAuthority);
     
-    textField_6 = new JTextField();
-    textField_6.setBounds(412, 190, 70, 19);
-    this.getContentPane().add(textField_6);
-    textField_6.setColumns(10);
+    textFieldAuthority = new JTextField();
+    textFieldAuthority.setBounds(412, 190, 70, 19);
+    this.getContentPane().add(textFieldAuthority);
+    textFieldAuthority.setColumns(10);
+  }
+  
+  public void updateDisplayData() {
+    
   }
 }

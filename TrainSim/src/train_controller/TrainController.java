@@ -5,24 +5,32 @@ import system_wrapper.SpeedAuthCmd;
 
 
 public class TrainController {
-  public void setCurrentSpeed(double currSpeedMph) {
-    
+  private final VitalTrainControl vitalPrimary = new VitalTrainControlPrimary();
+  private SpeedAuthCmd speedAuthCmd;
+  private boolean airConditioningOn = false;
+  private boolean leftDoorOpen = false;
+  private boolean rightDoorOpen = false;
+  private boolean manualMode = false;
+  
+  
+  public void setCurrentSpeed(double currentSpeedMph) {
+    vitalPrimary.currentSpeedMph = currentSpeedMph;
   }
   
   public void setTargetSpeed(double targetSpeedMph) {
-    
+    vitalPrimary.targetSpeedMph = targetSpeedMph;
   }
   
   public void setSpeedLimit(double speedLimitMph) {
-    
+    vitalPrimary.speedLimitMph = speedLimitMph;
   }
   
-  public void setServiceBrake(boolean sBrake) {
-    
+  public void setServiceBrake(boolean serviceBrake) {
+    vitalPrimary.serviceBrake = serviceBrake;
   }
   
-  public void setEmergencyBrake(boolean eBrake) {
-    
+  public void setEmergencyBrake(boolean emergencyBrake) {
+    vitalPrimary.emergencyBrake = emergencyBrake;
   }
   
   public void setSpeedAuthCmd(SpeedAuthCmd cmd) {
@@ -30,7 +38,11 @@ public class TrainController {
   }
   
   public double calcPower() {
-    return 0;
+    if (!manualMode) {
+      vitalPrimary.determineSafeSpeed();
+    }
+    
+    return vitalPrimary.calcPower();
   }
   
   public boolean getServiceBrake() {
@@ -39,5 +51,9 @@ public class TrainController {
   
   public boolean getEmergencyBrake() {
     return false;
+  }
+  
+  public void setManualMode(boolean manualMode) {
+    this.manualMode = manualMode;
   }
 }
