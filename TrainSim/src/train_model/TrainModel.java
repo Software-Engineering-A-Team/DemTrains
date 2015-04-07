@@ -73,7 +73,8 @@ public class TrainModel {
 		// TODO: Instantiate GUI (independent mode)
 	}
 	
-	// public getter / setter methods
+	// public getter & setter methods
+	
 	public double getMass() {
 		return this.mass;
 	}
@@ -117,22 +118,28 @@ public class TrainModel {
 			this.sigPickupFailure = false;
 	}
 	
-	// returns passengers exiting
+	/* 
+	 * returns passengers exiting
+	 */
 	public int passExitTrain() {
 		// generate random number <= passengers on train
 		// subtract this number from passengers currently on train
 		// update passenger count, return number generated
 		return 5;
 	}
-	
-	// take in amount of passengers station wishes to give train, return
-	// actual passengers accepted
+
+	/*
+	 * Take in amount of passengers station wishes to board train, return actual passengers accepted
+	 */
 	public int passEnterTrain(int passCount) {
 		// if passCount + currPass <= maxPass, take all
 		// else only take some
 		return 6;
 	}
 	
+	/*
+	 * Sets the commanded authority for the train 
+	 */
 	public boolean setCommAuth(double authority) {
 		if (this.sigPickupFailure == true) {
 			return false;
@@ -142,6 +149,9 @@ public class TrainModel {
 		}
 	}
 	
+	/*
+	 * Sets the commanded speed for the train
+	 */
 	public boolean setCommSpeed(double speed) {
 		if (this.sigPickupFailure == true) {
 			return false;
@@ -152,21 +162,38 @@ public class TrainModel {
 	}
 	
 	// internal methods for calculations *********************
+	
+	/*
+	 * Calculates the mass of the train based on train's mass and the mass of passengers and crew
+	 */
 	private void calcMass() {
 		this.mass = ((crewCount + passengerCount) * 80.7) + UNLADEN_MASS;
 	}
 	
+	/*
+	 * Calculates the current force of the train produces by the engines
+	 */
 	private void calcForce() {
 		
 	}
 	
+	/*
+	 * Calculates the acceleration of the train
+	 */
 	private void calcAccel() {
 		
 	}
 	
+	/*
+	 * Calculates the velocity of the train
+	 */
 	private void calcVelocity() {
 		
 	}
+	
+	/*
+	 * Calculates the position of the train
+	 */
 	private void calcPosition() {
 		
 	}
