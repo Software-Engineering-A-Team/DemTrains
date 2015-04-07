@@ -101,6 +101,7 @@ public class TrainControllerGui extends JFrame {
     this.getContentPane().add(rdbtnManual);
     
     JRadioButton rdbtnAutomatic = new JRadioButton("Automatic");
+    rdbtnAutomatic.setSelected(true);
     rdbtnAutomatic.setBounds(12, 75, 149, 23);
     this.getContentPane().add(rdbtnAutomatic);
     
