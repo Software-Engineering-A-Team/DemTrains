@@ -1,23 +1,37 @@
 package ctc_office;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.ArrayList;
+import java.util.List;
+
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.DirectedMultigraph;
+
+import system_wrapper.SimClock;
+import track_controller.WaysideController;
 
 public class CTCDriver {
 	HashMap <String, TrackLayout> lines;
 	HashMap <String, HashSet<String>> manuallyRoutedTrains;
-	public CTCDriver() {
+	SimClock systemClock;
+	public boolean MBOModeEnabled = false;
+
+	public CTCDriver(SimClock sysClock) {
 		lines = new HashMap<String, TrackLayout>();
 		manuallyRoutedTrains = new HashMap<String, HashSet<String>>();
+		systemClock = sysClock;
 	}
 
 	/*
 	 * Sets the trackLayout and the scheduler to fixed block mode
 	 */
 	public boolean disableMBOMode() {
-		
-		
+		for(TrackLayout t : lines.values())	{
+			t.disableMBOMode();
+		}
+		MBOModeEnabled = false;
 		return true;
 	}
 
@@ -25,7 +39,10 @@ public class CTCDriver {
 	 * Sets the trackLayout and the scheduler to MBO mode
 	 */
 	public boolean enableMBOMode() {
-		
+		for(TrackLayout t : lines.values())	{
+			t.enableMBOMode();
+		}
+		MBOModeEnabled = true;
 		return true;
 	}
 	
@@ -41,9 +58,10 @@ public class CTCDriver {
 	 * Returns false if a train with that name already exists.
 	 */
 	public boolean manuallyDispatchNewTrain(String lineName, String trainId, int destinationBlock, double speed, double authority) {
-		if (lines.get(lineName).dispatchTrain(trainId, destinationBlock, speed, authority))
+		if (lines.get(lineName).dispatchTrain(trainId, destinationBlock, speed, authority)) {
 			manuallyRoutedTrains.get(lineName).add(trainId);
 			return true;
+		}
 		return false;
 	}
 
@@ -77,15 +95,6 @@ public class CTCDriver {
 	}
 
 	/*
-	 * Manually routes a train to its destination block at the user specified speed.
-	 * Only trains created manually can be manually routed.
-	 */
-	public boolean manuallyRouteTrain(String lineName, TrainRoute newRoute){
-		lines.get(lineName).manuallyRouteTrain(newRoute);
-		return true;
-	}
-
-	/*
 	 * Sends the train routes to the Track Controller
 	 * If a route is not approved, it is updated in the CTC
 	 */
@@ -105,7 +114,7 @@ public class CTCDriver {
 	 * Calculates all of the new distances at once
 	 */
 	public boolean setActualTrainLocations(String lineName, HashMap<String, Double> trainDistanceMap) {
-		lines.get(lineName).setActualTainLocations(trainDistanceMap);
+		lines.get(lineName).setActualTrainLocations(trainDistanceMap);
 		return true;
 	}
 
@@ -117,7 +126,7 @@ public class CTCDriver {
 	public boolean setBrokenTrackStatus(String lineName, int blockNumber, boolean status) {
 		return lines.get(lineName).setBlockBrokenStatus(blockNumber, status);
 	}
-	
+
 	/*
 	 * For the line specified in lineName, this method
 	 * takes in the filename of a csv file with lines in the
@@ -125,10 +134,21 @@ public class CTCDriver {
 	 * Creates a schedule from the data that will be used for routing trains
 	 * when in fixed block mode.
 	 */
-	public void setDefaultSchedule(String lineName, String filename) {
-		lines.get(lineName).setFixedBlockSchedule(filename);
+	public void setDefaultSchedule(String lineName, String filename) throws IOException {
+		lines.get(lineName).setDefaultSchedule(filename);
 	}
-	
+
+	/*
+	 * For the line specified in lineName, this method
+	 * takes in the schedule formatted as a csv
+	 * format <Station Name>, <Total Time elapsed before the train departs the destination station>
+	 * Creates a schedule from the data that will be used for routing trains
+	 * when in fixed block mode.
+	 */
+	public void setMBOSchedule(String lineName, List<String> commaSeparatedList) {
+		lines.get(lineName).setMBOSchedule(commaSeparatedList);
+	}
+
 	/*
 	 * Sets block blockNumber on line lineName as Broken or not true.
 	 * If status is true, the track will be set to broken
@@ -142,8 +162,8 @@ public class CTCDriver {
 	/*
 	 * Creates a new track layout given a graph of blocks and a list of blockData
 	 */
-	public boolean setTrackLayout(String lineName, DirectedMultigraph layout, ArrayList<track_model.TrackBlock> blockData) {
-		lines.put(lineName, new TrackLayout(layout, blockData));
+	public boolean setTrackLayout(String lineName, DirectedMultigraph<Integer, DefaultEdge> layout, List<track_model.TrackBlock> blockData, HashMap<Integer, WaysideController> controllerMap) {
+		lines.put(lineName, new TrackLayout(layout, blockData, controllerMap, lineName.toLowerCase().charAt(0)));
 	}
 
 	/*

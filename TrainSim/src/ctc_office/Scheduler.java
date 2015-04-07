@@ -10,7 +10,7 @@ public class Scheduler {
 	private boolean fixedBlockModeEnabled = true;
 	
 	private Schedule scheduleFixedBlock;
-	private Schedule scheduleMBO;
+	private HashMap<String, Schedule> scheduleMBO;
 	private int throughput;
 	private List<String> dispatchedTrains;
 	private List<String> availableTrains;
@@ -45,7 +45,7 @@ public class Scheduler {
 			currSchedule = scheduleFixedBlock;
 		}
 		else {
-			currSchedule = scheduleMBO;
+			currSchedule = scheduleMBO.get(trainId);
 		}
 		nextStop = currSchedule.getAndSetNextStopForTrain(trainId);
 		if (nextStop == null) {
@@ -60,6 +60,7 @@ public class Scheduler {
 	 * a corresponding StopData object
 	 */
 	public HashMap<String, StopData> getTrainsToDispatch() {
+		// TODO
 		int numTrainsToDispatch = 0;
 		String trainId;
 		HashMap<String, StopData> trainsToDispatch = new HashMap<String, StopData>();
@@ -108,10 +109,13 @@ public class Scheduler {
 	}
 	
 	/*
-	 * Sets a Schedule object created by the MBO as the schedule that will be used in MBO mode
+	 * Sets a Schedule object created by the MBO as the schedule that will be used by a train in MBO mode
 	 */
-	public void setMBOSchedule(Schedule s){
-		scheduleMBO = s;
+	public void setMBOSchedule(List<String> commaSeparatedSchedule){
+		// TODO
+		// parse the csv
+		// the first line is the train name and the departure time
+		// for all remaining lines parse the line, create a new Schedule object
 	}
 
 }
