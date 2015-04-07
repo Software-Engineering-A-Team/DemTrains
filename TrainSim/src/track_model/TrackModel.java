@@ -119,7 +119,7 @@ public class TrackModel {
 	 * @param lineName The name of the track line.
 	 * @return The TrackLayout corresponding to the passed track line name.
 	 */	
-	private TrackLayout getLine(String lineName) {
+	public TrackLayout getLine(String lineName) {
 		if (trackLayouts.containsKey(lineName)) {
 			System.out.printf("Track line with name %s already exists. Returning instance.\n", lineName);
 			return trackLayouts.get(lineName);
