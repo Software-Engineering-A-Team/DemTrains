@@ -17,8 +17,10 @@ import javax.swing.JCheckBox;
 import javax.swing.ButtonGroup;
 import java.awt.Component;
 import javax.swing.Box;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
-public class TrainControllerGui extends JFrame{
+public class TrainControllerGui extends JFrame {
   private JTextField enginePowerTextField;
   private JTextField textFieldTargetSpeed;
   private JTextField textFieldSpeedLimit;
@@ -89,6 +91,12 @@ public class TrainControllerGui extends JFrame{
     enginePowerTextField.setColumns(10);
     
     JRadioButton rdbtnManual = new JRadioButton("Manual");
+    rdbtnManual.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        trainController.setManualMode(true);
+      }
+    });
     rdbtnManual.setBounds(12, 48, 149, 23);
     this.getContentPane().add(rdbtnManual);
     
@@ -111,6 +119,12 @@ public class TrainControllerGui extends JFrame{
     textFieldTargetSpeed.setColumns(10);
     
     JLabel lblSpeedLimit = new JLabel("Speed Limit (mph)");
+    lblSpeedLimit.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        trainController.setManualMode(false);
+      }
+    });
     lblSpeedLimit.setBounds(12, 106, 134, 15);
     this.getContentPane().add(lblSpeedLimit);
     
@@ -199,6 +213,6 @@ public class TrainControllerGui extends JFrame{
   }
   
   public void updateDisplayData() {
-    
+    textFieldTargetSpeed.setText(Double.toString(trainController.getTargetSpeed()));
   }
 }
