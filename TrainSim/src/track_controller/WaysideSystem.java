@@ -1,6 +1,7 @@
 package track_controller;
 import track_model.*;
 import ctc_office.*;
+
 import java.util.HashMap;
 
 public class WaysideSystem {
@@ -9,18 +10,28 @@ public class WaysideSystem {
 	HashMap<String, HashMap<Integer, WaysideController>> controllerMap;
 	
 	/*
-	 * Constructs a wayside system with a given track model
-	 */
-	public WaysideSystem(TrackModel t) {}
+     * Creates wayside controllers for a given track layout
+     * based on predetermined areas of control. Also adds a 
+     * reference to the relevant controllers to each TrackBlock
+     */
+    private boolean createControllers(track_model.TrackLayout t) {
+        return true;
+    }
+    
 	
 	
 	/*
-	 * Creates wayside controllers for a given track layout
-	 * based on predetermined areas of control. Also adds a 
-	 * reference to the relevant controllers to each TrackBlock
+	 * Constructs a wayside system with a given track model
 	 */
-	private boolean createControllers(TrackLayout t) {
-		return true;
+	public WaysideSystem(TrackModel t) {
+	  //store track model
+	  tracks = t;
+	  //get lines from track model
+	  track_model.TrackLayout green = t.getLine("Green");
+	  track_model.TrackLayout red = t.getLine("Red");
+	  //createControllers for the lines
+	  createControllers(green);
+	  createControllers(red);	  
 	}
 	
 	
@@ -28,8 +39,8 @@ public class WaysideSystem {
 	 * Updates the PLCProgram for the controller of
 	 * the block number provided
 	 */
-	public boolean updatePLC(int blockNum, String filename) {
-		WaysideController temp = controllerMap.get(blockNum);
+	public boolean updatePLC(String line, int blockNum, String filename) {
+		WaysideController temp = controllerMap.get(line).get(blockNum);
 		boolean success = temp.updatePLC(filename);
 		return success;
 	}
