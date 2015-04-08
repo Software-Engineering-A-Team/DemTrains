@@ -1,6 +1,6 @@
 package train_controller;
 
-import system_wrapper.SystemWrapper;
+import system_wrapper.SimClock;
 import train_controller.VitalTrainControl;
 
 public class VitalTrainControlPrimary extends VitalTrainControl{
@@ -13,12 +13,26 @@ public class VitalTrainControlPrimary extends VitalTrainControl{
     
     speedErrorMph = targetSpeedMph - currentSpeedMph;
     
-    if (powerW < maxPowerW) {
+    /*
+    if (powerW <= maxPowerW) {
       controlVar += (SystemWrapper.simClock.getDeltaS() / 2.0)
           * (speedErrorMph + lastSpeedErrorMph);
     }
+    */
+    controlVar += (SimClock.getDeltaS() / 2.0)
+        * (speedErrorMph + lastSpeedErrorMph);
+    
     
     powerW = Kp * speedErrorMph + Ki * controlVar;
+    
+    //System.out.println("speedErrorMph = " + speedErrorMph + "   controlVar = " + controlVar);
+    
+    if (powerW > maxPowerW) {
+      powerW = maxPowerW;
+    }
+    else if (powerW < 0) {
+      powerW = 0;
+    }
     
     return powerW;
   }

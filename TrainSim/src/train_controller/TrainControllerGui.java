@@ -10,7 +10,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 import javax.swing.JLabel;
-
 import javax.swing.Timer;
 
 import java.awt.Font;
@@ -26,8 +25,18 @@ import java.awt.Component;
 
 import javax.swing.Box;
 
+import system_wrapper.SystemWrapper;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
+
+import java.text.NumberFormat;
+import java.text.DecimalFormat;
 
 public class TrainControllerGui extends JFrame {
   private JTextField enginePowerTextField;
@@ -38,7 +47,14 @@ public class TrainControllerGui extends JFrame {
   private JTextField textFieldStationName;
   private JTextField textFieldSafeStoppingDistance;
   private JTextField textFieldAuthority;
-  private TrainController trainController = new TrainController();
+  private JSlider sliderTargetSpeed;
+  private JRadioButton rdbtnManual;
+  private JRadioButton rdbtnAutomatic;
+  public TrainController trainController = new TrainController();
+  private NumberFormat formatter = new DecimalFormat("#0.00");
+  
+  private boolean standalone;
+  
 
   /**
    * Launch the application.
@@ -47,7 +63,8 @@ public class TrainControllerGui extends JFrame {
     EventQueue.invokeLater(new Runnable() {
       public void run() {
         try {
-          TrainControllerGui window = new TrainControllerGui();
+          TrainControllerGui window = new TrainControllerGui(true);
+          window.setManualMode(true);
           
           window.setVisible(true);
           
@@ -62,8 +79,17 @@ public class TrainControllerGui extends JFrame {
    * Create the application.
    */
   public TrainControllerGui() {
+    standalone = false;
     initialize();
-    timer.start();
+    displayTimer.start();
+    controllerTimer.start();
+  }
+  
+  public TrainControllerGui(boolean standalone) {
+    this.standalone = standalone;
+    initialize();
+    displayTimer.start();
+    controllerTimer.start();
   }
 
   /**
@@ -99,25 +125,33 @@ public class TrainControllerGui extends JFrame {
     this.getContentPane().add(enginePowerTextField);
     enginePowerTextField.setColumns(10);
     
-    JRadioButton rdbtnManual = new JRadioButton("Manual");
-    rdbtnManual.setSelected(trainController.isManualMode());
-    rdbtnManual.addMouseListener(new MouseAdapter() {
-      @Override
-      public void mouseClicked(MouseEvent e) {
-        trainController.setManualMode(true);
+    rdbtnManual = new JRadioButton("Manual");
+    rdbtnManual.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        if ("disable".equals(e.getActionCommand())) {
+          setManualMode(false);
+        }
+        else {
+          setManualMode(true);
+        }
       }
     });
+    rdbtnManual.setSelected(trainController.isManualMode());
     rdbtnManual.setBounds(12, 48, 149, 23);
     this.getContentPane().add(rdbtnManual);
     
-    JRadioButton rdbtnAutomatic = new JRadioButton("Automatic");
-    rdbtnAutomatic.setSelected(!trainController.isManualMode());
-    rdbtnAutomatic.addMouseListener(new MouseAdapter() {
-      @Override
-      public void mouseClicked(MouseEvent e) {
-        trainController.setManualMode(false);
+    rdbtnAutomatic = new JRadioButton("Automatic");
+    rdbtnAutomatic.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        if ("disable".equals(e.getActionCommand())) {
+          setManualMode(true);
+        }
+        else {
+          setManualMode(false);
+        }
       }
     });
+    rdbtnAutomatic.setSelected(!trainController.isManualMode());
     rdbtnAutomatic.setBounds(12, 75, 149, 23);
     this.getContentPane().add(rdbtnAutomatic);
     
@@ -125,7 +159,16 @@ public class TrainControllerGui extends JFrame {
     modeButtons.add(rdbtnManual);
     modeButtons.add(rdbtnAutomatic);
     
-    JSlider sliderTargetSpeed = new JSlider();
+    sliderTargetSpeed = new JSlider();
+    sliderTargetSpeed.addChangeListener(new ChangeListener() {
+      public void stateChanged(ChangeEvent e) {
+        JSlider source = (JSlider) e.getSource();
+        
+        if (!source.getValueIsAdjusting()) {
+          trainController.setTargetSpeed(source.getValue());
+        }
+      }
+    });
     sliderTargetSpeed.setBounds(12, 162, 240, 16);
     this.getContentPane().add(sliderTargetSpeed);
     
@@ -146,12 +189,21 @@ public class TrainControllerGui extends JFrame {
     this.getContentPane().add(lblSpeedLimit);
     
     textFieldSpeedLimit = new JTextField();
+    textFieldSpeedLimit.setEditable(standalone);
     textFieldSpeedLimit.setBounds(178, 104, 70, 19);
     this.getContentPane().add(textFieldSpeedLimit);
     textFieldSpeedLimit.setColumns(10);
     
     textFieldCurrentSpeed = new JTextField();
-    textFieldCurrentSpeed.setEditable(false);
+    textFieldCurrentSpeed.setEditable(standalone);
+    if (standalone) {
+      textFieldCurrentSpeed.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          System.out.println("current speed = " + textFieldCurrentSpeed.getText());
+          trainController.setCurrentSpeed(Double.parseDouble(textFieldCurrentSpeed.getText()));
+        }
+      });
+    }
     textFieldCurrentSpeed.setBounds(177, 190, 70, 19);
     this.getContentPane().add(textFieldCurrentSpeed);
     textFieldCurrentSpeed.setColumns(10);
@@ -230,21 +282,37 @@ public class TrainControllerGui extends JFrame {
   }
   
   public void updateDisplayData() {
-    if (!trainController.isManualMode()) {
-      textFieldTargetSpeed.setText(Double.toString(trainController.getTargetSpeed()));
-    }
+    textFieldTargetSpeed.setText(formatter.format(trainController.getTargetSpeed()));
     
-    textFieldSafeStoppingDistance.setText(Double.toString(trainController.getSafeStoppingDistance()));
-    enginePowerTextField.setText(Double.toString(trainController.getPower()));
-    textFieldCurrentSpeed.setText(Double.toString(trainController.getCurrentSpeed()));
+    textFieldSafeStoppingDistance.setText(formatter.format(trainController.getSafeStoppingDistance()));
+    enginePowerTextField.setText(formatter.format(trainController.getPower()));
+    
+    if (!standalone) {
+      textFieldCurrentSpeed.setText(formatter.format(trainController.getCurrentSpeed()));
+    }
   }
   
-  private Timer timer = new Timer(100, new ActionListener() {
+  private void setManualMode(boolean manualMode) {
+    trainController.setManualMode(manualMode);
+    sliderTargetSpeed.setEnabled(manualMode);
+    rdbtnManual.setSelected(manualMode);
+    rdbtnAutomatic.setSelected(!manualMode);
+  }
+  
+  private Timer displayTimer = new Timer(100, new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
       updateDisplayData();
       repaint();
       
+    }
+  });
+  
+  private Timer controllerTimer = new Timer(10, new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      SystemWrapper.simClock.tick();
+      trainController.calcPower();
     }
   });
 }
