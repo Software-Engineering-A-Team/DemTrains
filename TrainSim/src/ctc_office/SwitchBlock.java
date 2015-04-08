@@ -1,13 +1,16 @@
 package ctc_office;
 
-public class SwitchBlock extends TrackBlock {
+public class SwitchBlock extends DefaultBlock {
 	private int pointingToBlock;
 	private int[] possibleNextBlocks;
 
-	public SwitchBlock(int num, double length, int sLimit, boolean occupiedStatus, boolean brokenStatus, int pointing, int[] nextBlocks) {
+	public SwitchBlock(int num, double length, double sLimit, boolean occupiedStatus, boolean brokenStatus,int[] nextBlocks) {
 		super(num, length, sLimit, occupiedStatus, brokenStatus);
-		pointingToBlock = pointing;
 		possibleNextBlocks = nextBlocks;
+	    pointingToBlock = 0;
+		if (nextBlocks[1] < nextBlocks[0]) {
+		    pointingToBlock = 1;
+		}
 	}
 
 	/*

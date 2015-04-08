@@ -1,4 +1,9 @@
 CTCOffice/src/ctcOfficeGUI/CTCOfficeGUIImplementation.java
 .metadata
 .recommenders
+<<<<<<< HEAD
 TrainSim/bin
+TrainSim/.settings
+=======
+TrainSim/bin/*/
+>>>>>>> 2f2463578855ebcca315efe8a803bc8aa8be3949
