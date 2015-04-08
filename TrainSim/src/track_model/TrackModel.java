@@ -12,16 +12,24 @@ import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
 
 public class TrackModel {
-  
-    public Map<String, TrackLayout> trackLayouts;
+
 	private TrackBlock yard;
+	private Map<String, TrackLayout> trackLayouts;
 	
-    public TrackModel() {
+	public TrackModel() {
 		System.out.println("Begin TrackModel initialization...");
 		trackLayouts = new HashMap<String, TrackLayout>();
 		yard = new TrackBlock();
 		loadTracks(new String[] {"green.csv", "red.csv"});
 		System.out.println("Finish TrackModel initialization.");
+	}
+	
+	/**
+	 * Retrieves all the TrackLayout objects in the model.
+	 * @return A map of all the TrackLayout objects in the model.
+	 */	
+	public Map<String, TrackLayout> getLines() {
+		return trackLayouts;
 	}
 	
 	/**
@@ -33,28 +41,6 @@ public class TrackModel {
 	public TrackBlock getCurrentBlock(int trainID, int totalDistance) {
 		return null;
 	}
-	
-	/**
-     * Retrieves the TrackLayout object corresponding to the passed track line name.
-     * If TrackLayout object does not exist yet, it is created and the new instance is returned.
-     * @param lineName The name of the track line.
-     * @return The TrackLayout corresponding to the passed track line name.
-     */ 
-    public TrackLayout getLine(String lineName) {
-        if (trackLayouts.containsKey(lineName)) {
-            System.out.printf("Track line with name %s already exists. Returning instance.\n", lineName);
-            return trackLayouts.get(lineName);
-        } else {
-            System.out.printf("Creating a new track line with name %s.\n", lineName);
-            TrackLayout newLine = new TrackLayout();
-            List<TrackBlock> blocks = newLine.blocks;
-            blocks.add(yard);
-            DirectedMultigraph<Integer, DefaultEdge> layout = newLine.layout;
-            layout.addVertex(0);
-            trackLayouts.put(lineName, newLine);
-            return newLine;
-        }
-    }
 	
 	/**
 	 * Creates a TrackBlock object using the attributes given.
@@ -128,6 +114,28 @@ public class TrackModel {
 	}
 	
 	/**
+	 * Retrieves the TrackLayout object corresponding to the passed track line name.
+	 * If TrackLayout object does not exist yet, it is created and the new instance is returned.
+	 * @param lineName The name of the track line.
+	 * @return The TrackLayout corresponding to the passed track line name.
+	 */	
+	public TrackLayout getLine(String lineName) {
+		if (trackLayouts.containsKey(lineName)) {
+			System.out.printf("Track line with name %s already exists. Returning instance.\n", lineName);
+			return trackLayouts.get(lineName);
+		} else {
+			System.out.printf("Creating a new track line with name %s.\n", lineName);
+			TrackLayout newLine = new TrackLayout();
+			List<TrackBlock> blocks = newLine.blocks;
+			blocks.add(yard);
+			DirectedMultigraph<Integer, DefaultEdge> layout = newLine.layout;
+			layout.addVertex(0);
+			trackLayouts.put(lineName, newLine);
+			return newLine;
+		}
+	}
+	
+	/**
 	 * Loads all of the track data files with the given filenames.
 	 * @param filenames The list of filenames of the track data files to load.
 	 */	
@@ -150,34 +158,15 @@ public class TrackModel {
 			String row = file.readLine();
 			TrackLayout trackLayout = new TrackLayout();
 			// split the row into columns to grab the name of the line
-			String[] firstRowAttributes = row.split(",", -1);
-			String lineName = firstRowAttributes[0];
+			String lineName = row.split(",", -1)[0];
 			System.out.printf("Adding a new TrackLayout object to list of track layouts with name %s.\n", lineName);
 			trackLayouts.put(lineName, trackLayout);
-			// create a new section of blocks for the creation of a graph layout later
-			TrackSection section = new TrackSection();
-			String sectionName = firstRowAttributes[1];
-            System.out.printf("Creating new TrackSection for section %s.\n", sectionName);
-			trackLayout.sections.add(section);
 			while (row != null) {
 				// split the row into columns which denote the attributes
 				String[] attributes = row.split(",", -1);
-				// if we are in a new section of blocks, we need to create a new TrackSection object
-                if (!sectionName.equals(attributes[1])) {
-                    String firstDirection = section.blocks.get(0).direction;
-                    String lastDirection = section.blocks.get(section.blocks.size()).direction;
-                    // calculate the direction of travel for the whole section
-                    section.forward = firstDirection.equals("head") || firstDirection.equals("head/tail") || firstDirection.equals("head/head");
-                    section.backward = lastDirection.equals("head") || lastDirection.equals("tail/head") || lastDirection.equals("head/head");
-                    // create a new TrackSection for the next set of blocks
-                    section = new TrackSection();
-                    sectionName = attributes[1];
-                    System.out.printf("Section names don't match. Creating a new TrackSection for section %s.\n", sectionName);
-                    trackLayout.sections.add(section);
-                }
 				// create a new TrackBlock object from the attributes
 				TrackBlock block = createBlock(attributes);
-				// populate our TrackLayout object data structures with the new TrackBlock
+				// populate our TrackLayout object with the new TrackBlock
 				System.out.printf("Adding block number %d to TrackLayout blocks list.\n", block.number);
 				trackLayout.blocks.add(block);
 				System.out.printf("Adding block number %d to TrackLayout layout graph.\n", block.number);
@@ -187,9 +176,6 @@ public class TrackModel {
 					System.out.printf("Adding a switch #%d to block #%d reference to TrackLayout.\n", block.connectsToSwitch, block.number);
 					trackLayout.switchToBlocks.put(block.connectsToSwitch, block.number);
 				}
-                // add the new TrackBlock object to the current section of blocks
-                System.out.printf("Adding block number %d to TrackSection with name %s.\n", block.number, sectionName);
-                section.blocks.add(block);
 				row = file.readLine();
 			}
 			System.out.printf("Successfully loaded track data file with filename %s.\n", filename);
