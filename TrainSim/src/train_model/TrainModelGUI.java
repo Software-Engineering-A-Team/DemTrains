@@ -3,6 +3,7 @@ package train_model;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.Font;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -10,12 +11,17 @@ import javax.swing.border.EmptyBorder;
 
 import java.util.ArrayList;
 import java.awt.GridBagLayout;
+
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 
 public class TrainModelGUI extends JFrame {
@@ -64,12 +70,22 @@ public class TrainModelGUI extends JFrame {
 		menuBar.add(mnFile);
 		
 		JMenuItem mntmQuit = new JMenuItem("Quit");
+		mntmQuit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		});
 		mnFile.add(mntmQuit);
 		
 		JMenu mnHelp = new JMenu("Help");
 		menuBar.add(mnHelp);
 		
 		JMenuItem mntmAbout = new JMenuItem("About");
+		mntmAbout.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(null, "Created by Ben Guise \nfor Software Engineering\nThe A-Team\nSpring 2015");
+			}
+		});
 		mnHelp.add(mntmAbout);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -82,6 +98,9 @@ public class TrainModelGUI extends JFrame {
 		contentPane.setLayout(gbl_contentPane);
 		
 		JLabel lblTrainModelInterface = new JLabel("Train Model Interface");
+		Font labelFont = lblTrainModelInterface.getFont();
+		Font boldFont = new Font(labelFont.getFontName(), Font.BOLD, labelFont.getSize());
+		lblTrainModelInterface.setFont(boldFont);
 		GridBagConstraints gbc_lblTrainModelInterface = new GridBagConstraints();
 		gbc_lblTrainModelInterface.insets = new Insets(0, 0, 5, 0);
 		gbc_lblTrainModelInterface.gridx = 0;

@@ -3,20 +3,23 @@ package train_model;
 
 import java.util.ArrayList;
 
+import mbo.MovingBlockOverlay;
+
 
 public class TrainModel {
-	public int trainID;
+	public short trainID;
+	public String trainName;
 	
 	// TODO: Train Controller here
 	// TODO: Track blocks?
 	// TODO: TrainModel GUI
 	
-	static final double LENGTH = 32.2;	// m
-	static final double HEIGHT = 3.42;	// m
-	static final double WIDTH = 2.65;	// m
+	static final double LENGTH = 105.643;	// ft
+	static final double HEIGHT 11.2205;	// ft
+	static final double WIDTH = 8.694226;	// ft
 	
-	double mass = 37103.9; // kg (init as empty)
-	double UNLADEN_MASS = 37103.9;
+	double UNLADEN_WEIGHT = 90169.1;
+	public double weight = UNLADEN_WEIGHT; // lbs (init as empty)
 	
 	private static final int MAX_PASSENGERS = 222;	// Seated + standing
 	
@@ -36,35 +39,43 @@ public class TrainModel {
 	boolean brakeFailure = false;	// true if failed
 	boolean sigPickupFailure = false;	// true if failed
 	
+	// TODO: how is power conveyed from train controller?
 	private static final double MAX_POWER = 120;	// kW
-	private static final double MAX_SPEED = 70;	// km/h
+	private static final double MAX_SPEED = 43.496;	// mph
 	private static final int MAX_GRADIENT = 60;	// %
 	
-	// med. accel. (2/3 load) from 0 to 70 km/h
-	private static final double LOAD_ACCEL = 0.5; 		// m/s^2
-	private static final double SBRAKE_ACCEL = -1.2;		// m/s^2
-	private static final double EBRAKE_ACCEL = -2.73;	// m/s^2
+	// med. accel. (2/3 load) from 0 to 43.496 mph
+	private static final double LOAD_ACCEL = 1.6404199475066; 		// ft/s^2
+	private static final double SBRAKE_ACCEL = -3.9370078740157;		// ft/s^2
+	private static final double EBRAKE_ACCEL = -8.9566929133858;	// ft/s^2
 	
 	boolean sBrake = false;	// false = off, true = on
 	boolean eBrake = false;	// false = off, true = on
 	
-	double accel = 0;	// m/s^2
-	double velocity = 0;	// m/s
+	double powCommand = 0;	// kW
+	double accel = 0;	// ft/s^2
+	double velocity = 0;	// ft/s
 	double force = 0;	// N
+	double speed = 0;
 	
 	public double commandedSpeed = 0;	// km/h
 	public double commandedAuthority = 0;	// ???
 	
+	private MovingBlockOverlay MBO = null;
+	
 	// Constructor used when a train is spawned
-	TrainModel (int trainNum) {
-		this.trainID = trainNum;
+	public TrainModel (String name, short number, MovingBlockOverlay movingBlock) {
+		this.trainID = number;
+		this.trainName = name;
+		this.MBO = movingBlock;
 		// TODO: Instantiate GUI (system mode)
 		// TODO: this.trainController = new TrainController();
 	}
 	
 	// Constructor used if TrainModel is started on its own
-	TrainModel () {
-		this.trainID = 1;
+	public TrainModel () {
+		this.trainID = 0;
+		this.trainName = "Default";
 		
 		// TODO: this.trainController = null;
 		
@@ -164,38 +175,47 @@ public class TrainModel {
 	// internal methods for calculations *********************
 	
 	/*
-	 * Calculates the mass of the train based on train's mass and the mass of passengers and crew
+	 * Calculates the weight of the train based on train's weight and the weight of passengers and crew
 	 */
-	private void calcMass() {
-		this.mass = ((crewCount + passengerCount) * 80.7) + UNLADEN_MASS;
+	private void calcWeight() {
+		// Average weight of a person is 185 lbs
+		this.weight = ((crewCount + passengerCount) * 185) + UNLADEN_WEIGHT;
 	}
 	
 	/*
-	 * Calculates the current force of the train produces by the engines
+	 * Calculates the current force of the train produced by the engines
 	 */
-	private void calcForce() {
-		
+	private double calcForce() {
+		return 5.0;
 	}
 	
 	/*
 	 * Calculates the acceleration of the train
 	 */
-	private void calcAccel() {
-		
+	private double calcAccel() {
+		return 5.0;
 	}
 	
 	/*
-	 * Calculates the velocity of the train
+	 * Calculates the velocity of the train using the equation
+	 * v = (P/v) * (1/m) * (1/s)
 	 */
-	private void calcVelocity() {
-		
+	private double calcVelocity() {
+		double newVelocity = (powCommand / this.velocity) * (1 / this.mass) * (1 / sec);
+		this.velocity = newVelocity;
+		return newVelocity;
+		// TODO: account for engine failures
+		// TODO: determine what the time interval is for the calculation
 	}
 	
 	/*
 	 * Calculates the position of the train
 	 */
-	private void calcPosition() {
-		
+	private double calcPosition() {
+		double newPosition = (this.velocity / sec);
+		this.position += newPosition;
+		return newPosition;
+		// TODO: figure out how to get time interval
 	}
 	
 	
