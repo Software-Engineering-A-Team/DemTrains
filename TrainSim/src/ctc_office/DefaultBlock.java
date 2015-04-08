@@ -1,13 +1,13 @@
 package ctc_office;
 
-public class TrackBlock {
+public class DefaultBlock {
 	public boolean broken;
 	public boolean occupied;
 	public final double blockLength;
 	public final int blockNumber;
-	public final int speedLimit;
+	public final double speedLimit;
 	
-	public TrackBlock(int num, double length, int sLimit, boolean occupiedStatus, boolean brokenStatus) {
+	public DefaultBlock(int num, double length, double sLimit, boolean occupiedStatus, boolean brokenStatus) {
 		broken = brokenStatus;
 		occupied = occupiedStatus;
 		blockLength = length;

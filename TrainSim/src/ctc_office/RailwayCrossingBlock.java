@@ -1,9 +1,9 @@
 package ctc_office;
 
-public class RailwayCrossingBlock extends TrackBlock {
+public class RailwayCrossingBlock extends DefaultBlock {
 	public boolean crossingClosed;
 
-	public RailwayCrossingBlock(int num, double length, int sLimit, boolean occupiedStatus, boolean brokenStatus, boolean crossingStatus) {
+	public RailwayCrossingBlock(int num, double length, double sLimit, boolean occupiedStatus, boolean brokenStatus, boolean crossingStatus) {
 		super(num, length, sLimit, occupiedStatus, brokenStatus);
 		crossingClosed = crossingStatus;
 	}

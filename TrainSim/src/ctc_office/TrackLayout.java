@@ -8,12 +8,14 @@ import java.util.List;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
 
+import system_wrapper.SystemWrapper;
+import track_model.*;
 import track_controller.WaysideController;
 import train_model.TrainModel;
 
 public class TrackLayout {
 	private ArrayList<TrainModel> trainModels;
-	private final ArrayList<TrackBlock> blockData = new ArrayList<TrackBlock>();
+	private final ArrayList<DefaultBlock> blockData;
 	private final DirectedMultigraph<Integer, DefaultEdge> layout;
 	private final HashMap<Integer, WaysideController> blockToControllerMap;
 	private final Scheduler scheduler = new Scheduler();
@@ -21,30 +23,52 @@ public class TrackLayout {
 	private final char trainIdPrefix;
 
 	public TrackLayout(DirectedMultigraph<Integer, DefaultEdge> tLayout, List<track_model.TrackBlock> tBlockData,  HashMap<Integer, WaysideController> controllerMap, char tPrefix) {
-		// TODO
 		layout = tLayout;
 		blockToControllerMap = controllerMap;
 		trainIdPrefix = tPrefix;
-		for (track_model.TrackBlock blockData : tBlockData) {
-			// build the ctc trackBlocks from the actual trackBlocks
-			// TrackBlock b = new TrackBlock();
-			// blockData.add(TrackBlock.blockNumber, b);
+		blockData = new ArrayList<DefaultBlock>(tBlockData.size());
+            blockData.add(0, new Yard());
+		for (TrackBlock b : tBlockData) {
+		    int blockNum = b.number;
+            double blockLen = b.number;
+            double speedLimit = b.number;
+            boolean occupiedStatus = b.occupancy;
+            boolean brokenStatus = b.hasFailure();
+            if (blockData.getClass().equals(track_model.TrackCrossing.class)){
+	            TrackCrossing crossing = (TrackCrossing) b;
+	            boolean crossingStatus = crossing.state;
+	            blockData.add(blockNum, new RailwayCrossingBlock(blockNum, blockLen, speedLimit, occupiedStatus, brokenStatus, crossingStatus));
+	        }
+	        else if (blockData.getClass().equals(track_model.TrackSwitch.class)){
+                TrackSwitch s = (TrackSwitch) b;
+                int[] nextBlocks = s.out;
+                blockData.add(blockNum, new SwitchBlock(blockNum, blockLen, speedLimit, occupiedStatus, brokenStatus, nextBlocks));
+	        }
+            else if (blockData.getClass().equals(track_model.TrackStation.class)){
+                TrackStation station = (TrackStation) b;
+                String stationName = station.stationName;
+                blockData.add(blockNum, new StationBlock(blockNum, blockLen, speedLimit, occupiedStatus, brokenStatus, stationName));
+            }
+            else { // it is a regular block
+                blockData.add(blockNum, new DefaultBlock(blockNum, blockLen, speedLimit, occupiedStatus, brokenStatus));
+            }
 		}
 	}
 	
-	/*
+	/**
 	 * Sets the trackLayout and the scheduler to fixed block mode
 	 */
 	public void disableMBOMode() {
 		scheduler.enableFixedBlockMode();
 	}
 
-	/*
+	/**
 	 * Manually spawns a new train with the routing data that was passed into the method.
 	 * Returns false if a train with that name already exists.
 	 */
 	public boolean dispatchTrain(String trainId, int destinationBlock, double speed, double authority) {
 		// TODO
+	    SystemWrapper.trainModels.add(new TrainModel())
 		// create a new train and put it in the train list of the system wrapper
 		// add the train to the dispatch queue at the yard
 		this.manuallyRouteTrain(trainId, destinationBlock, speed, authority);
@@ -52,14 +76,14 @@ public class TrackLayout {
 		return true;
 	}
 	
-	/*
+	/**
 	 * Sets the trackLayout and the scheduler to MBO mode
 	 */
 	public void enableMBOMode() {
 		scheduler.enableMBOMode();
 	}
 
-	/*
+	/**
 	 * returns a list of beacon strings that need to be updated for trains approaching a station
 	 */
 	public HashMap<Integer, String> getBeaconStrings() {
@@ -72,7 +96,7 @@ public class TrackLayout {
 		return beaconStrings;
 	}
 	
-	/*
+	/**
 	 * Gets the train route for all dispatched trains for this tick
 	 */
 	public ArrayList<TrainRoute> getUpdatedTrainRoutes() {
@@ -82,7 +106,7 @@ public class TrackLayout {
 		return routes;
 	}
 	
-	/*
+	/**
 	 * Manually routes a train to its destination block at the user specified speed.
 	 * Only trains created manually can be manually routed.
 	 */
@@ -98,7 +122,7 @@ public class TrackLayout {
 		return true;
 	}
 
-	/*
+	/**
 	 * Used when the system is in MBO mode to set the actual locations of the trains.
 	 * Takes in the total distance each train has traveled and calculates the new location.
 	 * Calculates all of the new distances at once.
@@ -109,7 +133,7 @@ public class TrackLayout {
 		return true;
 	}
 
-	/*
+	/**
 	 * Sets block blockNumber on line lineName as Broken or not true.
 	 * If status is true, the track will be set to broken
 	 * If the status is false, the track will be set to not broken
@@ -119,7 +143,7 @@ public class TrackLayout {
 		return true;
 	}
 
-	/*
+	/**
 	 * For the line specified in lineName, this method
 	 * takes in the filename of a csv file with lines in the
 	 * format <Station Name>, <Time until next stop including dwell time>
@@ -130,7 +154,7 @@ public class TrackLayout {
 		scheduler.setFixedBlockSchedule(filename);
 	}
 
-	/*
+	/**
 	 * Used when the system is in Fixed Block mode to set the actual locations of the trains.
 	 * Calculates the distance each train has traveled based on its speed and authority.
 	 * Calculates all of the new distances at once.
@@ -141,7 +165,7 @@ public class TrackLayout {
 		return true;
 	}
 
-	/*
+	/**
 	 * For the line specified in lineName, this method
 	 * takes in the schedule formatted as a csv
 	 * format <Station Name>, <Total Time elapsed before the train departs the destination station>
@@ -152,7 +176,7 @@ public class TrackLayout {
 		scheduler.setMBOSchedule(commaSeparatedList);
 	}
 
-	/*
+	/**
 	 * Sets block blockNumber on line lineName as Broken or not true.
 	 * If status is true, the track will be set to broken
 	 * If the status is false, the track will be set to not broken
@@ -162,7 +186,7 @@ public class TrackLayout {
 		blockData.get(blockNumber).occupied = true;
 	}
 
-	/*
+	/**
 	 * Toggles the position of a switch
 	 */
 	public void toggleSwitchPosition(int blockNumber) {
@@ -172,7 +196,7 @@ public class TrackLayout {
 		}
 	}
 
-	/*
+	/**
 	 * Toggles the state of a railway crossing
 	 */
 	public void toggleRailwayCrossing(int blockNumber) {
@@ -182,17 +206,17 @@ public class TrackLayout {
 		}
 	}
 
-	/*
+	/**
 	 * Resets all of the blocks to unoccupied.
 	 * If they are still occupied at the next step, the Track controller will set them as occupied
 	 */
 	public void unsetOccupiedStatusAllBlocks() {
-		for (TrackBlock b : blockData) {
+		for (DefaultBlock b : blockData) {
 			b.occupied = false;
 		}
 	}
 
-	/*
+	/**
 	 * Dispatches all of the new trains according to the schedule
 	 */
     public void dispatchNewTrains() {

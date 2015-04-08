@@ -3,7 +3,7 @@ package ctc_office;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class Yard extends TrackBlock {
+public class Yard extends DefaultBlock {
 	private Queue<String> dispatchQueue = new LinkedList<String>();
 
 	public Yard() {
