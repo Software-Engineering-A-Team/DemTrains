@@ -119,6 +119,15 @@ public class TrainModel {
 	}
 	
 	/*
+	 * Sets the lights on the train
+	 * False = off
+	 * True = on
+	 */
+	public void setLightStatus(boolean state) {
+		this.lightStatus = state;
+	}
+	
+	/*
 	 * Reads the beacon of the track block
 	 */
 	public boolean readBeacon(String beacon) {
