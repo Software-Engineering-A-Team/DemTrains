@@ -10,7 +10,7 @@ abstract class VitalTrainControl {
   public boolean emergencyBrake = false;
   public boolean serviceBrake = false;
   public double authorityMi = 0;
-  public double safeStopDistanceMi = 0;
+  public double safeStoppingDistanceMi = 0;
   public boolean manualMode = false;
   
   protected double powerW = 0;

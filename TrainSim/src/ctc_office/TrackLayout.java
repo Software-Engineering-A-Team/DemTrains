@@ -8,7 +8,6 @@ import java.util.List;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
 
-import mbo.MovingBlockOverlay
 import track_controller.WaysideController;
 import train_model.TrainModel;
 
@@ -20,15 +19,12 @@ public class TrackLayout {
 	private final Scheduler scheduler = new Scheduler();
 	private final TrainRouter trainRouter = new TrainRouter();
 	private final char trainIdPrefix;
-	private final MovingBlockOverlay mboReference;
 
-	public TrackLayout(MovingBlockOverlay mbo, ArrayList<TrainModel> tModels, DirectedMultigraph<Integer, DefaultEdge> tLayout, List<track_model.TrackBlock> tBlockData,  HashMap<Integer, WaysideController> controllerMap, char tPrefix) {
+	public TrackLayout(DirectedMultigraph<Integer, DefaultEdge> tLayout, List<track_model.TrackBlock> tBlockData,  HashMap<Integer, WaysideController> controllerMap, char tPrefix) {
 		// TODO
-		trainModels = tModel;
 		layout = tLayout;
 		blockToControllerMap = controllerMap;
 		trainIdPrefix = tPrefix;
-		mboReference = mbo;
 		for (track_model.TrackBlock blockData : tBlockData) {
 			// build the ctc trackBlocks from the actual trackBlocks
 			// TrackBlock b = new TrackBlock();
@@ -141,7 +137,7 @@ public class TrackLayout {
 	 */
 	public boolean setEstimatedTrainLocaitons() {
 		// TODO
-		// for all of the trains on the track, calculate the actual position on its current block.
+		// for all of the trains on the track, calculate the estimated position on its current block.
 		return true;
 	}
 
@@ -195,5 +191,13 @@ public class TrackLayout {
 			b.occupied = false;
 		}
 	}
+
+	/*
+	 * Dispatches all of the new trains according to the schedule
+	 */
+    public void dispatchNewTrains() {
+        // TODO Auto-generated method stub
+        scheduler.getTrainsToDispatch();
+    }
  }
  
