@@ -1,6 +1,6 @@
 package train_controller;
 
-import system_wrapper.SystemWrapper;
+import system_wrapper.SimClock;
 import train_controller.VitalTrainControl;
 
 public class VitalTrainControlPrimary extends VitalTrainControl{
@@ -19,7 +19,7 @@ public class VitalTrainControlPrimary extends VitalTrainControl{
           * (speedErrorMph + lastSpeedErrorMph);
     }
     */
-    controlVar += (SystemWrapper.simClock.getDeltaS() / 2.0)
+    controlVar += (SimClock.getDeltaS() / 2.0)
         * (speedErrorMph + lastSpeedErrorMph);
     
     

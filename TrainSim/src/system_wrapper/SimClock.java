@@ -2,47 +2,47 @@ package system_wrapper;
 
 // SimClock class for measuring the passage of simulation time
 public class SimClock {
-  private int deltaMs;
+  private static int deltaMs = 10;
   
-  private long totalMs = 0;
+  private static long totalMs = 0;
 
-  private int ms = 0;
-  private int second = 0;
-  private int minute = 0;
-  private int hour = 0;
-  private int day = 0;
+  private static int ms = 0;
+  private static int second = 0;
+  private static int minute = 0;
+  private static int hour = 0;
+  private static int day = 0;
 
   // Initialize with a value to add to the time each clock tick
   public SimClock(int deltaMs) {
     this.deltaMs = deltaMs;
   }
   
-  public long getTotalMs() {
+  public static long getTotalMs() {
     return totalMs;
   }
   
-  public int getMs() {
+  public static int getMs() {
     return ms;
   }
   
-  public int getSecond() {
+  public static int getSecond() {
     return second;
   }
   
-  public int getMinute() {
+  public static int getMinute() {
     return minute;
   }
   
-  public int getHour() {
+  public static int getHour() {
     return hour;
   }
   
-  public int getDay() {
+  public static int getDay() {
     return day;
   }
 
   // Add time to the clock
-  public void tick() {
+  public static void tick() {
     totalMs += deltaMs;
 
     ms += deltaMs;
@@ -72,11 +72,11 @@ public class SimClock {
     }
   }
   
-  public int getDeltaMs() {
+  public static int getDeltaMs() {
     return deltaMs;
   }
   
-  public double getDeltaS() {
+  public static double getDeltaS() {
     return (1000.0 * (double) deltaMs);
   }
 }
