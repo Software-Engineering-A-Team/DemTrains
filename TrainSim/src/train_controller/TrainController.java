@@ -20,7 +20,6 @@ public class TrainController {
   private double speedLimitMph;
   private double powerW;
   private double safeStoppingDistanceMi;
-  
   // Current speed reported by TrainModel
   public void setCurrentSpeed(double currentSpeedMph) {
     this.currentSpeedMph = currentSpeedMph;
@@ -75,7 +74,7 @@ public class TrainController {
     vitalPrimary.currentSpeedMph = currentSpeedMph;
     vitalPrimary.targetSpeedMph = targetSpeedMph;
     vitalPrimary.speedLimitMph = speedLimitMph;
-    vitalPrimary.authorityMi = speedAuthCmd.suggestedAuthMiles;
+    //vitalPrimary.authorityMi = speedAuthCmd.suggestedAuthMiles;
     vitalPrimary.safeStoppingDistanceMi = safeStoppingDistanceMi;
   }
   
@@ -86,18 +85,16 @@ public class TrainController {
   }
   
   // Called by TrainModel to 
-  public double calcPower() {
-    double primaryPowerW;
-    
+  public double calcPower() {   
     setVitalControlInputs();
     
     vitalPrimary.determineSafeSpeed();
     
-    primaryPowerW = vitalPrimary.calcPower();
+    vitalPrimary.calcPower();
     
     getVitalControlOutputs();
     
-    return primaryPowerW;
+    return powerW;
   }
   
   public double getTargetSpeed() {
