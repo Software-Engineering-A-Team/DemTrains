@@ -44,8 +44,6 @@ public class TrainControllerGui extends JFrame {
    * Launch the application.
    */
   public static void main(String[] args) {
-    
-    
     EventQueue.invokeLater(new Runnable() {
       public void run() {
         try {
@@ -244,7 +242,6 @@ public class TrainControllerGui extends JFrame {
   private Timer timer = new Timer(100, new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
-      trainController.setCurrentSpeed(trainController.getCurrentSpeed() + 0.01);
       updateDisplayData();
       repaint();
       
