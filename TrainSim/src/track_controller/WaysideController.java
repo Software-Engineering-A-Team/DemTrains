@@ -9,22 +9,13 @@ public class WaysideController {
 	PLCInterface plc;
 	int span = 0;
 	
-	/*
-	 * Constructs a wayside controller based on a 
-	 * list of blocks it will control.
-	 */
-	WaysideController(ArrayList<TrackBlock> b) {
-		for (TrackBlock block: b){
-			affectedBlocks.add(block);
-			span++;
-		}	
-	}
-		
+			
 	/*
 	 * Updates the PLC program for the controller
 	 * based on a user input file.
 	 */
 	public boolean updatePLC(String filename) {
+		System.setProperty("java.home", "C:\\Program Files\\Java\\jdk1.7.0_40");
 		JavaCompiler comp = ToolProvider.getSystemJavaCompiler();
 		int compRes = comp.run(null, null, null, filename);
 		if (compRes == 0) {
@@ -47,11 +38,11 @@ public class WaysideController {
 	 * Allows user to manually add a block
 	 * to the a certain controller.
 	 */
-	public boolean addBlock(TrackBlock b) {
-		if(affectedBlocks.contains(b)) return false;
-		else {
-			affectedBlocks.add(b);
-			return true;
+	public boolean addBlocks(ArrayList<TrackBlock> b) {
+		for (TrackBlock block: b){
+			affectedBlocks.add(block);
+			span++;
 		}
+		return true;
 	}	
 }

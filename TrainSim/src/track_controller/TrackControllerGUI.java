@@ -1,5 +1,6 @@
 package track_controller;
 import track_model.*;
+
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
@@ -22,6 +23,7 @@ import javax.swing.ButtonGroup;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+
 import javax.swing.filechooser.*;
 
 public class TrackControllerGUI extends JFrame {
@@ -84,11 +86,11 @@ public class TrackControllerGUI extends JFrame {
 		lblBlock.setBounds(10, 65, 56, 14);
 		panel.add(lblBlock);
 		
-		final JComboBox blockPicker = new JComboBox();
+		final JComboBox<Integer> blockPicker = new JComboBox<Integer>();
 		blockPicker.setBounds(51, 65, 65, 20);
 		panel.add(blockPicker);
 		
-		final JComboBox linePicker = new JComboBox();
+		final JComboBox<String> linePicker = new JComboBox<String>();
 		linePicker.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				//dynamically add block numbers
@@ -111,15 +113,15 @@ public class TrackControllerGUI extends JFrame {
 		});
 		linePicker.setBounds(51, 40, 65, 20);
 		panel.add(linePicker);
-		linePicker.addItem("Red");
 		linePicker.addItem("Green");
+		linePicker.addItem("Red");
 		
 		PLCFileName = new JTextField();
 		PLCFileName.setBounds(58, 12, 129, 20);
 		panel.add(PLCFileName);
 		PLCFileName.setColumns(10);
 		
-		JLabel lblPlcFile = new JLabel("PLC File:");
+		JLabel lblPlcFile = new JLabel("PLC file:");
 		lblPlcFile.setBounds(10, 15, 89, 14);
 		panel.add(lblPlcFile);
 			
@@ -157,7 +159,7 @@ public class TrackControllerGUI extends JFrame {
 		lblMiles.setBounds(302, 65, 46, 14);
 		panel.add(lblMiles);
 		
-		JComboBox weatherPicker = new JComboBox();
+		JComboBox<String> weatherPicker = new JComboBox<String>();
 		weatherPicker.setBounds(223, 89, 76, 20);
 		panel.add(weatherPicker);
 		weatherPicker.addItem("Clear");
@@ -270,8 +272,12 @@ public class TrackControllerGUI extends JFrame {
 				
 		btnChooseFile.setBounds(197, 11, 89, 23);
 		panel.add(btnChooseFile);
-		
 
+		JLabel lblCompilationSuccessful = new JLabel("No file selected.");
+		lblCompilationSuccessful.setForeground(Color.BLACK);
+		lblCompilationSuccessful.setBounds(399, 15, 120, 14);
+		panel.add(lblCompilationSuccessful);
+		
 		JButton btnUploadPlc = new JButton("Upload PLC");
 		btnUploadPlc.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -280,16 +286,20 @@ public class TrackControllerGUI extends JFrame {
 				int block = Integer.parseInt(blockPicker.getSelectedItem().toString());
 				
 				plcUploadSuccess = wContrl.updatePLC(line, block, path);
-				 
+				
+				if (plcUploadSuccess) {
+					lblCompilationSuccessful.setText("Compiled!");
+					lblCompilationSuccessful.setForeground(Color.GREEN);
+				}
+				else {
+					lblCompilationSuccessful.setText("Not compiled.");
+					lblCompilationSuccessful.setForeground(Color.RED);
+				}
 			}
 		});
 		btnUploadPlc.setBounds(292, 11, 100, 23);
 		panel.add(btnUploadPlc);
 		
-		JLabel lblCompilationSuccessful = new JLabel("");
-		lblCompilationSuccessful.setForeground(Color.BLACK);
-		lblCompilationSuccessful.setBounds(296, 15, 120, 14);
-		panel.add(lblCompilationSuccessful);
 		
 		JPanel panel_1 = new JPanel();
 		tabbedPane.addTab("Outputs", null, panel_1, null);		
