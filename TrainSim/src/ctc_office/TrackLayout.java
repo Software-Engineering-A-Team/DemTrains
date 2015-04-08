@@ -117,7 +117,13 @@ public class TrackLayout {
 	 * Gets the train route for all dispatched trains for this tick
 	 */
 	public ArrayList<TrainRoute> getUpdatedTrainRoutes() {
-		// TODO
+		// TODO: Get all of the trains that have reached their destination and are ready to depart
+		// Get their next destination from the scheduler
+		// Get the next train in the dispatch queue at the yard
+		// for every train not still at the yard
+			// route the train.
+			// send the routing data to the wayside controller for that block
+			// if the route was not accepted fix the trains expected route
 		ArrayList<TrainRoute> routes = new ArrayList<TrainRoute>();
 		
 		return routes;
