@@ -1,6 +1,6 @@
 package system_wrapper;
 
-import train_controller.TrainControllerGui;
+import track_controller.TrackControllerGUI;
 
 import java.awt.EventQueue;
 
@@ -61,13 +61,11 @@ public class SystemGui extends JFrame {
     tabbedPane.addTab("Track Model", null, panelTrackModel, null);
     
     JPanel panelTrackController = new JPanel();
-    tabbedPane.addTab("Track Controller", null, panelTrackController, null);
+    tabbedPane.addTab("Track Controller", null, SystemWrapper.trackControllerGui.getContentPane(), null);
     
     JPanel panelTrainModel = new JPanel();
     tabbedPane.addTab("Train Model", null, panelTrainModel, null);
     
-    tabbedPane.addTab("Train Controller", null, trainControllerGui.getContentPane(), null);
+    tabbedPane.addTab("Train Controller", null, SystemWrapper.trainControllerGui.getContentPane(), null);
   }
-  
-  private JFrame trainControllerGui = new TrainControllerGui();
 }

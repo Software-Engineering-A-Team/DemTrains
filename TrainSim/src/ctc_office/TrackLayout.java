@@ -9,11 +9,13 @@ import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
 
 import track_controller.WaysideController;
+import train_model.TrainModel;
 
 public class TrackLayout {
+	private ArrayList<TrainModel> trainModels;
 	private final ArrayList<TrackBlock> blockData = new ArrayList<TrackBlock>();
 	private final DirectedMultigraph<Integer, DefaultEdge> layout;
-	private final  HashMap<Integer, WaysideController> blockToControllerMap;
+	private final HashMap<Integer, WaysideController> blockToControllerMap;
 	private final Scheduler scheduler = new Scheduler();
 	private final TrainRouter trainRouter = new TrainRouter();
 	private final char trainIdPrefix;
@@ -135,7 +137,7 @@ public class TrackLayout {
 	 */
 	public boolean setEstimatedTrainLocaitons() {
 		// TODO
-		// for all of the trains on the track, calculate the actual position on its current block.
+		// for all of the trains on the track, calculate the estimated position on its current block.
 		return true;
 	}
 
@@ -189,5 +191,13 @@ public class TrackLayout {
 			b.occupied = false;
 		}
 	}
+
+	/*
+	 * Dispatches all of the new trains according to the schedule
+	 */
+    public void dispatchNewTrains() {
+        // TODO Auto-generated method stub
+        scheduler.getTrainsToDispatch();
+    }
  }
  

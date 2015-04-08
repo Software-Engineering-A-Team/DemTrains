@@ -9,29 +9,32 @@ import java.util.List;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
 
-import system_wrapper.SimClock;
 import track_controller.WaysideController;
 
 public class CTCDriver {
-	HashMap <String, TrackLayout> lines;
-	HashMap <String, HashSet<String>> manuallyRoutedTrains;
-	SimClock systemClock;
+	private HashMap <String, TrackLayout> lines;
+	private HashMap <String, HashSet<String>> manuallyRoutedTrains;
 	public boolean MBOModeEnabled = false;
 
-	public CTCDriver(SimClock sysClock) {
+	public CTCDriver() {
 		lines = new HashMap<String, TrackLayout>();
 		manuallyRoutedTrains = new HashMap<String, HashSet<String>>();
-		systemClock = sysClock;
 	}
 
 	/*
 	 * Completes all of the functions of the CTC including routing and dispatching new trains
 	 */
 	 public boolean runCTC() {
-	 	// TODO: for each track
-	 	// dispatch all new trains and calculate their routes.
-	 	// pass those routes to the 
-	 	// if in fixed block mode, calculate the estimated positions of those trains.
+	   // for each track
+	   for (TrackLayout t : lines.values()) {
+	       // dispatch all new trains and calculate their routes.
+	       t.dispatchNewTrains();
+	       t.getUpdatedTrainRoutes();
+	       // if in fixed block mode, calculate the estimated positions of those trains.
+	       if (!MBOModeEnabled) {
+	           t.setEstimatedTrainLocaitons();
+	       }
+	   }
 	 	return true;
 	 }
 	 
@@ -175,6 +178,7 @@ public class CTCDriver {
 	 */
 	public boolean setTrackLayout(String lineName, DirectedMultigraph<Integer, DefaultEdge> layout, List<track_model.TrackBlock> blockData, HashMap<Integer, WaysideController> controllerMap) {
 		lines.put(lineName, new TrackLayout(layout, blockData, controllerMap, lineName.toLowerCase().charAt(0)));
+		return true;
 	}
 
 	/*

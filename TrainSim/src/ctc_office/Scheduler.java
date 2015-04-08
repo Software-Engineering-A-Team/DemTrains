@@ -22,7 +22,7 @@ public class Scheduler {
 		fixedBlockModeEnabled = true;
 		return true;
 	}
-	
+
 	public boolean enableMBOMode() {
 		if (scheduleFixedBlock == null) {
 			return false;
@@ -60,11 +60,10 @@ public class Scheduler {
 	 * a corresponding StopData object
 	 */
 	public HashMap<String, StopData> getTrainsToDispatch() {
-		// TODO
 		int numTrainsToDispatch = 0;
 		String trainId;
 		HashMap<String, StopData> trainsToDispatch = new HashMap<String, StopData>();
-		// calculate how many trains need to be dispatched to satisfy the throughput requirement
+		// TODO: calculate how many trains need to be dispatched to satisfy the throughput requirement
 		for (int i=0; i<numTrainsToDispatch; i++) {
 			if (availableTrains.size() > 0) {
 				trainId = availableTrains.remove(0);

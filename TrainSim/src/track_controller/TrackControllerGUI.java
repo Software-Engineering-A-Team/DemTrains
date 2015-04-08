@@ -51,6 +51,11 @@ public class TrackControllerGUI extends JFrame {
 	 * Create the frame.
 	 */
 	public TrackControllerGUI(WaysideSystem w) {
+		initialize();
+	}
+	
+	public void initialize() {
+
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 562, 367);
 		contentPane = new JPanel();
@@ -74,37 +79,43 @@ public class TrackControllerGUI extends JFrame {
 		lblBlock.setBounds(10, 65, 56, 14);
 		panel.add(lblBlock);
 		
-		JComboBox linePicker = new JComboBox();
-		linePicker.setBounds(51, 40, 34, 20);
-		panel.add(linePicker);
-		
-		JComboBox blockPicker = new JComboBox();
-		blockPicker.setBounds(51, 65, 34, 20);
+		final JComboBox blockPicker = new JComboBox();
+		blockPicker.setBounds(51, 65, 65, 20);
 		panel.add(blockPicker);
+		
+		final JComboBox linePicker = new JComboBox();
+		linePicker.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				//dynamically add block numbers
+				String chosenLine = linePicker.getSelectedItem().toString();
+				if (chosenLine.equals("Red")) {
+					blockPicker.removeAllItems();
+					blockPicker.addItem(1);
+					blockPicker.addItem(2);
+				}
+				else if (chosenLine.equals("Green")) {
+					blockPicker.removeAllItems();
+					blockPicker.addItem(1);
+					blockPicker.addItem(2);
+					blockPicker.addItem(3);
+					blockPicker.addItem(4);
+				}
+			}
+		});
+		linePicker.setBounds(51, 40, 65, 20);
+		panel.add(linePicker);
+		linePicker.addItem("Red");
+		linePicker.addItem("Green");
 		
 		PLCFileName = new JTextField();
 		PLCFileName.setBounds(58, 12, 129, 20);
 		panel.add(PLCFileName);
 		PLCFileName.setColumns(10);
 		
-		JButton btnUploadPlc = new JButton("Upload PLC");
-		btnUploadPlc.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				
-			}
-		});
-		btnUploadPlc.setBounds(292, 11, 100, 23);
-		panel.add(btnUploadPlc);
-		
 		JLabel lblPlcFile = new JLabel("PLC File:");
 		lblPlcFile.setBounds(10, 15, 89, 14);
 		panel.add(lblPlcFile);
-		
-		JLabel lblCompilationSuccessful = new JLabel("");
-		lblCompilationSuccessful.setForeground(Color.BLACK);
-		lblCompilationSuccessful.setBounds(296, 15, 120, 14);
-		panel.add(lblCompilationSuccessful);
-		
+			
 		JButton btnUpdateBlock = new JButton("Update block");
 		btnUpdateBlock.setBounds(399, 244, 112, 23);
 		panel.add(btnUpdateBlock);
@@ -142,6 +153,10 @@ public class TrackControllerGUI extends JFrame {
 		JComboBox weatherPicker = new JComboBox();
 		weatherPicker.setBounds(223, 89, 76, 20);
 		panel.add(weatherPicker);
+		weatherPicker.addItem("Clear");
+		weatherPicker.addItem("Rain");
+		weatherPicker.addItem("Snow");
+		weatherPicker.addItem("Ice");
 		
 		JLabel lblWeather = new JLabel("Weather:");
 		lblWeather.setBounds(126, 92, 87, 14);
@@ -157,6 +172,7 @@ public class TrackControllerGUI extends JFrame {
 		panel.add(rdbtnOccupied);
 		
 		JRadioButton rdbtnFree = new JRadioButton("free");
+		rdbtnFree.setSelected(true);
 		rdbtnFree.setBounds(314, 113, 67, 23);
 		panel.add(rdbtnFree);
 		
@@ -174,6 +190,7 @@ public class TrackControllerGUI extends JFrame {
 		panel.add(rdbtnBroken);
 		
 		JRadioButton rdbtnOperational = new JRadioButton("operational");
+		rdbtnOperational.setSelected(true);
 		rdbtnOperational.setBounds(314, 143, 120, 23);
 		panel.add(rdbtnOperational);
 		
@@ -186,6 +203,7 @@ public class TrackControllerGUI extends JFrame {
 		panel.add(lblLightStatus);
 		
 		JRadioButton rdbtnGreen = new JRadioButton("green");
+		rdbtnGreen.setSelected(true);
 		rdbtnGreen.setBounds(223, 169, 63, 23);
 		panel.add(rdbtnGreen);
 		
@@ -202,6 +220,7 @@ public class TrackControllerGUI extends JFrame {
 		panel.add(lblClosedStatus);
 		
 		JRadioButton rdbtnOpen = new JRadioButton("open");
+		rdbtnOpen.setSelected(true);
 		rdbtnOpen.setBounds(223, 194, 63, 23);
 		panel.add(rdbtnOpen);
 		
@@ -218,6 +237,7 @@ public class TrackControllerGUI extends JFrame {
 		panel.add(lblHeaterStatus);
 		
 		JRadioButton rdbtnOff = new JRadioButton("off");
+		rdbtnOff.setSelected(true);
 		rdbtnOff.setBounds(223, 222, 63, 23);
 		panel.add(rdbtnOff);
 		
@@ -240,11 +260,35 @@ public class TrackControllerGUI extends JFrame {
 				}
 			}
 		});
+				
 		btnChooseFile.setBounds(197, 11, 89, 23);
 		panel.add(btnChooseFile);
 		
+
+		JButton btnUploadPlc = new JButton("Upload PLC");
+		btnUploadPlc.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				String path = PLCFileName.getText().toString();
+				String line = linePicker.getSelectedItem().toString();
+				int block = Integer.parseInt(blockPicker.getSelectedItem().toString());
+				
+				WaysideController change = w.controllerMap.get(line).get(block);
+				boolean success = change.updatePLC(path);
+			}
+		});
+		btnUploadPlc.setBounds(292, 11, 100, 23);
+		panel.add(btnUploadPlc);
+		
+		JLabel lblCompilationSuccessful = new JLabel("");
+		lblCompilationSuccessful.setForeground(Color.BLACK);
+		lblCompilationSuccessful.setBounds(296, 15, 120, 14);
+		panel.add(lblCompilationSuccessful);
+		
 		JPanel panel_1 = new JPanel();
-		tabbedPane.addTab("Outputs", null, panel_1, null);
+		tabbedPane.addTab("Outputs", null, panel_1, null);		
+	}
 	
+	public void updateData() {
+		
 	}
 }
