@@ -18,6 +18,7 @@ public class TrainController {
   private double currentSpeedMph;
   private double targetSpeedMph;
   private double speedLimitMph;
+  private double powerW;
   
   // Current speed reported by TrainModel
   public void setCurrentSpeed(double currentSpeedMph) {
@@ -58,6 +59,11 @@ public class TrainController {
     }
   }
   
+  // Used by the driver to switch between manual and automatic control.
+  public void setManualMode(boolean manualMode) {
+    this.manualMode = manualMode;
+  }
+  
   private void setVitalControlInputs() {
     vitalPrimary.manualMode = manualMode;
     vitalPrimary.targetSpeedMph = targetSpeedMph;
@@ -67,12 +73,13 @@ public class TrainController {
     vitalPrimary.authorityMi = speedAuthCmd.suggestedAuthMiles;
   }
   
-  // Used by the driver to switch between manual and automatic control.
-  public void setManualMode(boolean manualMode) {
-    this.manualMode = manualMode;
+  private void getVitalControlOutputs() {
+    emergencyBrake = vitalPrimary.emergencyBrake;
+    serviceBrake = vitalPrimary.serviceBrake;
+    powerW = vitalPrimary.powerW;
   }
   
-  // 
+  // Called by TrainModel to 
   public double calcPower() {
     double primaryPowerW;
     
@@ -82,8 +89,7 @@ public class TrainController {
     
     primaryPowerW = vitalPrimary.calcPower();
     
-    emergencyBrake = vitalPrimary.emergencyBrake;
-    serviceBrake = vitalPrimary.serviceBrake;
+    getVitalControlOutputs();
     
     return primaryPowerW;
   }
@@ -93,11 +99,11 @@ public class TrainController {
   }
   
   public boolean isServiceBrakeOn() {
-    return vitalPrimary.serviceBrake;
+    return serviceBrake;
   }
   
   public boolean isEmergencyBrakeOn() {
-    return vitalPrimary.emergencyBrake;
+    return emergencyBrake;
   }
   
   public boolean isAirConditioningOn() {
