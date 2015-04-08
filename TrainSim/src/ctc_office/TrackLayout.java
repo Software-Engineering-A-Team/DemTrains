@@ -14,15 +14,15 @@ import track_controller.WaysideController;
 import train_model.TrainModel;
 
 public class TrackLayout {
-	private ArrayList<TrainModel> trainModels;
 	private final ArrayList<DefaultBlock> blockData;
+	private final ArrayList<StationBlock> allStations;
 	private final DirectedMultigraph<Integer, DefaultEdge> layout;
-	private final HashMap<Integer, WaysideController> blockToControllerMap;
+	private final HashMap<Integer, List<WaysideController>> blockToControllerMap;
 	private final Scheduler scheduler = new Scheduler();
 	private final TrainRouter trainRouter = new TrainRouter();
 	private final char trainIdPrefix;
 
-	public TrackLayout(DirectedMultigraph<Integer, DefaultEdge> tLayout, List<track_model.TrackBlock> tBlockData,  HashMap<Integer, WaysideController> controllerMap, char tPrefix) {
+	public TrackLayout(DirectedMultigraph<Integer, DefaultEdge> tLayout, List<TrackBlock> tBlockData,  HashMap<Integer, List<WaysideController>> controllerMap, char tPrefix) {
 		layout = tLayout;
 		blockToControllerMap = controllerMap;
 		trainIdPrefix = tPrefix;
@@ -34,20 +34,23 @@ public class TrackLayout {
             double speedLimit = b.number;
             boolean occupiedStatus = b.occupancy;
             boolean brokenStatus = b.hasFailure();
-            if (blockData.getClass().equals(track_model.TrackCrossing.class)){
+            if (blockData.getClass().equals(TrackCrossing.class)){
 	            TrackCrossing crossing = (TrackCrossing) b;
 	            boolean crossingStatus = crossing.state;
 	            blockData.add(blockNum, new RailwayCrossingBlock(blockNum, blockLen, speedLimit, occupiedStatus, brokenStatus, crossingStatus));
 	        }
-	        else if (blockData.getClass().equals(track_model.TrackSwitch.class)){
+	        else if (blockData.getClass().equals(TrackSwitch.class)){
                 TrackSwitch s = (TrackSwitch) b;
                 int[] nextBlocks = s.out;
                 blockData.add(blockNum, new SwitchBlock(blockNum, blockLen, speedLimit, occupiedStatus, brokenStatus, nextBlocks));
 	        }
-            else if (blockData.getClass().equals(track_model.TrackStation.class)){
+            else if (blockData.getClass().equals(TrackStation.class)){
                 TrackStation station = (TrackStation) b;
                 String stationName = station.stationName;
-                blockData.add(blockNum, new StationBlock(blockNum, blockLen, speedLimit, occupiedStatus, brokenStatus, stationName));
+                StationBlock s = new StationBlock(blockNum, blockLen, speedLimit, occupiedStatus, brokenStatus, stationName);
+                blockData.add(blockNum, s);
+                allStations.add(s);
+                
             }
             else { // it is a regular block
                 blockData.add(blockNum, new DefaultBlock(blockNum, blockLen, speedLimit, occupiedStatus, brokenStatus));
@@ -68,14 +71,14 @@ public class TrackLayout {
 	 */
 	public boolean dispatchTrain(String trainId, int destinationBlock, double speed, double authority) {
 		// TODO
-	    SystemWrapper.trainModels.add(new TrainModel())
+	    SystemWrapper.trainModels.add(new TrainModel());
 		// create a new train and put it in the train list of the system wrapper
 		// add the train to the dispatch queue at the yard
 		this.manuallyRouteTrain(trainId, destinationBlock, speed, authority);
 		
 		return true;
 	}
-	
+
 	/**
 	 * Sets the trackLayout and the scheduler to MBO mode
 	 */
@@ -84,18 +87,32 @@ public class TrackLayout {
 	}
 
 	/**
+	 * gets a list of all the trains currently on the track
+	 */
+	public ArrayList<Train> getAllTrains() {
+		// TODO: call get all trains from the train router
+		return null;
+	}
+	
+	public ArrayList<DefaultBlock> getAllBlocks() {
+		return blockData;
+	}
+
+	/**
 	 * returns a list of beacon strings that need to be updated for trains approaching a station
 	 */
 	public HashMap<Integer, String> getBeaconStrings() {
 		// TODO
 		HashMap<Integer, String> beaconStrings = new HashMap<Integer, String>();
-		// for each station
+		for (StationBlock s : allStations) {
+			
 			// find train that will reach the station next
 			// build the beaconString
 			// add it to the list
+		}
 		return beaconStrings;
 	}
-	
+
 	/**
 	 * Gets the train route for all dispatched trains for this tick
 	 */
@@ -105,7 +122,7 @@ public class TrackLayout {
 		
 		return routes;
 	}
-	
+
 	/**
 	 * Manually routes a train to its destination block at the user specified speed.
 	 * Only trains created manually can be manually routed.
