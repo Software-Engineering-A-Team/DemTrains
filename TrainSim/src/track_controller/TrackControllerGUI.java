@@ -1,5 +1,4 @@
 package track_controller;
-import track_model.*;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
@@ -31,19 +30,15 @@ public class TrackControllerGUI extends JFrame {
 	private JTextField sugSpeed;
 	private JTextField sugAuthority;
 	public static WaysideSystem wContrl;
-	public static boolean plcUploadSuccess;
-	public static boolean mode;
+	
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-	  track_model.TrackModel t = new track_model.TrackModel();
-	  final WaysideSystem ws = new WaysideSystem(t);
-	  
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					TrackControllerGUI frame = new TrackControllerGUI(ws, false);
+					TrackControllerGUI frame = new TrackControllerGUI(wContrl);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -55,9 +50,7 @@ public class TrackControllerGUI extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public TrackControllerGUI(WaysideSystem w, boolean m) {
-		wContrl = w;
-		mode = m;
+	public TrackControllerGUI(WaysideSystem w) {
 		initialize();
 	}
 	
@@ -96,18 +89,16 @@ public class TrackControllerGUI extends JFrame {
 				//dynamically add block numbers
 				String chosenLine = linePicker.getSelectedItem().toString();
 				if (chosenLine.equals("Red")) {
-					track_model.TrackLayout temp = wContrl.tracks.getLine("Red");
 					blockPicker.removeAllItems();
-					for (TrackBlock b: temp.blocks) {
-	                    blockPicker.addItem(b.number);
-	                  }
+					blockPicker.addItem(1);
+					blockPicker.addItem(2);
 				}
 				else if (chosenLine.equals("Green")) {
-				  track_model.TrackLayout temp = wContrl.tracks.getLine("Red");
-				  blockPicker.removeAllItems();
-				  for (TrackBlock b: temp.blocks) {
-				    blockPicker.addItem(b.number);
-				  }
+					blockPicker.removeAllItems();
+					blockPicker.addItem(1);
+					blockPicker.addItem(2);
+					blockPicker.addItem(3);
+					blockPicker.addItem(4);
 				}
 			}
 		});
@@ -281,8 +272,8 @@ public class TrackControllerGUI extends JFrame {
 				String line = linePicker.getSelectedItem().toString();
 				int block = Integer.parseInt(blockPicker.getSelectedItem().toString());
 				
-				plcUploadSuccess = wContrl.updatePLC(line, block, path);
-				 
+				WaysideController change = w.controllerMap.get(line).get(block);
+				boolean success = change.updatePLC(path);
 			}
 		});
 		btnUploadPlc.setBounds(292, 11, 100, 23);
