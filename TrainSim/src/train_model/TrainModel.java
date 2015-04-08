@@ -236,7 +236,7 @@ public class TrainModel {
 	 * v = (P/v) * (1/m) * (1/s)
 	 */
 	private double calcVelocity() {
-		double newVelocity = (powCommand / this.velocity) * (1 / this.mass) * (1 / sec);
+		double newVelocity = (powCommand / this.velocity) * (1 / this.weight) * (1 / sec);
 		this.velocity = newVelocity;
 		return newVelocity;
 		// TODO: account for engine failures
