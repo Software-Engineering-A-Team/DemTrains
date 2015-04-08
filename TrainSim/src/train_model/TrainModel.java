@@ -15,7 +15,7 @@ public class TrainModel {
 	// TODO: TrainModel GUI
 	
 	static final double LENGTH = 105.643;	// ft
-	static final double HEIGHT 11.2205;	// ft
+	static final double HEIGHT = 11.2205;	// ft
 	static final double WIDTH = 8.694226;	// ft
 	
 	double UNLADEN_WEIGHT = 90169.1;
@@ -86,21 +86,41 @@ public class TrainModel {
 	
 	// public getter & setter methods
 	
-	public double getMass() {
-		return this.mass;
+	/*
+	 * Returns the current weight of the train
+	 */
+	public double getWeight() {
+		return this.weight;
 	}
+	
+	/*
+	 * Returns the current position of the train
+	 */
 	public double getPosition() {
 		return this.position;
 	}
 	
+	/*
+	 * Sets the Emergency brake status of the train
+	 * True = on
+	 * False = off
+	 */
 	public void setEmergencyBrake(boolean state) {
 		this.eBrake = state;
 	}
 	
+	/*
+     * Sets the Service brake status of the train
+     * True = on
+     * False = off
+     */
 	public void setServiceBrake(boolean state) {
 		this.sBrake = state;
 	}
 	
+	/*
+	 * Reads the beacon of the track block
+	 */
 	public boolean readBeacon(String beacon) {
 		// Check to ensure beacon message is proper length
 		if (beacon.length() > 20) {
@@ -111,6 +131,9 @@ public class TrainModel {
 		}	
 	}
 	
+	/*
+	 * Used to simulate failure of a train
+	 */
 	public void simulateFailure(String fail) {
 		if (fail.equals("engine"))
 			this.engineFailure = true;
@@ -120,6 +143,9 @@ public class TrainModel {
 			this.sigPickupFailure = true;
 	}
 	
+	/*
+	 * Used to restore a failure that has been set
+	 */
 	public void restoreFailure(String fix) {
 		if (fix.equals("engine"))
 			this.engineFailure = false;
