@@ -35,7 +35,7 @@ public class TrackBlock {
 	public TrackBlock() {
 		this.number = 0;
 		this.section = null;
-		this.infrastructure = null;
+		this.infrastructure = "yard";
 		this.speedLimit = 0;
 		this.length = 0;
 		this.grade = 0;
