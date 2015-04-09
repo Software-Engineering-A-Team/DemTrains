@@ -1,6 +1,5 @@
 package track_controller;
 import javax.tools.*;
-//import track_model.TrackBlock;
 import track_model.*;
 import ctc_office.TrainRoute;
 import java.util.ArrayList;
@@ -52,5 +51,18 @@ public class WaysideController {
 			span++;
 		}
 		return true;
-	}		
+	}
+	
+	public ArrayList<TrackSwitch> findSwitches(){
+		ArrayList<TrackSwitch> foundSwitches = new ArrayList<TrackSwitch>();
+		for (TrackBlock b : affectedBlocks) {
+			if(b.number == 12) foundSwitches.add((TrackSwitch)blockMap.get(12));
+			if(b.number == 29) foundSwitches.add((TrackSwitch)blockMap.get(29));
+			if(b.number == 58) foundSwitches.add((TrackSwitch)blockMap.get(58));
+			if(b.number == 62) foundSwitches.add((TrackSwitch)blockMap.get(62));
+			if(b.number == 76) foundSwitches.add((TrackSwitch)blockMap.get(76));
+			if(b.number == 86) foundSwitches.add((TrackSwitch)blockMap.get(86));
+		}
+		return foundSwitches;
+	}
 }

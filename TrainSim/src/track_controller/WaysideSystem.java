@@ -97,6 +97,8 @@ public class WaysideSystem {
 			blockControllerMapGreen.put(i, wc7);
 		}
 		wc7.addBlocks(tc7);
+		PLC7 plc7 = new PLC7(wc7.blockMap);
+		wc7.plc = plc7;
 		
 		WaysideController wc8 = new WaysideController();
 		ArrayList<TrackBlock> tc8 = new ArrayList<TrackBlock>();
@@ -105,6 +107,9 @@ public class WaysideSystem {
 			blockControllerMapGreen.put(i, wc8);
 		}
 		wc8.addBlocks(tc8);
+		PLC7 plc8 = new PLC7(wc8.blockMap);
+		wc8.plc = plc8;
+		
 		
 		WaysideController wc9 = new WaysideController();
 		ArrayList<TrackBlock> tc9 = new ArrayList<TrackBlock>();
@@ -113,6 +118,9 @@ public class WaysideSystem {
 			blockControllerMapGreen.put(i, wc9);
 		}
 		wc9.addBlocks(tc9);
+		PLC7 plc9 = new PLC7(wc9.blockMap);
+		wc9.plc = plc9;
+		
 		return true;
 	}
 	
