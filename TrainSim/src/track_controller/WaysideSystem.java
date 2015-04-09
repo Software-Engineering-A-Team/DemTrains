@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class WaysideSystem {
-	TrackModel tracks;
-	String failure = null;
-	HashMap<Integer, WaysideController> blockControllerMapGreen = new HashMap<Integer, WaysideController>();
-	HashMap<Integer, WaysideController> blockControllerMapRed = new HashMap<Integer,WaysideController>();
+	public TrackModel tracks;
+	public String failure = null;
+	public HashMap<Integer, WaysideController> blockControllerMapGreen = new HashMap<Integer, WaysideController>();
+	public HashMap<Integer, WaysideController> blockControllerMapRed = new HashMap<Integer,WaysideController>();
 	
 	
 	private boolean createGreenControllers(track_model.TrackLayout t) {
@@ -21,6 +21,8 @@ public class WaysideSystem {
 			blockControllerMapGreen.put(i, wc1);
 		}
 		wc1.addBlocks(tc1);
+		PLC1 plc1 = new PLC1(tc1);
+		wc1.plc = plc1;
 		
 		WaysideController wc2 = new WaysideController();
 		ArrayList<TrackBlock> tc2 = new ArrayList<TrackBlock>();
@@ -29,6 +31,9 @@ public class WaysideSystem {
 			blockControllerMapGreen.put(i, wc2);
 		}
 		wc2.addBlocks(tc2);
+		//PLC2 plc2 = new PLC2(tc2);
+		//wc2.plc = plc2;
+		
 		
 		WaysideController wc3 = new WaysideController();
 		ArrayList<TrackBlock> tc3 = new ArrayList<TrackBlock>();
@@ -213,5 +218,9 @@ public class WaysideSystem {
 	 */
 	public boolean setBeacon(String beacon, int blockNum) {
 		return true;
+	}
+	
+	public void runPLC(WaysideController w) {
+		w.runPLC();
 	}
 }

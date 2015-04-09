@@ -26,7 +26,7 @@ public class TrainModel {
 	public int crewCount = 0;
 	public int passengerCount = 0;
 	
-	public double position = 0;	// m
+	public double position = 0;	// ft
 	
 	String beaconMsg = "No beacon";
 	
@@ -61,13 +61,11 @@ public class TrainModel {
 	public double commandedSpeed = 0;	// km/h
 	public double commandedAuthority = 0;	// ???
 	
-	private MovingBlockOverlay MBO = null;
 	
 	// Constructor used when a train is spawned
-	public TrainModel (String name, short number, MovingBlockOverlay movingBlock) {
+	public TrainModel (String name, short number) {
 		this.trainID = number;
 		this.trainName = name;
-		this.MBO = movingBlock;
 		// TODO: Instantiate GUI (system mode)
 		// TODO: this.trainController = new TrainController();
 	}

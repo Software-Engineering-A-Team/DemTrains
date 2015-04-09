@@ -31,7 +31,7 @@ public class WaysideController {
 	 * outputs to ensure safe operation of the system.
 	 */
 	public void runPLC() {
-		
+		plc.run();
 	}
 	
 	/*

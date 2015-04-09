@@ -12,7 +12,7 @@ public class Schedule {
 		currentTrainStops = new HashMap<String, StopData>();
 	}
 
-	/*
+	/**
 	 * gets the StopData for the stop the train should go to next
 	 */
 	private StopData getNextStopForTrain(String trainId){
@@ -23,7 +23,7 @@ public class Schedule {
 		return trainStops.get(nextStationName);
 	}
 	
-	/*
+	/**
 	 * Adds a stop to the map of possible stops trains can make
 	 */
 	public void addNewStop(String startStation, String destination, double minutes){
@@ -31,7 +31,7 @@ public class Schedule {
 		minutesForOneTrip += minutes;
 	}
 	
-	/*
+	/**
 	 * Adds a stop to the map of possible stops trains can make
 	 */
 	public void addNewStop(StopData newStopData){
@@ -39,7 +39,7 @@ public class Schedule {
 		minutesForOneTrip += newStopData.travelTime;
 	}
 	
-	/*
+	/**
 	 * Gets the next stop the train should make and sets the train's StopData to the next stop
 	 */
 	public StopData getAndSetNextStopForTrain(String trainId){

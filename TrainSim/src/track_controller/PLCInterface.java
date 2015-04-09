@@ -1,4 +1,5 @@
 package track_controller;
+import track_model.TrackBlock;
 
 public interface PLCInterface {
 	/*
@@ -15,20 +16,25 @@ public interface PLCInterface {
 	 * Determines safe state of the track heater and returns the state
 	 * true on, false off
 	 */
-	public boolean ctrlHeater(int blockNum);
+	public boolean ctrlHeater(TrackBlock b);
 	/*
 	 * Determines safe state of the lights and returns the state
 	 * true green, false red
 	 */
-	public boolean ctrlLights(int blockNum);
+	public boolean ctrlLights(TrackBlock b);
 	/*
 	 * Determines safe speed and authority and returns 
 	 * 
 	 */
-	public boolean ctrlSpeedAuthority(int blockNum);
+	public boolean ctrlSpeedAuthority(TrackBlock b, double speed, double authority);
 	/*
 	 * Determines safe closing of block and returns block state
 	 * true for open, false for closed
 	 */
-	public boolean ctrlBlockClosed(int blockNum);
+	public boolean ctrlBlockClosed(TrackBlock b);
+	/*
+	 * Runs all necessary plc to determine safe function for the
+	 * entire area covered by the controller.
+	 */
+	public void run();
 }

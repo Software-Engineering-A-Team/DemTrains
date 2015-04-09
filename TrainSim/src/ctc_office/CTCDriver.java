@@ -29,6 +29,7 @@ public class CTCDriver {
 	   for (TrackLayout t : lines.values()) {
 	       // dispatch all new trains and calculate their routes.
 	       t.dispatchNewTrains();
+	       t.routeTrainFromYard();
 	       t.getUpdatedTrainRoutes();
 	       // if in fixed block mode, calculate the estimated positions of those trains.
 	       if (!MBOModeEnabled) {
@@ -37,7 +38,7 @@ public class CTCDriver {
 	   }
 	 	return true;
 	 }
-	 
+
 	/**
 	 * Sets the trackLayout and the scheduler to fixed block mode
 	 */
@@ -78,9 +79,9 @@ public class CTCDriver {
 	 * Manually spawns a new train with the routing data that was passed into the method.
 	 * Returns false if a train with that name already exists.
 	 */
-	public boolean manuallyDispatchNewTrain(String lineName, String trainId, int destinationBlock, double speed, double authority) {
-		if (lines.get(lineName).dispatchTrain(trainId, destinationBlock, speed, authority)) {
-			manuallyRoutedTrains.get(lineName).add(trainId);
+	public boolean manuallyDispatchNewTrain(String lineName, String trainName, int destinationBlock, double speed, double authority) {
+		if (lines.get(lineName).dispatchTrain(trainName, new BlockStopData(destinationBlock, speed, authority))) {
+			manuallyRoutedTrains.get(lineName).add(trainName);
 			return true;
 		}
 		return false;
@@ -90,20 +91,20 @@ public class CTCDriver {
 	 * Manually spawns a new train with the routing data that was passed into the method at the fastest speed possible.
 	 * Returns false if a train with that name already exists.
 	 */
-	public boolean manuallyDispatchNewTrain(String lineName, String trainId, int destinationBlock, double authority) {
+	public boolean manuallyDispatchNewTrain(String lineName, String trainName, int destinationBlock, double authority) {
 			
-		return this.manuallyDispatchNewTrain(lineName, trainId, destinationBlock, Integer.MAX_VALUE, authority);
+		return this.manuallyDispatchNewTrain(lineName, trainName, destinationBlock, Integer.MAX_VALUE, authority);
 	}
 
 	/*
 	 * Manually routes a train to its destination block at the user specified speed.
 	 * Only trains created manually can be manually routed.
 	 */
-	public boolean manuallyRouteTrain(String lineName, String trainId, int destinationBlock, double speed, double authority){
-		if (!manuallyRoutedTrains.get(lineName).contains(trainId)) {
+	public boolean manuallyRouteTrain(String lineName, String trainName, int destinationBlock, double speed, double authority){
+		if (!manuallyRoutedTrains.get(lineName).contains(trainName)) {
 			return false;
 		}
-		lines.get(lineName).manuallyRouteTrain(trainId, destinationBlock, speed, authority);
+		lines.get(lineName).manuallyRouteTrain(trainName, destinationBlock, speed, authority);
 		return true;
 	}
 
@@ -111,8 +112,8 @@ public class CTCDriver {
 	 * Manually routes a train to its destination as fast as possible.
 	 * Only trains created manually can be manually routed.
 	 */
-	public boolean manuallyRouteTrain(String lineName, String trainId, int destinationBlock, double authority){
-		return this.manuallyRouteTrain(lineName, trainId, destinationBlock, Integer.MAX_VALUE, authority);
+	public boolean manuallyRouteTrain(String lineName, String trainName, int destinationBlock, double authority){
+		return this.manuallyRouteTrain(lineName, trainName, destinationBlock, Integer.MAX_VALUE, authority);
 	}
 
 	/**
