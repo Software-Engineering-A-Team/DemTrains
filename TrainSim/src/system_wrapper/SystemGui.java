@@ -24,6 +24,7 @@ public static void main(String[] args) {
       public void run() {
         try {
           SystemGui window = new SystemGui();
+          window.setDefaultCloseOperation(EXIT_ON_CLOSE);
           window.setVisible(true);
         } catch (Exception e) {
           e.printStackTrace();
