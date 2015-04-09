@@ -33,6 +33,10 @@ import javax.swing.JScrollBar;
 import javax.swing.JTextArea;
 
 import system_wrapper.SystemWrapper;
+import javax.swing.JTabbedPane;
+import net.miginfocom.swing.MigLayout;
+import java.awt.Component;
+import javax.swing.Box;
 
 public class MBOGUI extends JFrame{
 	private JTextField startTimeTextField;	
@@ -50,7 +54,6 @@ public class MBOGUI extends JFrame{
 	private JTextField SatGtextField;
 	private JTextField SunRtextField;
 	private JTextField SunGtextField;
-	private JTable table;
 	
 	int[] throughputArray;
 	int startTime;
@@ -71,18 +74,11 @@ public class MBOGUI extends JFrame{
 		getContentPane().setLayout(springLayout);
 		
 		JPanel createSchedPanel = new JPanel();
+		springLayout.putConstraint(SpringLayout.NORTH, createSchedPanel, 132, SpringLayout.NORTH, getContentPane());
 		springLayout.putConstraint(SpringLayout.WEST, createSchedPanel, 10, SpringLayout.WEST, getContentPane());
-		springLayout.putConstraint(SpringLayout.SOUTH, createSchedPanel, 484, SpringLayout.NORTH, getContentPane());
+		springLayout.putConstraint(SpringLayout.SOUTH, createSchedPanel, -121, SpringLayout.SOUTH, getContentPane());
 		createSchedPanel.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		springLayout.putConstraint(SpringLayout.NORTH, createSchedPanel, 10, SpringLayout.NORTH, getContentPane());
 		getContentPane().add(createSchedPanel);
-		
-		JPanel displaySchedPanel = new JPanel();
-		springLayout.putConstraint(SpringLayout.WEST, displaySchedPanel, 330, SpringLayout.WEST, getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, displaySchedPanel, -323, SpringLayout.EAST, getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, createSchedPanel, -6, SpringLayout.WEST, displaySchedPanel);
-		springLayout.putConstraint(SpringLayout.NORTH, displaySchedPanel, 10, SpringLayout.NORTH, getContentPane());
-		springLayout.putConstraint(SpringLayout.SOUTH, displaySchedPanel, -10, SpringLayout.SOUTH, getContentPane());
 		createSchedPanel.setLayout(null);
 		
 		JLabel lblEnterScheduleStart = new JLabel("Enter Schedule Start Time:");
@@ -119,14 +115,14 @@ public class MBOGUI extends JFrame{
 		lblEnterThroughput.setForeground(Color.BLUE);
 		createSchedPanel.add(lblEnterThroughput);
 		
-		JLabel lblMonday = new JLabel("              Red Track");
-		lblMonday.setBounds(31, 140, 141, 20);
+		JLabel lblMonday = new JLabel("              Red Line");
+		lblMonday.setBounds(40, 140, 141, 20);
 		lblMonday.setForeground(Color.RED);
 		lblMonday.setHorizontalAlignment(SwingConstants.LEFT);
 		createSchedPanel.add(lblMonday);
 		
-		JLabel lblGreenTrack = new JLabel("    Green Track");
-		lblGreenTrack.setBounds(177, 140, 106, 20);
+		JLabel lblGreenTrack = new JLabel("    Green Line");
+		lblGreenTrack.setBounds(185, 140, 106, 20);
 		lblGreenTrack.setForeground(new Color(0, 128, 0));
 		createSchedPanel.add(lblGreenTrack);
 		
@@ -285,24 +281,66 @@ public class MBOGUI extends JFrame{
 		btnCreateSchedule.setFont(new Font("Tahoma", Font.BOLD, 18));
 		btnCreateSchedule.setBounds(50, 411, 208, 31);
 		createSchedPanel.add(btnCreateSchedule);
-		getContentPane().add(displaySchedPanel);
 		
 		JPanel displaySafeAuthPanel = new JPanel();
-		springLayout.putConstraint(SpringLayout.WEST, displaySafeAuthPanel, 6, SpringLayout.EAST, displaySchedPanel);
-		
-		JLabel lblSchedule = new JLabel("Schedule:");
-		displaySchedPanel.add(lblSchedule);
-		
-		table = new JTable();
-		displaySchedPanel.add(table);
 		springLayout.putConstraint(SpringLayout.NORTH, displaySafeAuthPanel, 10, SpringLayout.NORTH, getContentPane());
-		springLayout.putConstraint(SpringLayout.SOUTH, displaySafeAuthPanel, -10, SpringLayout.SOUTH, getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, displaySafeAuthPanel, -22, SpringLayout.EAST, getContentPane());
+		springLayout.putConstraint(SpringLayout.EAST, displaySafeAuthPanel, -24, SpringLayout.EAST, getContentPane());
 		getContentPane().add(displaySafeAuthPanel);
-		displaySafeAuthPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		displaySafeAuthPanel.setLayout(new MigLayout("", "[][][grow][]", "[][][]"));
 		
-		JLabel lblTrain = new JLabel("Train: ");
-		displaySafeAuthPanel.add(lblTrain);
+		JLabel lblTrainSafeMoving = new JLabel("Safe Moving Block Authority:");
+		lblTrainSafeMoving.setFont(new Font("Tahoma", Font.BOLD, 18));
+		displaySafeAuthPanel.add(lblTrainSafeMoving, "cell 0 0 3 1");
+		
+		Component verticalStrut = Box.createVerticalStrut(20);
+		displaySafeAuthPanel.add(verticalStrut, "cell 0 1");
+		
+		JLabel lblTrackLine_1 = new JLabel("Track Line:");
+		displaySafeAuthPanel.add(lblTrackLine_1, "cell 0 2,alignx trailing");
+		
+		Component horizontalStrut = Box.createHorizontalStrut(20);
+		displaySafeAuthPanel.add(horizontalStrut, "cell 1 2");
+		
+		JComboBox comboBox_3 = new JComboBox();
+		comboBox_3.setModel(new DefaultComboBoxModel(new String[] {"Red Line", "Green Line"}));
+		displaySafeAuthPanel.add(comboBox_3, "cell 2 2,growx");
+		
+		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		springLayout.putConstraint(SpringLayout.EAST, createSchedPanel, -6, SpringLayout.WEST, tabbedPane);
+		springLayout.putConstraint(SpringLayout.NORTH, tabbedPane, 10, SpringLayout.NORTH, getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, tabbedPane, 330, SpringLayout.WEST, getContentPane());
+		springLayout.putConstraint(SpringLayout.SOUTH, tabbedPane, -10, SpringLayout.SOUTH, getContentPane());
+		springLayout.putConstraint(SpringLayout.EAST, tabbedPane, -325, SpringLayout.EAST, getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, displaySafeAuthPanel, 6, SpringLayout.EAST, tabbedPane);
+		springLayout.putConstraint(SpringLayout.SOUTH, displaySafeAuthPanel, 0, SpringLayout.SOUTH, tabbedPane);
+		getContentPane().add(tabbedPane);
+		
+		JPanel trainSchedulePanel = new JPanel();
+		trainSchedulePanel.setToolTipText("");
+		tabbedPane.addTab("Train Schedule", null, trainSchedulePanel, null);
+		trainSchedulePanel.setLayout(null);
+		
+		JLabel lblTrackLine = new JLabel("Track Line:");
+		lblTrackLine.setBounds(10, 20, 79, 20);
+		trainSchedulePanel.add(lblTrackLine);
+		
+		JComboBox comboBox_1 = new JComboBox();
+		comboBox_1.setBounds(95, 15, 107, 26);
+		comboBox_1.setModel(new DefaultComboBoxModel(new String[] {"Red Line", "Green Line"}));
+		trainSchedulePanel.add(comboBox_1);
+		
+		JLabel lblNewLabel = new JLabel("Day of Week:");
+		lblNewLabel.setBounds(230, 20, 95, 20);
+		trainSchedulePanel.add(lblNewLabel);
+		
+		JComboBox comboBox_2 = new JComboBox();
+		comboBox_2.setBounds(330, 15, 111, 26);
+		comboBox_2.setModel(new DefaultComboBoxModel(new String[] {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"}));
+		trainSchedulePanel.add(comboBox_2);
+		
+		JPanel crewSchedulePanel = new JPanel();
+		tabbedPane.addTab("Crew Schedule", null, crewSchedulePanel, null);
+		crewSchedulePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		
 		
 		
