@@ -3,6 +3,7 @@ package train_model;
 
 import java.util.ArrayList;
 
+import system_wrapper.SimClock;
 import mbo.MovingBlockOverlay;
 
 
@@ -210,11 +211,17 @@ public class TrainModel {
 	 * Called on a clock tick to update the train's information
 	 */
 	public void run() {
-		// Get power command from Train Controller
-		// Calculate the force
-		// Calculate the acceleration
+		// Get time difference needed for calculations
+		// divide by 1000 to get value in seconds
+		double delta = (double)SimClock.getDeltaMs() / 1000;	
+
 		// Calculate the current velocity
+		this.calcVelocity(delta);
+		// Update weight of the train
+		this.calcWeight();
+		
 		// Update position
+		this.calcPosition(delta);
 		// Check if we need a new Track Block
 	}
 	
@@ -246,22 +253,47 @@ public class TrainModel {
 	 * Calculates the velocity of the train using the equation
 	 * v = (P/v) * (1/m) * (1/s)
 	 */
-	private double calcVelocity() {
-		double newVelocity = (powCommand / this.velocity) * (1 / this.weight) * (1 / sec);
+	private void calcVelocity(double sec) {
+		double newForce = 0, newAccel = 0, newVelocity = 0;
+		
+		// Calculate the force
+		if (this.velocity == 0) {	// if velocity == 0, use max power
+			newForce = powCommand / 0.001;
+		} else if (velocity != 0) {
+			newForce = (powCommand / this.velocity);
+		}
+		if (this.engineFailure == true) {
+			newForce = 0;
+		}
+		
+		// Calculate the acceleration
+		if (this.sBrake == false && this.eBrake == false) {
+			newAccel = newForce / this.weight;
+		} else if (this.sBrake == true && this.brakeFailure == false) {
+			newAccel = (newForce / this.weight) + SBRAKE_ACCEL;
+		} else if (this.eBrake == true) {
+			newAccel = (newForce / this.weight) + EBRAKE_ACCEL;
+		}
+		if (this.velocity == 0 && this.accel < 0)
+			newAccel = 0;
+		
+		newVelocity += newAccel * (1 / sec);
+		if (newVelocity < 0)
+			newVelocity = 0;
+		
+		this.force = newForce;
+		this.accel = newAccel;
 		this.velocity = newVelocity;
-		return newVelocity;
-		// TODO: account for engine failures
-		// TODO: determine what the time interval is for the calculation
+		// TODO: account for track grade variations
+		// TODO: account for friction..?
 	}
 	
 	/*
 	 * Calculates the position of the train
 	 */
-	private double calcPosition() {
+	private void calcPosition(double sec) {
 		double newPosition = (this.velocity / sec);
 		this.position += newPosition;
-		return newPosition;
-		// TODO: figure out how to get time interval
 	}
 	
 	
