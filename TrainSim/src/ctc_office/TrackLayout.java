@@ -23,10 +23,10 @@ public class TrackLayout {
 	private final char trainIdPrefix;
 	private HashMap<String, StopData> yardTrainStopData = new HashMap<String,StopData>();
 
-	public TrackLayout(DirectedMultigraph<Integer, DefaultEdge> tLayout, List<TrackBlock> tBlockData,  HashMap<Integer, List<WaysideController>> controllerMap, char tPrefix) {
+	public TrackLayout(DirectedMultigraph<Integer, DefaultEdge> tLayout, List<TrackBlock> tBlockData,  HashMap<Integer, List<WaysideController>> controllerMap, String tPrefix) {
 		layout = tLayout;
 		blockToControllerMap = controllerMap;
-		trainIdPrefix = tPrefix;
+		trainIdPrefix = tPrefix.toLowerCase().charAt(0);
 		blockData = new ArrayList<DefaultBlock>(tBlockData.size());
         blockData.add(0, new Yard());
 		for (TrackBlock b : tBlockData) {
@@ -56,7 +56,7 @@ public class TrackLayout {
                 blockData.add(blockNum, new DefaultBlock(blockNum, blockLen, speedLimit, occupiedStatus, brokenStatus));
             }
 		}
-        trainRouter = new TrainRouter(tLayout, blockData, allStations);
+        trainRouter = new TrainRouter(tLayout, blockData, allStations, tPrefix);
 	}
 	
 	/**

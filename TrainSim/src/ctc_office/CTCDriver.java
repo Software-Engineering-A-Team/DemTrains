@@ -185,7 +185,7 @@ public class CTCDriver {
 	 * Creates a new track layout given a graph of blocks and a list of blockData
 	 */
 	public boolean setTrackLayout(String lineName, DirectedMultigraph<Integer, DefaultEdge> layout, List<track_model.TrackBlock> blockData, HashMap<Integer, List<WaysideController>> controllerMap) {
-		lines.put(lineName, new TrackLayout(layout, blockData, controllerMap, lineName.toLowerCase().charAt(0)));
+		lines.put(lineName, new TrackLayout(layout, blockData, controllerMap, lineName));
 		return true;
 	}
 

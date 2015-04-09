@@ -11,12 +11,14 @@ import train_controller.*;
 import train_model.*;
 
 public class SystemWrapper {
+  public static double perceivedTimeMultiplier = 1;
   public static SimClock simClock = new SimClock(10);
+  public static CTCDriver ctcOffice = new CTCDriver();
   public static ArrayList<TrainModel> trainModels = new ArrayList<TrainModel>();
   public static TrackModel trackMod = new TrackModel();
   public static WaysideSystem waysideSys = new WaysideSystem(trackMod);
   public static MovingBlockOverlay mbo = new MovingBlockOverlay();
-  public static CTCDriver ctcOffice = new CTCDriver();
   public static JFrame trackControllerGui = new TrackControllerGUI(waysideSys);
   public static JFrame trainControllerGui = new TrainControllerGui();
+  public static JFrame ctcGUI = new CTCGUI();
 }

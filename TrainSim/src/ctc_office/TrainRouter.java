@@ -10,13 +10,15 @@ public class TrainRouter {
 	private final ArrayList<DefaultBlock> blockData;
 	private final HashMap<String, StationBlock> allStations;
 	private final DirectedMultigraph<Integer, DefaultEdge> layout;
+	private final String lineName;
 	private HashMap<Short, TrainRoute> trainRoutes;
-	ArrayList<Train> trains;
+	private ArrayList<Train> trains;
 
-	public TrainRouter(DirectedMultigraph<Integer, DefaultEdge> l, ArrayList<DefaultBlock> bData, HashMap<String, StationBlock> stations) {
+	public TrainRouter(DirectedMultigraph<Integer, DefaultEdge> l, ArrayList<DefaultBlock> bData, HashMap<String, StationBlock> stations, String lName) {
 		layout = l;
 		blockData = bData;
 		allStations = stations;
+		lineName = lName;
 	}
 
 	/**
