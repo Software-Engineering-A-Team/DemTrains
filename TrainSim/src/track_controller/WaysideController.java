@@ -3,9 +3,11 @@ import javax.tools.*;
 //import track_model.TrackBlock;
 import track_model.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class WaysideController {
 	ArrayList<TrackBlock> affectedBlocks = new ArrayList<TrackBlock>();
+	HashMap<Integer, TrackBlock> blockMap = new HashMap<Integer, TrackBlock>();
 	PLCInterface plc;
 	int span = 0;
 	
@@ -41,6 +43,7 @@ public class WaysideController {
 	public boolean addBlocks(ArrayList<TrackBlock> b) {
 		for (TrackBlock block: b){
 			affectedBlocks.add(block);
+			blockMap.put(block.number, block);
 			span++;
 		}
 		return true;

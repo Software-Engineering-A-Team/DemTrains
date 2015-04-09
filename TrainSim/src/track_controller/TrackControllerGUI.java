@@ -43,6 +43,7 @@ public class TrackControllerGUI extends JFrame {
 	private JTable table;
 	private String switchStatus = "No information available.";
 	private String crossingStatus = "No information available.";
+	private boolean sysMode = false;
 	/**
 	 * Launch the application.
 	 */
@@ -53,7 +54,7 @@ public class TrackControllerGUI extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					TrackControllerGUI frame = new TrackControllerGUI(ws);
+					TrackControllerGUI frame = new TrackControllerGUI(ws, false);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -65,8 +66,9 @@ public class TrackControllerGUI extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public TrackControllerGUI(WaysideSystem w) {
+	public TrackControllerGUI(WaysideSystem w, boolean m) {
 		wContrl = w;
+		sysMode = m;
 		initialize();
 	}
 	
@@ -100,7 +102,7 @@ public class TrackControllerGUI extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				
 				if(blockPicker.getSelectedItem()!=null) {
-					currentBlock = wContrl.tracks.getLine(currentLine).blocks.get(Integer.parseInt(blockPicker.getSelectedItem().toString())-1);
+					currentBlock = wContrl.tracks.getLine(currentLine).blocks.get(Integer.parseInt(blockPicker.getSelectedItem().toString()));
 					if(currentLine!=null && currentLine.equals("Green")) {
 						currentController = wContrl.blockControllerMapGreen.get(currentBlock.number);	
 					}

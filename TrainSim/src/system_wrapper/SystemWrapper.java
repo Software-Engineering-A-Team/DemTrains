@@ -17,6 +17,6 @@ public class SystemWrapper {
   public static WaysideSystem waysideSys = new WaysideSystem(trackMod);
   public static MovingBlockOverlay mbo = new MovingBlockOverlay();
   public static CTCDriver ctcOffice = new CTCDriver();
-  public static JFrame trackControllerGui = new TrackControllerGUI(waysideSys);
+  public static JFrame trackControllerGui = new TrackControllerGUI(waysideSys, true);
   public static JFrame trainControllerGui = new TrainControllerGui();
 }
