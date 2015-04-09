@@ -195,7 +195,7 @@ public class TrackLayout {
 	 * This method doesn't take into account acceleration time,
 	 * but when the train reaches the end of a block it will be more accurate
 	 */
-	public boolean setEstimatedTrainLocaitons() {
+	public boolean setEstimatedTrainLocations() {
 		// TODO
 		// for all of the trains on the track, calculate the estimated position on its current block.
 		return true;

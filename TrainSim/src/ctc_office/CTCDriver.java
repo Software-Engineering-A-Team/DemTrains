@@ -33,7 +33,7 @@ public class CTCDriver {
 	       t.getUpdatedTrainRoutes();
 	       // if in fixed block mode, calculate the estimated positions of those trains.
 	       if (!MBOModeEnabled) {
-	           t.setEstimatedTrainLocaitons();
+	           t.setEstimatedTrainLocations();
 	       }
 	   }
 	 	return true;

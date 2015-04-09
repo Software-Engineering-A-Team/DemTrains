@@ -59,6 +59,7 @@ public class CTCGUI extends JFrame{
 	private JPanel trackInfoPanel;
 	private JPanel trackTablePanel;
 	private JPanel trainTablePanel;
+	private JPanel trackLayoutPanel;
 	
 	public CTCGUI() {
 		setResizable(false);
@@ -76,24 +77,24 @@ public class CTCGUI extends JFrame{
 		springLayout.putConstraint(SpringLayout.EAST, trainTablePanel, 661, SpringLayout.WEST, getContentPane());
 		getContentPane().add(trainTablePanel);
 		
-		JPanel TrackLayoutPanel = new JPanel();
-		springLayout.putConstraint(SpringLayout.NORTH, TrackLayoutPanel, 0, SpringLayout.SOUTH, trainTablePanel);
-		springLayout.putConstraint(SpringLayout.WEST, TrackLayoutPanel, 0, SpringLayout.WEST, getContentPane());
-		springLayout.putConstraint(SpringLayout.SOUTH, TrackLayoutPanel, -248, SpringLayout.SOUTH, getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, TrackLayoutPanel, 0, SpringLayout.EAST, trainTablePanel);
-		TrackLayoutPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
-		TrackLayoutPanel.setBackground(Color.WHITE);
-		getContentPane().add(TrackLayoutPanel);
-		TrackLayoutPanel.setLayout(new CardLayout(0, 0));
+		trackLayoutPanel = new JPanel();
+		springLayout.putConstraint(SpringLayout.NORTH, trackLayoutPanel, 0, SpringLayout.SOUTH, trainTablePanel);
+		springLayout.putConstraint(SpringLayout.WEST, trackLayoutPanel, 0, SpringLayout.WEST, getContentPane());
+		springLayout.putConstraint(SpringLayout.SOUTH, trackLayoutPanel, -248, SpringLayout.SOUTH, getContentPane());
+		springLayout.putConstraint(SpringLayout.EAST, trackLayoutPanel, 0, SpringLayout.EAST, trainTablePanel);
+		trackLayoutPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
+		trackLayoutPanel.setBackground(Color.WHITE);
+		getContentPane().add(trackLayoutPanel);
+		trackLayoutPanel.setLayout(new CardLayout(0, 0));
 		
 		JLabel todoLable = new JLabel("TODO: the track layout will be displayed here in the form of a graph.");
-		TrackLayoutPanel.add(todoLable, "name_618311658298787");
+		trackLayoutPanel.add(todoLable, "name_618311658298787");
 		
 		JScrollPane TrackLayoutScrollPane = new JScrollPane();
-		TrackLayoutPanel.add(TrackLayoutScrollPane, "name_618311680360271");
+		trackLayoutPanel.add(TrackLayoutScrollPane, "name_618311680360271");
 		
 		trackTablePanel = new JPanel();
-		springLayout.putConstraint(SpringLayout.NORTH, trackTablePanel, 0, SpringLayout.SOUTH, TrackLayoutPanel);
+		springLayout.putConstraint(SpringLayout.NORTH, trackTablePanel, 0, SpringLayout.SOUTH, trackLayoutPanel);
 		springLayout.putConstraint(SpringLayout.SOUTH, trackTablePanel, 0, SpringLayout.SOUTH, getContentPane());
 		trackTablePanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		springLayout.putConstraint(SpringLayout.WEST, trackTablePanel, 0, SpringLayout.WEST, getContentPane());
@@ -104,33 +105,19 @@ public class CTCGUI extends JFrame{
 		trackTable.setRowSelectionAllowed(false);
 		trackTableModel = new DefaultTableModel(
 				new Object[][] {
-						{"Block Number", "Block Length", "Speed Limit (MPH)", "Block Type", "Occupied Status", "Broken"},
-					},
-					new String[] {
-						"Block Number", "Block Length", "Speed Limit (MPH)", "Block Type", "Occupied Status", "Broken"
-					}
-				) {
-					Class[] columnTypes = new Class[] {
-						String.class, String.class, String.class, String.class, String.class, String.class
-					};
-					public Class getColumnClass(int columnIndex) {
-						return columnTypes[columnIndex];
-					}
+				},
+				new String[] {
+					"Block Number", "Block Length", "Speed Limit (MPH)", "Block Type", "Occupied Status", "Broken"
+				}
+			) {
+				Class[] columnTypes = new Class[] {
+					String.class, String.class, String.class, String.class, String.class, String.class
 				};
-		trackTable.setModel(new DefaultTableModel(
-			new Object[][] {
-			},
-			new String[] {
-				"Block Number", "Block Length", "Speed Limit (MPH)", "Block Type", "Occupied Status", "Broken"
-			}
-		) {
-			Class[] columnTypes = new Class[] {
-				String.class, String.class, String.class, String.class, String.class, String.class
+				public Class getColumnClass(int columnIndex) {
+					return columnTypes[columnIndex];
+				}
 			};
-			public Class getColumnClass(int columnIndex) {
-				return columnTypes[columnIndex];
-			}
-		});
+		trackTable.setModel(trackTableModel);
 		trackTable.getColumnModel().getColumn(2).setPreferredWidth(107);
 		trackTablePanel.setLayout(new BorderLayout(0, 0));
 		trackTablePanel.add(trackTable);
@@ -140,54 +127,38 @@ public class CTCGUI extends JFrame{
 		trackTablePanel.add(trackTableScrollPane);
 		
 		trackInfoPanel = new JPanel();
-		springLayout.putConstraint(SpringLayout.WEST, trackInfoPanel, 0, SpringLayout.EAST, trainTablePanel);
+		springLayout.putConstraint(SpringLayout.WEST, trackInfoPanel, 6, SpringLayout.EAST, trainTablePanel);
 		springLayout.putConstraint(SpringLayout.SOUTH, trackInfoPanel, 0, SpringLayout.SOUTH, getContentPane());
+		springLayout.putConstraint(SpringLayout.EAST, trackInfoPanel, 0, SpringLayout.EAST, getContentPane());
 		trackInfoPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-		trainTableModel = new DefaultTableModel(
-				new Object[][] {
-						{"Train Name", "Train ID", "Current Block", "Destination Block", "Speed (MPH)", "Authority (yards)"},
-					},
-					new String[] {
-						"Train Name", "Train ID", "Current Block", "Destination Block", "Speed (MPH)", "Authority (yards)"
-					}
-				) {
-					Class[] columnTypes = new Class[] {
-						String.class, String.class, String.class, String.class, String.class, String.class
-					};
-					public Class getColumnClass(int columnIndex) {
-						return columnTypes[columnIndex];
-					}
-				};
-		
 		trainTable = new JTable();
 		trainTable.setRowSelectionAllowed(false);
-		trainTable.setModel(new DefaultTableModel(
-			new Object[][] {
-			},
-			new String[] {
-				"Train Name", "Train ID", "Current Block", "Destination Block", "Speed (MPH)", "Authority (yards)"
-			}
-		) {
-			Class[] columnTypes = new Class[] {
-				String.class, String.class, String.class, String.class, String.class, String.class
+		trainTableModel = new DefaultTableModel(
+				new Object[][] {
+				},
+				new String[] {
+					"Train Name", "Train ID", "Destination Block", "Speed(MPH)", "Authority (Yards)"
+				}
+			) {
+				Class[] columnTypes = new Class[] {
+					String.class, String.class, String.class, String.class, String.class, String.class
+				};
+				public Class getColumnClass(int columnIndex) {
+					return columnTypes[columnIndex];
+				}
 			};
-			public Class getColumnClass(int columnIndex) {
-				return columnTypes[columnIndex];
-			}
-		});
-		trainTable.getColumnModel().getColumn(3).setPreferredWidth(91);
-		trainTable.getColumnModel().getColumn(5).setPreferredWidth(102);
-		trainTablePanel.setLayout(new BorderLayout(0, 0));
+		trainTable.setModel(trainTableModel);
+		trainTable.getColumnModel().getColumn(2).setPreferredWidth(107);
+		trainTablePanel.setLayout(new CardLayout(0, 0));
 		trainTablePanel.add(trainTable);
 		
 		JScrollPane trainTableScrollPane = new JScrollPane(trainTable);
-		trainTableScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		trainTablePanel.add(trainTableScrollPane, BorderLayout.SOUTH);
+		trainTablePanel.add(trainTableScrollPane, "name_662215814722478");
 		getContentPane().add(trackInfoPanel);
 		
 		JPanel panel = new JPanel();
 		springLayout.putConstraint(SpringLayout.NORTH, trackInfoPanel, 2, SpringLayout.SOUTH, panel);
-		springLayout.putConstraint(SpringLayout.EAST, trackInfoPanel, 0, SpringLayout.EAST, panel);
+		springLayout.putConstraint(SpringLayout.WEST, panel, 6, SpringLayout.EAST, trainTablePanel);
 		trackInfoPanel.setLayout(null);
 		
 		JLabel trackInfoLabel = new JLabel("Block 0");
@@ -212,7 +183,6 @@ public class CTCGUI extends JFrame{
 		trackInfoPanel.add(btnNewButton);
 		springLayout.putConstraint(SpringLayout.SOUTH, panel, 60, SpringLayout.NORTH, getContentPane());
 		springLayout.putConstraint(SpringLayout.NORTH, panel, 0, SpringLayout.NORTH, getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, panel, 0, SpringLayout.EAST, trainTablePanel);
 		springLayout.putConstraint(SpringLayout.EAST, panel, 0, SpringLayout.EAST, getContentPane());
 		panel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		getContentPane().add(panel);
@@ -222,7 +192,7 @@ public class CTCGUI extends JFrame{
 		panel.add(lblLine);
 		
 		JComboBox lineSelector = new JComboBox();
-		lineSelector.setModel(new DefaultComboBoxModel(new String[] {"Red", "Green"}));
+		lineSelector.setModel(new DefaultComboBoxModel(new String[] {"Green", "Red"}));
 		panel.add(lineSelector);
 		
 		JLabel label = new JLabel("");
@@ -306,7 +276,20 @@ public class CTCGUI extends JFrame{
     	if (tLayout == null) {
     		return;
     	}
-    	trackTableModel.setRowCount(0);
+    	trackTableModel = new DefaultTableModel(
+				new Object[][] {
+				},
+				new String[] {
+					"Block Number", "Block Length", "Speed Limit (MPH)", "Block Type", "Occupied Status", "Broken"
+				}
+			) {
+				Class[] columnTypes = new Class[] {
+					String.class, String.class, String.class, String.class, String.class, String.class
+				};
+				public Class getColumnClass(int columnIndex) {
+					return columnTypes[columnIndex];
+				}
+			};
 
     	
     	// get the list of all the blocks
@@ -337,6 +320,8 @@ public class CTCGUI extends JFrame{
 
     		trackTableModel.addRow(new Object[] {b.blockNumber, b.blockLength, b.speedLimit, blockType, occupied, b.broken});
     	}
+    	trackTable.setModel(trackTableModel);
+    	trackTable.repaint();
 	}
 	
 	private void updateTrainTable() {
@@ -355,6 +340,7 @@ public class CTCGUI extends JFrame{
     	for (Train t : allTrains) {
     		trainTableModel.addRow(new Object[] {});
     	}
+    	trainTableModel.fireTableRowsUpdated(0, trackTableModel.getRowCount());
 
 	}
 	
