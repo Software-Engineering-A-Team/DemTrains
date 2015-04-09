@@ -1,16 +1,18 @@
 package track_controller;
 import javax.tools.*;
+
 import track_model.*;
 import ctc_office.TrainRoute;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class WaysideController {
-	ArrayList<TrackBlock> affectedBlocks = new ArrayList<TrackBlock>();
-	HashMap<Integer, TrackBlock> blockMap = new HashMap<Integer, TrackBlock>();
-	TrainRoute route;
-	PLCInterface plc;
-	int span = 0;
+	public ArrayList<TrackBlock> affectedBlocks = new ArrayList<TrackBlock>();
+	public HashMap<Integer, TrackBlock> blockMap = new HashMap<Integer, TrackBlock>();
+	public TrainRoute route;
+	public PLCInterface plc;
+	public int span = 0;
 	
 	public boolean containsSwitch = false;
 	public boolean containsCrossing = false;
@@ -64,5 +66,17 @@ public class WaysideController {
 			if(b.number == 86) foundSwitches.add((TrackSwitch)blockMap.get(86));
 		}
 		return foundSwitches;
+	}
+	
+	/*
+	 * Called by CTC to add a route
+	 * to a given wayside controller 
+	 */	
+	public TrainRoute addRoute(TrainRoute r) {
+		this.route = r;
+		this.plc.changeRoute(r);
+		boolean routeStatus = this.plc.checkRoute();
+		if(routeStatus) return null;
+		else return this.route;
 	}
 }

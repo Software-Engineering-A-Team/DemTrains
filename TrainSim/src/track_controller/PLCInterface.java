@@ -1,5 +1,6 @@
 package track_controller;
 import track_model.TrackBlock;
+import ctc_office.TrainRoute;
 
 public interface PLCInterface {
 	/*
@@ -37,4 +38,13 @@ public interface PLCInterface {
 	 * entire area covered by the controller.
 	 */
 	public void run();
+	/*
+	 *Checks that train route passed by CTC is safe.
+	 */
+	public boolean checkRoute();
+	
+	public void changeRoute(TrainRoute r);
+	
+	public boolean switchCtrl();
+	
 }

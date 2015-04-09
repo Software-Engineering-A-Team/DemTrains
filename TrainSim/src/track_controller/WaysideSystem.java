@@ -7,10 +7,9 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class WaysideSystem {
-	public TrackModel tracks;
-	public String failure = null;
-	public HashMap<Integer, WaysideController> blockControllerMapGreen = new HashMap<Integer, WaysideController>();
-	public HashMap<Integer, WaysideController> blockControllerMapRed = new HashMap<Integer,WaysideController>();
+	public  TrackModel tracks;
+	public  HashMap<Integer, WaysideController> blockControllerMapGreen = new HashMap<Integer, WaysideController>();
+	public  HashMap<Integer, WaysideController> blockControllerMapRed = new HashMap<Integer,WaysideController>();
 	
 	
 	private boolean createGreenControllers(track_model.TrackLayout t) {
@@ -32,7 +31,7 @@ public class WaysideSystem {
 			blockControllerMapGreen.put(i, wc2);
 		}
 		wc2.addBlocks(tc2);
-		PLC2 plc2 = new PLC2(wc2.blockMap);
+		PLC2 plc2 = new PLC2(wc2.blockMap, wc2.route);
 		wc2.plc = plc2;
 		wc2.containsCrossing = true;
 		
@@ -108,7 +107,7 @@ public class WaysideSystem {
 			blockControllerMapGreen.put(i, wc7);
 		}
 		wc7.addBlocks(tc7);
-		PLC7 plc7 = new PLC7(wc7.blockMap);
+		PLC7 plc7 = new PLC7(wc7.blockMap, wc7.route);
 		wc7.plc = plc7;
 		
 		WaysideController wc8 = new WaysideController();
@@ -118,7 +117,7 @@ public class WaysideSystem {
 			blockControllerMapGreen.put(i, wc8);
 		}
 		wc8.addBlocks(tc8);
-		PLC8 plc8 = new PLC8(wc8.blockMap);
+		PLC8 plc8 = new PLC8(wc8.blockMap, wc8.route);
 		wc8.plc = plc8;
 		
 		
@@ -129,9 +128,9 @@ public class WaysideSystem {
 			blockControllerMapGreen.put(i, wc9);
 		}
 		wc9.addBlocks(tc9);
-		PLC9 plc9 = new PLC9(wc9.blockMap);
+		PLC9 plc9 = new PLC9(wc9.blockMap, wc9.route);
 		wc9.plc = plc9;
-		
+		System.out.println("Done creating controllers.");
 		return true;
 	}
 	
@@ -267,17 +266,6 @@ public class WaysideSystem {
 		}
 		b.failure = failureMode;
 		return true;
-	}
-	
-	/*
-	 * Called by CTC to add a route
-	 * to a given wayside controller 
-	 */	
-	public TrainRoute addRoute(TrainRoute r, int startBlock) {
-		WaysideController needCntrl = blockControllerMapGreen.get(startBlock);
-		needCntrl.route = r;
-		//needCntrl.runPLC();
-		return null;
 	}
 	
 	/*

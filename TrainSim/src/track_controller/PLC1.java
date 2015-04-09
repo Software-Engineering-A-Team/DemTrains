@@ -7,13 +7,14 @@ import java.util.Collection;
 import java.util.HashMap;
 
 public class PLC1 implements PLCInterface {
-	HashMap<Integer, TrackBlock> controlledBlocks;
-	TrainRoute r;
+	private HashMap<Integer, TrackBlock> controlledBlocks;
+	public TrainRoute r;
+	boolean switchCtrlSuccess = false;
 	
 	
 	public PLC1(HashMap<Integer, TrackBlock> blockList, TrainRoute route){
-		controlledBlocks = blockList;
-		r = route;
+		this.controlledBlocks = blockList;
+		this.r = route;
 	}	
 	/*
 	 * Determines safe state of the railway crossing and returns the state
@@ -27,10 +28,11 @@ public class PLC1 implements PLCInterface {
 	 * true for second block in attach array , false for first block in attach array
 	 */
 	public boolean ctrlSwitch() {
-		
 		TrackSwitch relSwitch = (TrackSwitch) controlledBlocks.get(12);
+		if(this.r != null){
+			switchCtrlSuccess = true;
 			//compute nextBlock val
-			System.out.println(r.route.isEmpty());
+			System.out.println(this.r.route.size());
 			int indNextBlock = r.route.indexOf(12)+1;
 			System.out.println(indNextBlock);
 			int nextBlock = r.route.get(indNextBlock);
@@ -61,9 +63,9 @@ public class PLC1 implements PLCInterface {
 			else {
 				System.out.println("No criteria met. In else.");
 				if(!relSwitch.state) {}
-				
 				return relSwitch.state;
 			}
+		}
 		System.out.println("No criteria met.");
 		return relSwitch.state;
 	}
@@ -99,6 +101,33 @@ public class PLC1 implements PLCInterface {
 	public boolean ctrlBlockClosed(TrackBlock b){
 		if (b.hasFailure()) return true;
 		else if (!b.occupancy) return true;
+		else return false;
+	}
+	
+	/*
+	 * Checks this route for possibility of collisions
+	 * and other errors.
+	 */
+	public boolean checkRoute() {
+		if (this.r == null) return false;
+		for (int i : this.r.route) {
+			TrackBlock b = controlledBlocks.get(i);
+			if(b.occupancy) return false;
+		}
+	 return true;
+	}
+	
+	/*
+	 * Changes the route.
+	 */
+	public void changeRoute(TrainRoute route) {
+		this.r = route;
+	}
+	
+	public boolean switchCtrl() {
+		if (this.r != null & switchCtrlSuccess) { 
+			return true;
+		}
 		else return false;
 	}
 	

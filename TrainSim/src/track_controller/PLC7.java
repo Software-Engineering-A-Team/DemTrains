@@ -8,10 +8,12 @@ import java.util.HashMap;
 
 public class PLC7 implements PLCInterface {
 	HashMap<Integer, TrackBlock> controlledBlocks;
+	TrainRoute r;
+	boolean switchCtrlSuccess = false;
 		
-		
-	public PLC7(HashMap<Integer, TrackBlock> blockList){
-		controlledBlocks = blockList;
+	public PLC7(HashMap<Integer, TrackBlock> blockList, TrainRoute route){
+		this.controlledBlocks = blockList;
+		this.r = route;		
 	}	
 	
 	/*
@@ -64,6 +66,32 @@ public class PLC7 implements PLCInterface {
 	public boolean ctrlBlockClosed(TrackBlock b){
 		if (b.hasFailure()) return true;
 		else if (!b.occupancy) return true;
+		else return false;
+	}
+	
+	
+	/*
+	 * Checks this route for possibility of collisions
+	 * and other errors.
+	 */
+	public boolean checkRoute() {
+		if (this.r == null) return false;
+		for (int i : this.r.route) {
+			TrackBlock b = controlledBlocks.get(i);
+			if(b.occupancy) return false;
+		}
+	 return true;
+	}
+	
+	/*
+	 * Changes the route.
+	 */
+	public void changeRoute(TrainRoute route) {
+		this.r = route;
+	}
+	
+	public boolean switchCtrl() {
+		if (this.r != null) return true;
 		else return false;
 	}
 	

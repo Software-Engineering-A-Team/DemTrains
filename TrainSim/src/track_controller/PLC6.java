@@ -9,12 +9,25 @@ import java.util.HashMap;
 public class PLC6 implements PLCInterface {
 	HashMap<Integer, TrackBlock> controlledBlocks;
 	TrainRoute r;
-	
+	boolean switchCtrlSuccess = false;
 	
 	public PLC6(HashMap<Integer, TrackBlock> blockList, TrainRoute route){
-		controlledBlocks = blockList;
-		r = route;
+		this.controlledBlocks = blockList;
+		this.r = route;
 	}	
+	
+	/*
+	 * Changes the route.
+	 */
+	public void changeRoute(TrainRoute route) {
+		this.r = route;
+	}
+	
+	public boolean switchCtrl() {
+		if (this.r != null) return true;
+		else return false;
+	}
+	
 	/*
 	 * Determines safe state of the railway crossing and returns the state
 	 * true for active, false for inactive
@@ -111,6 +124,19 @@ public class PLC6 implements PLCInterface {
 		if (b.hasFailure()) return true;
 		else if (!b.occupancy) return true;
 		else return false;
+	}
+	
+	/*
+	 * Checks this route for possibility of collisions
+	 * and other errors.
+	 */
+	public boolean checkRoute() {
+		if (this.r == null) return false;
+		for (int i : this.r.route) {
+			TrackBlock b = controlledBlocks.get(i);
+			if(b.occupancy) return false;
+		}
+	 return true;
 	}
 	
 	/*

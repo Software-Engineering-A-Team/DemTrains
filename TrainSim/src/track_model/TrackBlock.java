@@ -44,6 +44,7 @@ public class TrackBlock {
 		this.underground = false;
 		this.connectsTo = null;
 		this.direction = null;
+		this.occupancy = false;
 	}
 	
 	/**
