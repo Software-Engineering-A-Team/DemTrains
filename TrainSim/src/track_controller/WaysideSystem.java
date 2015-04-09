@@ -52,6 +52,9 @@ public class WaysideSystem {
 		tc3.add(t.blocks.get(147));
 		blockControllerMapGreen.put(147, wc3);
 		wc3.addBlocks(tc3);
+		PLC3 plc3 = new PLC3(wc3.blockMap, wc3.route);
+		wc3.plc = plc3;
+		wc3.containsSwitch = true;
 		
 		WaysideController wc4 = new WaysideController();
 		ArrayList<TrackBlock> tc4 = new ArrayList<TrackBlock>();
@@ -60,6 +63,9 @@ public class WaysideSystem {
 			blockControllerMapGreen.put(i, wc4);
 		}
 		wc4.addBlocks(tc4);
+		PLC4 plc4 = new PLC4(wc4.blockMap, wc4.route);
+		wc4.plc = plc4;
+		wc4.containsSwitch = true;
 		
 		WaysideController wc5 = new WaysideController();
 		ArrayList<TrackBlock> tc5 = new ArrayList<TrackBlock>();
@@ -76,7 +82,9 @@ public class WaysideSystem {
 		tc5.add(t.blocks.get(104));
 		blockControllerMapGreen.put(104, wc5);
 		wc5.addBlocks(tc5);
-		
+		PLC5 plc5 = new PLC5(wc5.blockMap, wc5.route);
+		wc5.plc = plc5;
+		wc5.containsSwitch = true;
 		
 		WaysideController wc6 = new WaysideController();
 		ArrayList<TrackBlock> tc6 = new ArrayList<TrackBlock>();
@@ -89,6 +97,9 @@ public class WaysideSystem {
 		tc6.add(t.blocks.get(152));
 		blockControllerMapGreen.put(152, wc6);
 		wc6.addBlocks(tc6);
+		PLC6 plc6 = new PLC6(wc6.blockMap, wc6.route);
+		wc6.plc = plc6;
+		wc6.containsSwitch = true;
 		
 		WaysideController wc7 = new WaysideController();
 		ArrayList<TrackBlock> tc7 = new ArrayList<TrackBlock>();
@@ -265,7 +276,7 @@ public class WaysideSystem {
 	public TrainRoute addRoute(TrainRoute r, int startBlock) {
 		WaysideController needCntrl = blockControllerMapGreen.get(startBlock);
 		needCntrl.route = r;
-		needCntrl.runPLC();
+		//needCntrl.runPLC();
 		return null;
 	}
 	

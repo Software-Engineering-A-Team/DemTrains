@@ -52,7 +52,8 @@ public class TrackControllerGUI extends JFrame {
 	 */
 	public static void main(String[] args) {
 	  track_model.TrackModel t = new track_model.TrackModel();
-	  final WaysideSystem ws = new WaysideSystem(t);
+	  WaysideSystem ws = new WaysideSystem(t);
+	  System.out.println("Wayside system created successfully.");
 	  List<Integer> route = new ArrayList<Integer>();
 	  route.add(14);
 	  route.add(13);
@@ -70,8 +71,8 @@ public class TrackControllerGUI extends JFrame {
 	  route.add(1);
 	  route.add(12);
 	  route.add(13);
-	  TrainRoute r = new TrainRoute(13, route, 22.0, 1910);
-	  
+	  TrainRoute r = new TrainRoute(14, route, 22.0, 1910);
+	  ws.addRoute(r, 14);
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -202,7 +203,6 @@ public class TrackControllerGUI extends JFrame {
 		weatherPicker.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				currentBlock.weather = weatherPicker.getSelectedItem().toString();
-				System.out.println("block "+ currentBlock.number+ " weather set to "+ currentBlock.weather);
 			}
 		});
 		weatherPicker.setBounds(223, 89, 76, 20);
@@ -379,15 +379,13 @@ public class TrackControllerGUI extends JFrame {
 		btnUpdateBlock.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				wContrl.runPLC(currentController);
-				System.out.println(currentBlock.occupancy);
 				if(currentController.containsSwitch & !currentController.containsCrossing) {
 					switchStatus = "";
 					crossingStatus = "";
 					ArrayList<TrackSwitch> s = currentController.findSwitches();
-					System.out.println(s.size());
 					if(!s.isEmpty()){
 						for (TrackSwitch t: s) {
-							System.out.println(t.number);
+							System.out.println(t.state);
 							boolean pTB = t.state;
 							int index;
 							if (pTB) index = 1;
@@ -426,7 +424,6 @@ public class TrackControllerGUI extends JFrame {
 					}
 				}
 				else if (!currentController.containsCrossing & !currentController.containsSwitch) {
-					System.out.println("neither");
 					switchStatus = "No switches in this section.";
 					crossingStatus = "No crossings in this section.";
 				}
@@ -445,6 +442,10 @@ public class TrackControllerGUI extends JFrame {
 				model.setValueAt(crossingStatus, 12, 1);
 				table.setModel(model);
 				table.repaint();
+				if(currentBlock.occupancy) {
+					currentController.route.route.remove(currentBlock.number);
+					System.out.println("Removed "+ currentBlock.number + " from route.");
+				}
 			}
 		});
 		btnUpdateBlock.setBounds(399, 244, 112, 23);

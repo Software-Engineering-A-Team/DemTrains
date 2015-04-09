@@ -6,12 +6,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
-public class PLC1 implements PLCInterface {
+public class PLC3 implements PLCInterface {
 	HashMap<Integer, TrackBlock> controlledBlocks;
 	TrainRoute r;
 	
 	
-	public PLC1(HashMap<Integer, TrackBlock> blockList, TrainRoute route){
+	public PLC3(HashMap<Integer, TrackBlock> blockList, TrainRoute route){
 		controlledBlocks = blockList;
 		r = route;
 	}	
@@ -28,32 +28,30 @@ public class PLC1 implements PLCInterface {
 	 */
 	public boolean ctrlSwitch() {
 		
-		TrackSwitch relSwitch = (TrackSwitch) controlledBlocks.get(12);
+		TrackSwitch relSwitch = (TrackSwitch) controlledBlocks.get(29);
 			//compute nextBlock val
 			System.out.println(r.route.isEmpty());
-			int indNextBlock = r.route.indexOf(12)+1;
+			int indNextBlock = r.route.indexOf(29)+1;
 			System.out.println(indNextBlock);
 			int nextBlock = r.route.get(indNextBlock);
 			System.out.println(nextBlock);
 			//int prevBlock = r.route.get(r.route.indexOf(12)-1);
 			
 			
-			// if train on 15, 14, or 13 and nothing else within range and next block after 12 in route is 11
-			//set switch connected to block 11
-			if((controlledBlocks.get(15).occupancy | controlledBlocks.get(14).occupancy | controlledBlocks.get(13).occupancy)
-				& (!controlledBlocks.get(12).occupancy | !controlledBlocks.get(11).occupancy| !controlledBlocks.get(10).occupancy 
-				  | !controlledBlocks.get(1).occupancy | !controlledBlocks.get(2).occupancy | !controlledBlocks.get(3).occupancy) &
-				  nextBlock == 11){
-				relSwitch = (TrackSwitch) controlledBlocks.get(12);
+			// if train on 25,26,27 and nothing else within range and next block after 29 in route is 30
+			//set switch connected to block 30
+			if((controlledBlocks.get(26).occupancy | controlledBlocks.get(27).occupancy | controlledBlocks.get(28).occupancy)
+				& (!controlledBlocks.get(148).occupancy | !controlledBlocks.get(149).occupancy| !controlledBlocks.get(150).occupancy 
+				| !controlledBlocks.get(29).occupancy) &  nextBlock == 30){
+				relSwitch = (TrackSwitch) controlledBlocks.get(29);
 				relSwitch.state = false;
 			}
-			//if train on 1, 2, or 3 and nothing else within range and next block after 12 is 13
-			//set switch connected to block 1
-			else if ((controlledBlocks.get(1).occupancy | controlledBlocks.get(2).occupancy | controlledBlocks.get(3).occupancy)
-					& (!controlledBlocks.get(12).occupancy | !controlledBlocks.get(11).occupancy| !controlledBlocks.get(10).occupancy 
-							  | !controlledBlocks.get(15).occupancy | !controlledBlocks.get(14).occupancy | !controlledBlocks.get(13).occupancy) &
-							  nextBlock == 13) {
-				relSwitch = (TrackSwitch) controlledBlocks.get(12);
+			//if train on 148,149,150 and nothing else within range and next block after 29 is 28
+			//set switch connected to block 28
+			else if ((controlledBlocks.get(148).occupancy | controlledBlocks.get(149).occupancy | controlledBlocks.get(150).occupancy)
+					& (!controlledBlocks.get(26).occupancy | !controlledBlocks.get(27).occupancy| !controlledBlocks.get(28).occupancy 
+							  | !controlledBlocks.get(29).occupancy) & nextBlock == 28) {
+				relSwitch = (TrackSwitch) controlledBlocks.get(29);
 				relSwitch.state = true;
 			}
 			//if there is a conflict, keep switch where it is and set speed and authority of conflicting
@@ -107,13 +105,18 @@ public class PLC1 implements PLCInterface {
 	 */
 	public void run(){
 		System.out.println("Running PLC1");
-		for (int i = 1; i<17; i++) {
+		for (int i = 23; i<33; i++) {
 			TrackBlock b = controlledBlocks.get(i);
 			b.heater = ctrlHeater(b);
 			b.lights = ctrlLights(b);
 		}
 		
-		TrackSwitch s = (TrackSwitch) controlledBlocks.get(12);
+		for (int i = 147; i<151; i++) {
+			TrackBlock b = controlledBlocks.get(i);
+			b.heater = ctrlHeater(b);
+			b.lights = ctrlLights(b);
+		}
+		TrackSwitch s = (TrackSwitch) controlledBlocks.get(29);
 		System.out.println("Current state is : " + s.state);
 		s.state = ctrlSwitch();
 		System.out.println("Switch state changed to "+ s.state);
