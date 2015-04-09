@@ -77,7 +77,8 @@ public class TrainRouter {
 		}
 
 		TrainRoute route =  new TrainRoute(lineName, train.currentBlock, minPath, trainSpeed, authority);
-		TrainRoute waysideRoute = blockToControllerMap.get(currentBlock).addRoute(route);
+        TrainRoute waysideRoute = null;
+        //TrainRoute waysideRoute = blockToControllerMap.get(currentBlock).addRoute(route);
 		if (waysideRoute == null) {
 			waysideRoute = route;
 		}
