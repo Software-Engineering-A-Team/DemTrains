@@ -188,7 +188,8 @@ public class TrainModel {
 	}
 	
 	/* 
-	 * returns passengers exiting
+	 * Called by a station block to receive passengers from train
+	 * @returns number of passengers exiting train
 	 */
 	public int passExitTrain() {
 		// generate random number <= passengers on train
@@ -198,7 +199,9 @@ public class TrainModel {
 	}
 
 	/*
-	 * Take in amount of passengers station wishes to board train, return actual passengers accepted
+	 * Called by a station block to give passengers to the train
+	 * @param passCount: passengers station wishes to board train
+	 * @returns number of passengers accepted by train
 	 */
 	public int passEnterTrain(int passCount) {
 		// if passCount + currPass <= maxPass, take all
