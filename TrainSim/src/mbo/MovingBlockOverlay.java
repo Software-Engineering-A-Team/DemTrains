@@ -23,6 +23,7 @@ public class MovingBlockOverlay {
 	Scheduler scheduler;
 	//SystemWrapper sysWrapper;
 	SimClock systemClock;
+	String trainSchedule;
 	//CTCDriver ctcDriver;   //this still need to be here?
 	//TrainModel trainModel; //this still need to be here?
 	
@@ -44,6 +45,7 @@ public class MovingBlockOverlay {
 		trainAuth = new SRSDistFromNextTrain();
 		trainCommSpeed = new SRSTrainCommSpeed();
 		scheduler = new Scheduler();
+		trainSchedule = "";
 		//sysWrapper = new SystemWrapper();
 		gui = new MBOGUI();
 	}
@@ -63,6 +65,7 @@ public class MovingBlockOverlay {
 		//initialize the trackMaps with the starting locations all being zero
 		//setMBOTrainSchedule() for CTC
 		scheduler.createTrainSchedule(startTime, throughputArray);
+		trainSchedule = "Station, 8:00";
 	}
 	
 	public void getCrewSchedule(int startTime, int[] throughputArray){

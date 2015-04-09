@@ -302,54 +302,6 @@ public class MBOGUI extends JFrame{
 		springLayout.putConstraint(SpringLayout.EAST, SchedulePane, -325, SpringLayout.EAST, getContentPane());
 		getContentPane().add(SchedulePane);
 		
-		JPanel trainSchedulePanel = new JPanel();
-		trainSchedulePanel.setToolTipText("");
-		SchedulePane.addTab("Train Schedule", null, trainSchedulePanel, null);
-		trainSchedulePanel.setLayout(null);
-		
-		JLabel lblTrackLine = new JLabel("Track Line:");
-		lblTrackLine.setBounds(10, 20, 79, 20);
-		trainSchedulePanel.add(lblTrackLine);
-		
-		JComboBox trackLineComboBox = new JComboBox();
-		trackLineComboBox.setBounds(95, 15, 107, 26);
-		trackLineComboBox.setModel(new DefaultComboBoxModel(new String[] {"Red Line", "Green Line"}));
-		trainSchedulePanel.add(trackLineComboBox);
-		
-		JLabel lblNewLabel = new JLabel("Day of Week:");
-		lblNewLabel.setBounds(215, 20, 95, 20);
-		trainSchedulePanel.add(lblNewLabel);
-		
-		JComboBox dayOfWeekComboBox = new JComboBox();
-		dayOfWeekComboBox.setBounds(315, 15, 111, 26);
-		dayOfWeekComboBox.setModel(new DefaultComboBoxModel(new String[] {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"}));
-		trainSchedulePanel.add(dayOfWeekComboBox);
-		
-		JLabel lblTrain = new JLabel("Train:");
-		lblTrain.setBounds(433, 20, 49, 23);
-		trainSchedulePanel.add(lblTrain);
-		
-		JComboBox trainComboBox = new JComboBox();
-		trainComboBox.setModel(new DefaultComboBoxModel(new String[] {"r0", "r1", "r2"}));
-		trainComboBox.setBounds(484, 17, 72, 26);
-		trainSchedulePanel.add(trainComboBox);
-		
-		JLabel lblNewLabel_1 = new JLabel("Station:");
-		lblNewLabel_1.setFont(new Font("Tahoma", Font.BOLD, 17));
-		lblNewLabel_1.setBounds(10, 73, 69, 20);
-		trainSchedulePanel.add(lblNewLabel_1);
-		
-		JLabel lblNewLabel_2 = new JLabel("Arrival Times:");
-		lblNewLabel_2.setFont(new Font("Tahoma", Font.BOLD, 17));
-		lblNewLabel_2.setBounds(133, 73, 129, 20);
-		trainSchedulePanel.add(lblNewLabel_2);
-		
-		JLabel trainScheduleDisplay = new JLabel("Schedule shall appear"); //********************************
-		//trainScheduleDisplay = .setTitle(startTimeTextField.getText());
-		trainScheduleDisplay.setVerticalAlignment(SwingConstants.TOP);
-		trainScheduleDisplay.setBounds(10, 109, 548, 472);
-		trainSchedulePanel.add(trainScheduleDisplay);
-		
 		JPanel crewSchedulePanel = new JPanel();
 		SchedulePane.addTab("Crew Schedule", null, crewSchedulePanel, null);
 		crewSchedulePanel.setLayout(null);
@@ -397,8 +349,8 @@ public class MBOGUI extends JFrame{
 		JScrollPane RedLinescrollPane = new JScrollPane();
 		RedLinePanel.add(RedLinescrollPane, "cell 0 0,grow");
 		
-		SafeAuthTableR = new JTable(SystemWrapper.mbo.trainSafeAuthorityRTable);
-		RedLinescrollPane.setViewportView(SafeAuthTableR);
+		//SafeAuthTableR = new JTable(SystemWrapper.mbo.trainSafeAuthorityRTable);
+		//RedLinescrollPane.setViewportView(SafeAuthTableR);
 		
 		JPanel GreenLinePanel = new JPanel();
 		SafeMBOAuthoPane.addTab("Green Line", null, GreenLinePanel, null);
@@ -407,11 +359,59 @@ public class MBOGUI extends JFrame{
 		JScrollPane GreenLinescrollPane = new JScrollPane();
 		GreenLinePanel.add(GreenLinescrollPane, "cell 0 0,grow");
 		
-		SafeAuthTableG = new JTable(SystemWrapper.mbo.trainSafeAuthorityGTable);
-		GreenLinescrollPane.setViewportView(SafeAuthTableG);
+		//SafeAuthTableG = new JTable(SystemWrapper.mbo.trainSafeAuthorityGTable);
+		//GreenLinescrollPane.setViewportView(SafeAuthTableG);
 		
 		JLabel label_8 = new JLabel("Safe Moving Block Authority:");
 		springLayout.putConstraint(SpringLayout.WEST, label_8, 32, SpringLayout.EAST, SchedulePane);
+		
+		JPanel trainSchedulePanel = new JPanel();
+		trainSchedulePanel.setToolTipText("");
+		SchedulePane.addTab("Train Schedule", null, trainSchedulePanel, null);
+		trainSchedulePanel.setLayout(null);
+		
+		JLabel lblTrackLine = new JLabel("Track Line:");
+		lblTrackLine.setBounds(10, 20, 79, 20);
+		trainSchedulePanel.add(lblTrackLine);
+		
+		JComboBox trackLineComboBox = new JComboBox();
+		trackLineComboBox.setBounds(95, 15, 107, 26);
+		trackLineComboBox.setModel(new DefaultComboBoxModel(new String[] {"Red Line", "Green Line"}));
+		trainSchedulePanel.add(trackLineComboBox);
+		
+		JLabel lblNewLabel = new JLabel("Day of Week:");
+		lblNewLabel.setBounds(215, 20, 95, 20);
+		trainSchedulePanel.add(lblNewLabel);
+		
+		JComboBox dayOfWeekComboBox = new JComboBox();
+		dayOfWeekComboBox.setBounds(315, 15, 111, 26);
+		dayOfWeekComboBox.setModel(new DefaultComboBoxModel(new String[] {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"}));
+		trainSchedulePanel.add(dayOfWeekComboBox);
+		
+		JLabel lblTrain = new JLabel("Train:");
+		lblTrain.setBounds(433, 20, 49, 23);
+		trainSchedulePanel.add(lblTrain);
+		
+		JComboBox trainComboBox = new JComboBox();
+		trainComboBox.setModel(new DefaultComboBoxModel(new String[] {"r0", "r1", "r2"}));
+		trainComboBox.setBounds(484, 17, 72, 26);
+		trainSchedulePanel.add(trainComboBox);
+		
+		JLabel lblNewLabel_1 = new JLabel("Station:");
+		lblNewLabel_1.setFont(new Font("Tahoma", Font.BOLD, 17));
+		lblNewLabel_1.setBounds(10, 73, 69, 20);
+		trainSchedulePanel.add(lblNewLabel_1);
+		
+		JLabel lblNewLabel_2 = new JLabel("Arrival Times:");
+		lblNewLabel_2.setFont(new Font("Tahoma", Font.BOLD, 17));
+		lblNewLabel_2.setBounds(133, 73, 129, 20);
+		trainSchedulePanel.add(lblNewLabel_2);
+		
+		JLabel trainScheduleDisplay = new JLabel(SystemWrapper.mbo.trainSchedule); //********************************
+		//trainScheduleDisplay = .setTitle(startTimeTextField.getText());
+		trainScheduleDisplay.setVerticalAlignment(SwingConstants.TOP);
+		trainScheduleDisplay.setBounds(10, 109, 548, 472);
+		trainSchedulePanel.add(trainScheduleDisplay);
 		springLayout.putConstraint(SpringLayout.SOUTH, label_8, -6, SpringLayout.NORTH, SafeMBOAuthoPane);
 		label_8.setFont(new Font("Tahoma", Font.BOLD, 18));
 		getContentPane().add(label_8);
