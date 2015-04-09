@@ -25,6 +25,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 import javax.swing.filechooser.*;
+import java.awt.GridLayout;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.JScrollPane;
 
 public class TrackControllerGUI extends JFrame {
 
@@ -34,6 +37,12 @@ public class TrackControllerGUI extends JFrame {
 	private JTextField sugAuthority;
 	public static WaysideSystem wContrl;
 	public static boolean plcUploadSuccess;
+	private TrackBlock currentBlock;
+	private String currentLine;
+	private WaysideController currentController;
+	private JTable table;
+	private String switchStatus = "No information available.";
+	private String crossingStatus = "No information available.";
 	/**
 	 * Launch the application.
 	 */
@@ -74,35 +83,46 @@ public class TrackControllerGUI extends JFrame {
 		tabbedPane.setBounds(10, 11, 526, 306);
 		contentPane.add(tabbedPane);
 		
-		JPanel panel = new JPanel();
-		tabbedPane.addTab("Inputs", null, panel, null);
-		panel.setLayout(null);
+		JPanel inputPanel = new JPanel();
+		tabbedPane.addTab("Inputs", null, inputPanel, null);
+		inputPanel.setLayout(null);
 		
 		JLabel lblLine = new JLabel("Line: ");
 		lblLine.setBounds(10, 40, 46, 14);
-		panel.add(lblLine);
+		inputPanel.add(lblLine);
 		
 		JLabel lblBlock = new JLabel("Block: ");
 		lblBlock.setBounds(10, 65, 56, 14);
-		panel.add(lblBlock);
+		inputPanel.add(lblBlock);
 		
 		final JComboBox<Integer> blockPicker = new JComboBox<Integer>();
+		blockPicker.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				if(blockPicker.getSelectedItem()!=null) {
+					currentBlock = wContrl.tracks.getLine(currentLine).blocks.get(Integer.parseInt(blockPicker.getSelectedItem().toString())-1);
+					if(currentLine!=null && currentLine.equals("Green")) {
+						currentController = wContrl.blockControllerMapGreen.get(currentBlock.number);	
+					}
+				}
+			}
+		});
 		blockPicker.setBounds(51, 65, 65, 20);
-		panel.add(blockPicker);
+		inputPanel.add(blockPicker);
 		
 		final JComboBox<String> linePicker = new JComboBox<String>();
 		linePicker.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				currentLine = linePicker.getSelectedItem().toString();
 				//dynamically add block numbers
-				String chosenLine = linePicker.getSelectedItem().toString();
-				if (chosenLine.equals("Red")) {
+				if (currentLine.equals("Red")) {
 					track_model.TrackLayout temp = wContrl.tracks.getLine("Red");
 					blockPicker.removeAllItems();
 					for (TrackBlock b: temp.blocks) {
 	                    blockPicker.addItem(b.number);
 	                  }
 				}
-				else if (chosenLine.equals("Green")) {
+				else if (currentLine.equals("Green")) {
 				  track_model.TrackLayout temp = wContrl.tracks.getLine("Green");
 				  blockPicker.removeAllItems();
 				  for (TrackBlock b: temp.blocks) {
@@ -112,56 +132,58 @@ public class TrackControllerGUI extends JFrame {
 			}
 		});
 		linePicker.setBounds(51, 40, 65, 20);
-		panel.add(linePicker);
+		inputPanel.add(linePicker);
 		linePicker.addItem("Green");
 		linePicker.addItem("Red");
 		
 		PLCFileName = new JTextField();
 		PLCFileName.setBounds(58, 12, 129, 20);
-		panel.add(PLCFileName);
+		inputPanel.add(PLCFileName);
 		PLCFileName.setColumns(10);
 		
 		JLabel lblPlcFile = new JLabel("PLC file:");
 		lblPlcFile.setBounds(10, 15, 89, 14);
-		panel.add(lblPlcFile);
-			
-		JButton btnUpdateBlock = new JButton("Update block");
-		btnUpdateBlock.setBounds(399, 244, 112, 23);
-		panel.add(btnUpdateBlock);
+		inputPanel.add(lblPlcFile);
 		
 		JLabel lblSuggestSpeed = new JLabel("Suggest speed:");
 		lblSuggestSpeed.setBounds(126, 40, 120, 14);
-		panel.add(lblSuggestSpeed);
+		inputPanel.add(lblSuggestSpeed);
 		
 		JLabel label = new JLabel("Suggest authority:");
 		label.setBounds(126, 65, 129, 14);
-		panel.add(label);
+		inputPanel.add(label);
 		
 		JLabel label_1 = new JLabel("");
 		label_1.setBounds(420, 40, 46, 14);
-		panel.add(label_1);
+		inputPanel.add(label_1);
 		
 		sugSpeed = new JTextField();
 		sugSpeed.setBounds(258, 37, 39, 20);
-		panel.add(sugSpeed);
+		inputPanel.add(sugSpeed);
 		sugSpeed.setColumns(10);
 		
 		sugAuthority = new JTextField();
 		sugAuthority.setBounds(257, 62, 40, 20);
-		panel.add(sugAuthority);
+		inputPanel.add(sugAuthority);
 		sugAuthority.setColumns(10);
 		
 		JLabel lblMph = new JLabel("mph");
 		lblMph.setBounds(306, 40, 46, 14);
-		panel.add(lblMph);
+		inputPanel.add(lblMph);
 		
 		JLabel lblMiles = new JLabel("miles");
 		lblMiles.setBounds(302, 65, 46, 14);
-		panel.add(lblMiles);
+		inputPanel.add(lblMiles);
 		
 		JComboBox<String> weatherPicker = new JComboBox<String>();
+		weatherPicker.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				currentBlock.weather = weatherPicker.getSelectedItem().toString();
+				System.out.println("block "+ currentBlock.number+ " weather set to "+ currentBlock.weather);
+			}
+		});
 		weatherPicker.setBounds(223, 89, 76, 20);
-		panel.add(weatherPicker);
+		inputPanel.add(weatherPicker);
 		weatherPicker.addItem("Clear");
 		weatherPicker.addItem("Rain");
 		weatherPicker.addItem("Snow");
@@ -169,21 +191,21 @@ public class TrackControllerGUI extends JFrame {
 		
 		JLabel lblWeather = new JLabel("Weather:");
 		lblWeather.setBounds(126, 92, 87, 14);
-		panel.add(lblWeather);
+		inputPanel.add(lblWeather);
 		
 		JLabel lblOccupancy = new JLabel("Occupancy:");
 		lblOccupancy.setBounds(126, 117, 100, 14);
-		panel.add(lblOccupancy);
+		inputPanel.add(lblOccupancy);
 		
 		
 		JRadioButton rdbtnOccupied = new JRadioButton("occupied");
 		rdbtnOccupied.setBounds(223, 113, 89, 23);
-		panel.add(rdbtnOccupied);
+		inputPanel.add(rdbtnOccupied);
 		
 		JRadioButton rdbtnFree = new JRadioButton("free");
 		rdbtnFree.setSelected(true);
 		rdbtnFree.setBounds(314, 113, 67, 23);
-		panel.add(rdbtnFree);
+		inputPanel.add(rdbtnFree);
 		
 		ButtonGroup occupancyBtns = new ButtonGroup();
 		occupancyBtns.add(rdbtnOccupied);
@@ -192,16 +214,16 @@ public class TrackControllerGUI extends JFrame {
 		
 		JLabel lblBrokenStatus = new JLabel("Broken status: ");
 		lblBrokenStatus.setBounds(126, 147, 100, 14);
-		panel.add(lblBrokenStatus);
+		inputPanel.add(lblBrokenStatus);
 		
 		JRadioButton rdbtnBroken = new JRadioButton("broken");
 		rdbtnBroken.setBounds(223, 143, 67, 23);
-		panel.add(rdbtnBroken);
+		inputPanel.add(rdbtnBroken);
 		
 		JRadioButton rdbtnOperational = new JRadioButton("operational");
 		rdbtnOperational.setSelected(true);
 		rdbtnOperational.setBounds(314, 143, 120, 23);
-		panel.add(rdbtnOperational);
+		inputPanel.add(rdbtnOperational);
 		
 		ButtonGroup brokenStatusBtns = new ButtonGroup();
 		brokenStatusBtns.add(rdbtnBroken);
@@ -209,16 +231,16 @@ public class TrackControllerGUI extends JFrame {
 		
 		JLabel lblLightStatus = new JLabel("Light status:");
 		lblLightStatus.setBounds(126, 173, 100, 14);
-		panel.add(lblLightStatus);
+		inputPanel.add(lblLightStatus);
 		
 		JRadioButton rdbtnGreen = new JRadioButton("green");
 		rdbtnGreen.setSelected(true);
 		rdbtnGreen.setBounds(223, 169, 63, 23);
-		panel.add(rdbtnGreen);
+		inputPanel.add(rdbtnGreen);
 		
 		JRadioButton rdbtnRed = new JRadioButton("red");
 		rdbtnRed.setBounds(314, 169, 109, 23);
-		panel.add(rdbtnRed);
+		inputPanel.add(rdbtnRed);
 		
 		ButtonGroup lightStatusBtns = new ButtonGroup();
 		lightStatusBtns.add(rdbtnGreen);
@@ -226,16 +248,16 @@ public class TrackControllerGUI extends JFrame {
 		
 		JLabel lblClosedStatus = new JLabel("Closed status:");
 		lblClosedStatus.setBounds(126, 198, 120, 14);
-		panel.add(lblClosedStatus);
+		inputPanel.add(lblClosedStatus);
 		
 		JRadioButton rdbtnOpen = new JRadioButton("open");
 		rdbtnOpen.setSelected(true);
 		rdbtnOpen.setBounds(223, 194, 63, 23);
-		panel.add(rdbtnOpen);
+		inputPanel.add(rdbtnOpen);
 		
 		JRadioButton rdbtnClosed = new JRadioButton("closed");
 		rdbtnClosed.setBounds(314, 194, 63, 23);
-		panel.add(rdbtnClosed);
+		inputPanel.add(rdbtnClosed);
 		
 		ButtonGroup closedStatusBtns = new ButtonGroup();
 		closedStatusBtns.add(rdbtnOpen);
@@ -243,16 +265,16 @@ public class TrackControllerGUI extends JFrame {
 		
 		JLabel lblHeaterStatus = new JLabel("Heater status:");
 		lblHeaterStatus.setBounds(126, 226, 100, 14);
-		panel.add(lblHeaterStatus);
+		inputPanel.add(lblHeaterStatus);
 		
 		JRadioButton rdbtnOff = new JRadioButton("off");
 		rdbtnOff.setSelected(true);
 		rdbtnOff.setBounds(223, 222, 63, 23);
-		panel.add(rdbtnOff);
+		inputPanel.add(rdbtnOff);
 		
 		JRadioButton rdbtnOn = new JRadioButton("on");
 		rdbtnOn.setBounds(314, 222, 109, 23);
-		panel.add(rdbtnOn);
+		inputPanel.add(rdbtnOn);
 		
 		ButtonGroup heaterStatusBtns = new ButtonGroup();
 		heaterStatusBtns.add(rdbtnOff);
@@ -271,12 +293,12 @@ public class TrackControllerGUI extends JFrame {
 		});
 				
 		btnChooseFile.setBounds(197, 11, 89, 23);
-		panel.add(btnChooseFile);
+		inputPanel.add(btnChooseFile);
 
 		JLabel lblCompilationSuccessful = new JLabel("No file selected.");
 		lblCompilationSuccessful.setForeground(Color.BLACK);
 		lblCompilationSuccessful.setBounds(399, 15, 120, 14);
-		panel.add(lblCompilationSuccessful);
+		inputPanel.add(lblCompilationSuccessful);
 		
 		JButton btnUploadPlc = new JButton("Upload PLC");
 		btnUploadPlc.addActionListener(new ActionListener() {
@@ -298,11 +320,55 @@ public class TrackControllerGUI extends JFrame {
 			}
 		});
 		btnUploadPlc.setBounds(292, 11, 100, 23);
-		panel.add(btnUploadPlc);
+		inputPanel.add(btnUploadPlc);
 		
 		
-		JPanel panel_1 = new JPanel();
-		tabbedPane.addTab("Outputs", null, panel_1, null);		
+		JPanel outputPanel = new JPanel();
+		tabbedPane.addTab("Outputs", null, outputPanel, null);
+		outputPanel.setLayout(null);
+		
+		
+		
+		
+		
+		DefaultTableModel model = new DefaultTableModel(new Object[][] {
+			      { "Line", currentLine }, { "Block", currentBlock.number }, { "Occupancy", currentBlock.occupancy},
+			      { "Weather", weatherPicker.getSelectedItem().toString() }, { "Speed limit (mph)", currentBlock.speedLimit }, { "Commanded speed (mph)", currentBlock.commandedSpeed },
+			      { "Commanded authority (miles)", currentBlock.commandedAuthority }, { "Broken status", null }, { "Light status", currentBlock.lights }, {"Closed status", null},
+			      { "Heater status", currentBlock.heater }, { "Switch position", switchStatus }, {"Crossing status", crossingStatus}}, 
+			      new Object[] { "Attribute", "Value" });
+		
+		table = new JTable(model);
+		table.setBounds(10, 10, 501, 258);
+		outputPanel.add(table);
+		
+		JScrollPane scrollPane = new JScrollPane(table);
+		scrollPane.setBounds(10, 10, 501, 258);
+		outputPanel.add(scrollPane);
+		
+		JButton btnUpdateBlock = new JButton("Update block");
+		btnUpdateBlock.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				currentController.runPLC();
+				model.setValueAt(currentLine, 0, 1);
+				model.setValueAt(currentBlock.number, 1, 1);
+				model.setValueAt(currentBlock.occupancy, 2, 1);
+				model.setValueAt(weatherPicker.getSelectedItem().toString(), 3, 1);
+				model.setValueAt(currentBlock.speedLimit, 4, 1);
+				model.setValueAt(currentBlock.commandedSpeed, 5, 1);
+				model.setValueAt(currentBlock.commandedAuthority, 6, 1);
+				model.setValueAt(null, 7, 1);
+				model.setValueAt(currentBlock.lights, 8, 1);
+				model.setValueAt(null, 9, 1);
+				model.setValueAt(currentBlock.heater, 10, 1);
+				model.setValueAt(switchStatus, 11, 1);
+				model.setValueAt(crossingStatus, 12, 1);
+				table.setModel(model);
+				table.repaint();
+			}
+		});
+		btnUpdateBlock.setBounds(399, 244, 112, 23);
+		inputPanel.add(btnUpdateBlock);
 	}
 	
 	public void updateData() {
