@@ -59,7 +59,9 @@ public static void main(String[] args) {
             	long desiredElapsedTime = (long) Math.ceil(SystemWrapper.perceivedTimeMultiplier * 1000000000);
             	long timeDifferenceMS = (desiredElapsedTime - elapsedTime) / 1000000;
             	try {
+            	  if (timeDifferenceMS > 0) {
 					Thread.sleep(timeDifferenceMS);
+            	  }
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
