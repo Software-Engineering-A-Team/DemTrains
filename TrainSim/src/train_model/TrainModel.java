@@ -236,7 +236,8 @@ public class TrainModel {
 		this.calcPosition(delta);
 		
 		// Check if we need a new Track Block
-		this.currBlock = SystemWrapper.trackModelGUI.trackModel.getCurrentBlock(this.trainName, this.position / 3);
+		TrackBlock oldBlock = this.currBlock;
+		this.currBlock = SystemWrapper.trackModelGUI.trackModel.getCurrentBlock(this.trainName, this.position / 3, oldBlock);
 	}
 	
 	// internal methods for calculations *********************
