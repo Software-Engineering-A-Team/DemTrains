@@ -45,13 +45,13 @@ public class MovingBlockOverlay {
 		SystemWrapper.ctcOffice.setActualTrainLocations("trackB", trainLocationTrackGMap);
 	}
 	
-	public void getTrainSchedule(){
+	public void getTrainSchedule(int startTime, int[] throughputArray){
 		//need track model
 		//initialize the trackMaps with the starting locations all being zero
 		//setMBOTrainSchedule() for CTC
 	}
 	
-	public void getCrewSchedule(){
+	public void getCrewSchedule(int startTime, int[] throughputArray){
 		//need train schedule
 		gui.setCrewSchedule();  //needs to be added to the Train Model
 	}

@@ -2,29 +2,44 @@ package mbo;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
 import java.awt.BorderLayout;
+
 import javax.swing.SpringLayout;
+
 import java.awt.FlowLayout;
+
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+
 import java.awt.Color;
 import java.awt.Font;
+
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+
 import javax.swing.border.BevelBorder;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.JTable;
+import javax.swing.JList;
+import javax.swing.AbstractListModel;
+import javax.swing.JScrollBar;
+import javax.swing.JTextArea;
+
+import system_wrapper.SystemWrapper;
 
 public class MBOGUI extends JFrame{
-	private JTextField textField;	
+	private JTextField startTimeTextField;	
 	private JTextField MonRtextField;
 	private JTextField MonGtextField;
 	private JTextField TueRtextField;
-	private JTextField TuesGtextField;
+	private JTextField TueGtextField;
 	private JTextField WedRtextField;
 	private JTextField WedGtextField;
 	private JTextField ThurRtextField;
@@ -35,6 +50,10 @@ public class MBOGUI extends JFrame{
 	private JTextField SatGtextField;
 	private JTextField SunRtextField;
 	private JTextField SunGtextField;
+	private JTable table;
+	
+	int[] throughputArray;
+	int startTime;
 	
 	/*//if button presses mbo.getTrainSchedule
 	public void setTrainSchedule(){
@@ -45,6 +64,9 @@ public class MBOGUI extends JFrame{
 	}*/
 	
 	public MBOGUI(){
+		throughputArray = new int[14];
+		
+		
 		SpringLayout springLayout = new SpringLayout();
 		getContentPane().setLayout(springLayout);
 		
@@ -69,17 +91,17 @@ public class MBOGUI extends JFrame{
 		lblEnterScheduleStart.setFont(new Font("Tahoma", Font.BOLD, 18));
 		createSchedPanel.add(lblEnterScheduleStart);
 		
-		JLabel lblHhmm = new JLabel("      HH:MM  ");
-		lblHhmm.setBounds(27, 35, 92, 20);
+		JLabel lblHhmm = new JLabel("HH:MM");
+		lblHhmm.setBounds(34, 35, 54, 20);
 		createSchedPanel.add(lblHhmm);
 		
-		textField = new JTextField();
-		textField.setBounds(124, 32, 104, 26);
-		createSchedPanel.add(textField);
-		textField.setColumns(7);
+		startTimeTextField = new JTextField();
+		startTimeTextField.setBounds(96, 32, 104, 26);
+		createSchedPanel.add(startTimeTextField);
+		startTimeTextField.setColumns(7);
 		
 		JComboBox comboBox = new JComboBox();
-		comboBox.setBounds(233, 32, 54, 26);
+		comboBox.setBounds(215, 32, 54, 26);
 		comboBox.setModel(new DefaultComboBoxModel(new String[] {"AM", "PM"}));
 		createSchedPanel.add(comboBox);
 		
@@ -139,10 +161,10 @@ public class MBOGUI extends JFrame{
 		label_3.setBounds(179, 199, 30, 20);
 		createSchedPanel.add(label_3);
 		
-		TuesGtextField = new JTextField();
-		TuesGtextField.setBounds(215, 196, 62, 26);
-		TuesGtextField.setColumns(4);
-		createSchedPanel.add(TuesGtextField);
+		TueGtextField = new JTextField();
+		TueGtextField.setBounds(215, 196, 62, 26);
+		TueGtextField.setColumns(4);
+		createSchedPanel.add(TueGtextField);
 		
 		JLabel lblWednesday = new JLabel("Wednesday:");
 		lblWednesday.setBounds(17, 230, 86, 20);
@@ -235,22 +257,52 @@ public class MBOGUI extends JFrame{
 		createSchedPanel.add(SunGtextField);
 		
 		JButton btnCreateSchedule = new JButton("CREATE SCHEDULE");
-		btnCreateSchedule.setBackground(new Color(51, 153, 255));
+		btnCreateSchedule.setBackground(Color.LIGHT_GRAY);
 		btnCreateSchedule.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				//create throughput array
+				throughputArray[0]=Integer.parseInt(MonRtextField.getText());
+				throughputArray[1]=Integer.parseInt(MonGtextField.getText());
+				throughputArray[2]=Integer.parseInt(TueRtextField.getText());
+				throughputArray[3]=Integer.parseInt(TueGtextField.getText());
+				throughputArray[4]=Integer.parseInt(WedRtextField.getText());
+				throughputArray[5]=Integer.parseInt(WedGtextField.getText());
+				throughputArray[6]=Integer.parseInt(ThurRtextField.getText());
+				throughputArray[7]=Integer.parseInt(ThurGtextField.getText());
+				throughputArray[8]=Integer.parseInt(FriRtextField.getText());
+				throughputArray[9]=Integer.parseInt(FriGtextField.getText());
+				throughputArray[10]=Integer.parseInt(SatRtextField.getText());
+				throughputArray[11]=Integer.parseInt(SatGtextField.getText());
+				throughputArray[12]=Integer.parseInt(SunRtextField.getText());
+				throughputArray[13]=Integer.parseInt(SunGtextField.getText());
+				
+				startTime=Integer.parseInt(startTimeTextField.getText());
+				
+				SystemWrapper.mbo.getTrainSchedule(startTime, throughputArray);
+				SystemWrapper.mbo.getCrewSchedule(startTime, throughputArray);
 			}
 		});
-		btnCreateSchedule.setFont(new Font("Tahoma", Font.BOLD, 20));
-		btnCreateSchedule.setBounds(36, 404, 234, 45);
+		btnCreateSchedule.setFont(new Font("Tahoma", Font.BOLD, 18));
+		btnCreateSchedule.setBounds(50, 411, 208, 31);
 		createSchedPanel.add(btnCreateSchedule);
 		getContentPane().add(displaySchedPanel);
 		
 		JPanel displaySafeAuthPanel = new JPanel();
 		springLayout.putConstraint(SpringLayout.WEST, displaySafeAuthPanel, 6, SpringLayout.EAST, displaySchedPanel);
+		
+		JLabel lblSchedule = new JLabel("Schedule:");
+		displaySchedPanel.add(lblSchedule);
+		
+		table = new JTable();
+		displaySchedPanel.add(table);
 		springLayout.putConstraint(SpringLayout.NORTH, displaySafeAuthPanel, 10, SpringLayout.NORTH, getContentPane());
 		springLayout.putConstraint(SpringLayout.SOUTH, displaySafeAuthPanel, -10, SpringLayout.SOUTH, getContentPane());
 		springLayout.putConstraint(SpringLayout.EAST, displaySafeAuthPanel, -22, SpringLayout.EAST, getContentPane());
 		getContentPane().add(displaySafeAuthPanel);
+		displaySafeAuthPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		
+		JLabel lblTrain = new JLabel("Train: ");
+		displaySafeAuthPanel.add(lblTrain);
 		
 		
 		
