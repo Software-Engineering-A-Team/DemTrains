@@ -4,6 +4,9 @@ import java.util.Map;
 
 public class TrackBlock {
 	
+	public final static double METERTOYARD = 1.09361;
+	public final static double KPHTOMPH = 0.62137;
+	
 	// attributes of the TrackBlock read in from data file
 	public final int number;
 	public final String section;
@@ -54,11 +57,11 @@ public class TrackBlock {
 		this.number = Integer.parseInt(descriptor.get("number"));
 		this.section = descriptor.get("section");
 		this.infrastructure = descriptor.get("infrastructure");
-		this.speedLimit = Double.parseDouble(descriptor.get("speedLimit"));
-		this.length = Double.parseDouble(descriptor.get("length"));
+		this.speedLimit = Double.parseDouble(descriptor.get("speedLimit")) * KPHTOMPH;
+		this.length = Double.parseDouble(descriptor.get("length")) * METERTOYARD;
 		this.grade = Double.parseDouble(descriptor.get("grade"));
-		this.elevation = Double.parseDouble(descriptor.get("elevation"));
-		this.cumulativeElevation = Double.parseDouble(descriptor.get("cumulativeElevation"));
+		this.elevation = Double.parseDouble(descriptor.get("elevation")) * METERTOYARD;
+		this.cumulativeElevation = Double.parseDouble(descriptor.get("cumulativeElevation")) * METERTOYARD;
 		this.underground = descriptor.get("underground") != null ? true : false;
 		String connectsToString = descriptor.get("connectsTo");
 		if (connectsToString != null) {
