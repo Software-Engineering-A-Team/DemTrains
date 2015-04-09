@@ -67,7 +67,7 @@ public class TrainController {
   public void setSpeedAuthCmd(SpeedAuthCmd cmd) {
     speedAuthCmd = cmd;
     
-    if (manualMode) {
+    if (!manualMode) {
       targetSpeedMph = speedAuthCmd.suggestedSpeedMph;
     }
   }
