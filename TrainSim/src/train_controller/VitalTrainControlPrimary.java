@@ -9,32 +9,32 @@ public class VitalTrainControlPrimary extends VitalTrainControl{
   
   
   public double calcPower() {
-    double speedErrorMph;
-    
-    speedErrorMph = targetSpeedMph - currentSpeedMph;
-    
-    /*
-    if (powerW <= maxPowerW) {
-      controlVar += (SystemWrapper.simClock.getDeltaS() / 2.0)
-          * (speedErrorMph + lastSpeedErrorMph);
+    if (!serviceBrake && !emergencyBrake) {
+      double speedErrorMph;
+      
+      speedErrorMph = targetSpeedMph - currentSpeedMph;
+      
+      if (powerW < maxPowerW) {
+        controlVar += (SimClock.getDeltaS() / 2.0)
+            * (speedErrorMph + lastSpeedErrorMph);
+      }
+      
+      powerW = Kp * speedErrorMph + Ki * controlVar;
+      
+      //System.out.println("speedErrorMph = " + speedErrorMph + "   controlVar = " + controlVar);
+      
+      if (powerW > maxPowerW) {
+        powerW = maxPowerW;
+      }
+      else if (powerW < 0) {
+        powerW = 0;
+      }
+      
+      return powerW;
     }
-    */
-    controlVar += (SimClock.getDeltaS() / 2.0)
-        * (speedErrorMph + lastSpeedErrorMph);
-    
-    
-    powerW = Kp * speedErrorMph + Ki * controlVar;
-    
-    //System.out.println("speedErrorMph = " + speedErrorMph + "   controlVar = " + controlVar);
-    
-    if (powerW > maxPowerW) {
-      powerW = maxPowerW;
+    else {
+      return 0;
     }
-    else if (powerW < 0) {
-      powerW = 0;
-    }
-    
-    return powerW;
   }
 
   public void determineSafeSpeed() {

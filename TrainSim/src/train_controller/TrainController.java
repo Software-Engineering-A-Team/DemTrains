@@ -11,6 +11,7 @@ public class TrainController {
   private boolean leftDoorOpen = false;
   private boolean rightDoorOpen = false;
   private boolean manualMode = false;
+  private boolean lightsOn = false;
   
   // Vital variables. Copies appear in each vital controller.
   private boolean emergencyBrake;
@@ -113,6 +114,10 @@ public class TrainController {
     return currentSpeedMph;
   }
   
+  public double getSpeedLimit() {
+    return speedLimitMph;
+  }
+  
   public SpeedAuthCmd getSpeedAuthCmd() {
     return speedAuthCmd;
   }
@@ -139,5 +144,9 @@ public class TrainController {
   
   public boolean isManualMode() {
     return manualMode;
+  }
+  
+  public boolean isLightOn() {
+    return lightsOn;
   }
 }

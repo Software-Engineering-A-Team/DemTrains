@@ -3,6 +3,7 @@ package ctc_office;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -12,8 +13,10 @@ public class Scheduler {
 	private Schedule scheduleFixedBlock;
 	private HashMap<String, Schedule> scheduleMBO;
 	private int throughput;
-	private List<String> dispatchedTrains;
-	private List<String> availableTrains;
+	private ArrayList<String> dispatchedTrains = new ArrayList<String>();
+	private ArrayList<String> availableTrains = new ArrayList<String>();
+	private HashMap<String, Integer> dispatchTimesMBO = new HashMap<String, Integer>();
+	private int numTrainsNeeded = 0;
 	
 	public boolean enableFixedBlockMode() {
 		if (scheduleFixedBlock == null) {
@@ -29,6 +32,14 @@ public class Scheduler {
 		}
 		fixedBlockModeEnabled = false;
 		return true;
+	}
+
+	/**
+	 * Gets the throughput for the line
+	 * @return throughput
+	 */
+	public int getThroughput() {
+		return throughput;
 	}
 
 	/*
@@ -63,15 +74,20 @@ public class Scheduler {
 		int numTrainsToDispatch = 0;
 		String trainId;
 		HashMap<String, StopData> trainsToDispatch = new HashMap<String, StopData>();
-		// TODO: calculate how many trains need to be dispatched to satisfy the throughput requirement
-		for (int i=0; i<numTrainsToDispatch; i++) {
-			if (availableTrains.size() > 0) {
-				trainId = availableTrains.remove(0);
+		if (fixedBlockModeEnabled) {
+			numTrainsToDispatch = numTrainsNeeded - dispatchedTrains.size();
+			for (int i=0; i<numTrainsToDispatch; i++) {
+				if (availableTrains.size() > 0) {
+					trainId = availableTrains.remove(0);
+				}
+				else {
+					trainId = "" + dispatchedTrains.size();
+				}
+				trainsToDispatch.put(trainId, getTrainNextStop(trainId));
 			}
-			else {
-				trainId = "train" + dispatchedTrains.size();
-			}
-			trainsToDispatch.put(trainId, getTrainNextStop(trainId));
+		}
+		else { //MBO mode
+			
 		}
 		if (trainsToDispatch.size() == 0) {
 			return null;
@@ -81,9 +97,15 @@ public class Scheduler {
 	
 	/*
 	 * Sets the throughput that will be used for routing the train when it is in fixed block mode.
+	 * Expressed as stations/hour
 	 */
-	public void setThroughput(int t){
-		throughput = t;
+	public void setThroughput(double numStations){
+		double timeForTrip = scheduleFixedBlock.minutesForOneTrip;
+		int numStopsPerTrip = scheduleFixedBlock.getNumberOfStations();
+		double stopsPerHourOneTrain = 60.0/timeForTrip * numStopsPerTrip;
+		throughput = (int) numStations;
+		numTrainsNeeded = (int) Math.ceil(numStations/stopsPerHourOneTrain);
+		
 	}
 	
 	/*

@@ -25,6 +25,7 @@ import java.awt.Component;
 
 import javax.swing.Box;
 
+import system_wrapper.SimClock;
 import system_wrapper.SystemWrapper;
 
 import java.awt.event.MouseAdapter;
@@ -34,6 +35,7 @@ import java.text.NumberFormat;
 
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
+import javax.swing.AbstractButton;
 
 import java.text.NumberFormat;
 import java.text.DecimalFormat;
@@ -50,6 +52,13 @@ public class TrainControllerGui extends JFrame {
   private JSlider sliderTargetSpeed;
   private JRadioButton rdbtnManual;
   private JRadioButton rdbtnAutomatic;
+  private JCheckBox chckbxServiceBrake;
+  private JCheckBox chckbxStopRequired;
+  private JCheckBox chckbxAirConditioning;
+  private JCheckBox chckbxLeftDoorsOpen;
+  private JCheckBox chckbxLightsOn;
+  private JCheckBox chckbxEmergencyBrake;
+  JCheckBox chckbxRightDoorsOpen;
   public TrainController trainController = new TrainController();
   private NumberFormat formatter = new DecimalFormat("#0.00");
   
@@ -64,7 +73,7 @@ public class TrainControllerGui extends JFrame {
       public void run() {
         try {
           TrainControllerGui window = new TrainControllerGui(true);
-          window.setManualMode(true);
+          window.trainController.setManualMode(true);
           
           window.setVisible(true);
           
@@ -129,10 +138,10 @@ public class TrainControllerGui extends JFrame {
     rdbtnManual.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         if ("disable".equals(e.getActionCommand())) {
-          setManualMode(false);
+          trainController.setManualMode(false);
         }
         else {
-          setManualMode(true);
+          trainController.setManualMode(true);
         }
       }
     });
@@ -144,10 +153,10 @@ public class TrainControllerGui extends JFrame {
     rdbtnAutomatic.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         if ("disable".equals(e.getActionCommand())) {
-          setManualMode(true);
+          trainController.setManualMode(true);
         }
         else {
-          setManualMode(false);
+          trainController.setManualMode(false);
         }
       }
     });
@@ -170,6 +179,7 @@ public class TrainControllerGui extends JFrame {
       }
     });
     sliderTargetSpeed.setBounds(12, 162, 240, 16);
+    sliderTargetSpeed.setValue(0);
     this.getContentPane().add(sliderTargetSpeed);
     
     textFieldTargetSpeed = new JTextField();
@@ -208,27 +218,42 @@ public class TrainControllerGui extends JFrame {
     this.getContentPane().add(textFieldCurrentSpeed);
     textFieldCurrentSpeed.setColumns(10);
     
-    JCheckBox chckbxRightDoorsOpen = new JCheckBox("Right doors open");
+    chckbxRightDoorsOpen = new JCheckBox("Right doors open");
     chckbxRightDoorsOpen.setBounds(12, 221, 149, 23);
     this.getContentPane().add(chckbxRightDoorsOpen);
     
-    JCheckBox chckbxLeftDoorsOpen = new JCheckBox("Left doors open");
+    chckbxLeftDoorsOpen = new JCheckBox("Left doors open");
     chckbxLeftDoorsOpen.setBounds(12, 248, 149, 23);
     this.getContentPane().add(chckbxLeftDoorsOpen);
     
-    JCheckBox chckbxServiceBrake = new JCheckBox("Service Brake");
+    chckbxServiceBrake = new JCheckBox("Service Brake");
+    chckbxServiceBrake.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        AbstractButton button = (AbstractButton) e.getSource();
+        if (trainController.isManualMode()) {
+          if (button.getModel().isSelected()) {
+            trainController.setServiceBrake(true);
+            System.out.println("here");
+          }
+          else {
+            trainController.setServiceBrake(false);
+            System.out.println("here2");
+          }
+        }
+      }
+    });
     chckbxServiceBrake.setBounds(266, 131, 129, 23);
     this.getContentPane().add(chckbxServiceBrake);
     
-    JCheckBox chckbxEmergencyBrake = new JCheckBox("Emergency Brake");
+    chckbxEmergencyBrake = new JCheckBox("Emergency Brake");
     chckbxEmergencyBrake.setBounds(266, 162, 151, 23);
     this.getContentPane().add(chckbxEmergencyBrake);
     
-    JCheckBox chckbxLightsOn = new JCheckBox("Lights On");
+    chckbxLightsOn = new JCheckBox("Lights On");
     chckbxLightsOn.setBounds(266, 221, 129, 23);
     this.getContentPane().add(chckbxLightsOn);
     
-    JCheckBox chckbxAirConditioning = new JCheckBox("Air Conditioning");
+    chckbxAirConditioning = new JCheckBox("Air Conditioning");
     chckbxAirConditioning.setBounds(266, 248, 144, 23);
     this.getContentPane().add(chckbxAirConditioning);
     
@@ -256,7 +281,7 @@ public class TrainControllerGui extends JFrame {
     this.getContentPane().add(textFieldStationName);
     textFieldStationName.setColumns(10);
     
-    JCheckBox chckbxStopRequired = new JCheckBox("Stop Required");
+    chckbxStopRequired = new JCheckBox("Stop Required");
     chckbxStopRequired.setEnabled(false);
     chckbxStopRequired.setBounds(12, 405, 129, 23);
     this.getContentPane().add(chckbxStopRequired);
@@ -286,17 +311,30 @@ public class TrainControllerGui extends JFrame {
     
     textFieldSafeStoppingDistance.setText(formatter.format(trainController.getSafeStoppingDistance()));
     enginePowerTextField.setText(formatter.format(trainController.getPower()));
+    textFieldSpeedLimit.setText(formatter.format(trainController.getSpeedLimit()));
+    
     
     if (!standalone) {
       textFieldCurrentSpeed.setText(formatter.format(trainController.getCurrentSpeed()));
     }
-  }
-  
-  private void setManualMode(boolean manualMode) {
-    trainController.setManualMode(manualMode);
-    sliderTargetSpeed.setEnabled(manualMode);
-    rdbtnManual.setSelected(manualMode);
-    rdbtnAutomatic.setSelected(!manualMode);
+    
+    if (trainController.isManualMode()) {
+      trainController.setManualMode(true);
+      sliderTargetSpeed.setEnabled(true);
+      rdbtnManual.setSelected(true);
+      rdbtnAutomatic.setSelected(false);
+    }
+    else {
+      trainController.setManualMode(false);
+      sliderTargetSpeed.setEnabled(false);
+      rdbtnManual.setSelected(false);
+      rdbtnAutomatic.setSelected(true);
+      chckbxServiceBrake.setSelected(trainController.isServiceBrakeOn());
+      
+      this.chckbxRightDoorsOpen.setSelected(trainController.isRightDoorOpen());
+      this.chckbxLeftDoorsOpen.setSelected(trainController.isLeftDoorOpen());
+      this.chckbxLightsOn.setSelected(trainController.isLightOn());
+    }
   }
   
   private Timer displayTimer = new Timer(100, new ActionListener() {
@@ -304,14 +342,13 @@ public class TrainControllerGui extends JFrame {
     public void actionPerformed(ActionEvent e) {
       updateDisplayData();
       repaint();
-      
     }
   });
   
   private Timer controllerTimer = new Timer(10, new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
-      SystemWrapper.simClock.tick();
+      SimClock.tick();
       trainController.calcPower();
     }
   });

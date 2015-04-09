@@ -20,7 +20,7 @@ public class TrackModel {
 		System.out.println("Begin TrackModel initialization...");
 		trackLayouts = new HashMap<String, TrackLayout>();
 		yard = new TrackBlock();
-		loadTracks(new String[] {"green.csv", "red.csv"});
+		loadTracks(new String[] {"green_with_connections.csv", "red_with_connections.csv"});
 		System.out.println("Finish TrackModel initialization.");
 	}
 	
@@ -47,10 +47,8 @@ public class TrackModel {
         } else {
             System.out.printf("Creating a new track line with name %s.\n", lineName);
             TrackLayout newLine = new TrackLayout();
-            List<TrackBlock> blocks = newLine.blocks;
-            blocks.add(yard);
-            DirectedMultigraph<Integer, DefaultEdge> layout = newLine.layout;
-            layout.addVertex(0);
+            newLine.blocks.add(yard);
+            newLine.layout.addVertex(0);
             trackLayouts.put(lineName, newLine);
             return newLine;
         }
@@ -85,6 +83,10 @@ public class TrackModel {
 		if (!attributes[11].isEmpty()) {
 			descriptor.put("direction", attributes[11].toLowerCase());			
 		}
+		// if this is the first or last block in the section, add the associated section connection
+		if (!attributes[12].isEmpty()) {
+			descriptor.put("connectsTo", attributes[12]);
+		}
 		// split up the raw infrastructure attribute into individual details
 		String[] infrastructures = attributes[6].split("[:;]+");
 		// if there is at least one infrastructure that we need to process
@@ -97,7 +99,10 @@ public class TrackModel {
 					case "switch":
 						System.out.printf("Creating a TrackSwitch object for block number %s.\n", attributes[2]);
 						descriptor.put("infrastructure", "switch");
-						descriptor.put("out", attributes[13]);
+						// if this is a switch, it should have the block numbers for the "out" blocks
+						if (!attributes[13].isEmpty()) {
+							descriptor.put("out", attributes[13]);
+						}
 						block = new TrackSwitch(descriptor);
 						break;
 					case "station":
@@ -147,12 +152,16 @@ public class TrackModel {
 		try {
 			System.out.printf("Loading track data file with filename %s.\n", filename);
 			file = new BufferedReader(new FileReader(filename));
-			String header = file.readLine();
 			String row = file.readLine();
 			TrackLayout trackLayout = new TrackLayout();
 			// split the row into columns to grab the name of the line
 			String[] firstRowAttributes = row.split(",", -1);
 			String lineName = firstRowAttributes[0];
+			// add the all-important yard block as block #0 in this TrackLayout
+			System.out.printf("Adding the yard block to the track layout with name %s.\n", lineName);
+			trackLayout.blocks.add(yard);
+            trackLayout.layout.addVertex(0);
+            // add the TrackLayout to the TrackModel map of layouts
 			System.out.printf("Adding a new TrackLayout object to list of track layouts with name %s.\n", lineName);
 			trackLayouts.put(lineName, trackLayout);
 			// create a new section of blocks for the creation of a graph layout later
@@ -163,13 +172,19 @@ public class TrackModel {
 			while (row != null) {
 				// split the row into columns which denote the attributes
 				String[] attributes = row.split(",", -1);
+				// this is an empty row for dividng up sections, let's skip
+				if (attributes[0].isEmpty()) {
+					row = file.readLine();
+					continue;
+				}
 				// if we are in a new section of blocks, we need to create a new TrackSection object
                 if (!sectionName.equals(attributes[1])) {
                     String firstDirection = section.blocks.get(0).direction;
                     String lastDirection = section.blocks.get(section.blocks.size() - 1).direction;
                     // calculate the direction of travel for the whole section
-                    section.forward = firstDirection.equals("head") || firstDirection.equals("head/tail") || firstDirection.equals("head/head");
-                    section.backward = lastDirection.equals("head") || lastDirection.equals("tail/head") || lastDirection.equals("head/head");
+                    section.leastToGreatest = lastDirection.equals("head") || lastDirection.equals("tail/head") || lastDirection.equals("head/head");
+                    section.greatestToLeast = firstDirection.equals("head") || firstDirection.equals("head/tail") || firstDirection.equals("head/head");
+                    System.out.printf("For section %s, leastToGreatest is %b and greatestToLeast is %b.\n", sectionName, section.leastToGreatest, section.greatestToLeast);
                     // create a new TrackSection for the next set of blocks
                     section = new TrackSection();
                     sectionName = attributes[1];
@@ -184,10 +199,10 @@ public class TrackModel {
 				System.out.printf("Adding block number %d to TrackLayout layout graph.\n", block.number);
 				trackLayout.layout.addVertex(block.number);
 				// populate the switch-block number reference map with this TrackSwitch object
-				if (block.infrastructure != null && block.infrastructure.equals("switch")) {
-					System.out.printf("Adding a switch #%d to block #%d reference to TrackLayout.\n", block.connectsToSwitch, block.number);
-					trackLayout.switchToBlocks.put(block.connectsToSwitch, block.number);
-				}
+//				if (block.infrastructure != null && block.infrastructure.equals("switch")) {
+//					System.out.printf("Adding a switch #%d to block #%d reference to TrackLayout.\n", block.connectsToSwitch, block.number);
+//					trackLayout.switchToBlocks.put(block.connectsToSwitch, block.number);
+//				}
                 // add the new TrackBlock object to the current section of blocks
                 System.out.printf("Adding block number %d to TrackSection with name %s.\n", block.number, sectionName);
                 section.blocks.add(block);
