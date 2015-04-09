@@ -82,7 +82,7 @@ public class TrainModel {
 		// If train is NOT spawned by standalone TrainModel GUI, 
 		// create a train controller and add to system list
 		if (!this.trainName.equals("SingleTrain")){
-			this.controller = new TrainController();
+			this.controller = new TrainController((int)this.trainID);
 			SystemWrapper.trainControllers.add(this.controller);
 			this.standAlone = false;
 		}
