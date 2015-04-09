@@ -27,9 +27,9 @@ public class TrackModel {
 	 * @param totalDistance The total distance traveled by the train from the yard.
 	 * @return The TrackBlock on which the train with unique identifier trainID is located.
 	 */	
-	public TrackBlock getCurrentBlock(String trainName, double totalDistance) {
+	public TrackBlock getCurrentBlock(String trainName, double totalDistance, TrackBlock previousBlock) {
 		String lineName = trainName.contains("G") ? "Green" : "Red";
-		return trackLayouts.get(lineName).getCurrentBlock(trainName, totalDistance);
+		return trackLayouts.get(lineName).getCurrentBlock(trainName, totalDistance, previousBlock);
 	}
 	
 	/**

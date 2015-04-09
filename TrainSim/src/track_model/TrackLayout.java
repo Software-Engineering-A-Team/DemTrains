@@ -14,7 +14,7 @@ public class TrackLayout {
 	public List<TrackSection> sections;
 	public List<TrackBlock> blocks;
 	public Map<Integer, Integer> switchToBlocks;
-	public Map<Short, Integer> trains; // maps from train ID to block ID
+	public Map<String, Integer> trains; // maps from train ID to block ID
 	
 	/**
 	 * Creates a new instance of the TrackLayout class.
@@ -24,7 +24,7 @@ public class TrackLayout {
 		sections = new ArrayList<TrackSection>();
 		blocks = new ArrayList<TrackBlock>();
 		switchToBlocks = new HashMap<Integer, Integer>();
-		trains = new HashMap<Short, Integer>();
+		trains = new HashMap<String, Integer>();
 	}
 	
 	/**
@@ -33,7 +33,7 @@ public class TrackLayout {
 	 * @param totalDistance The total distance traveled by the train from the yard.
 	 * @return The TrackBlock on which the train with unique identifier trainID is located.
 	 */	
-	public TrackBlock getCurrentBlock(String trainName, double totalDistance) {
+	public TrackBlock getCurrentBlock(String trainName, double totalDistance, TrackBlock previousBlock) {
 		
 		return null;
 	}
