@@ -96,10 +96,11 @@ public class WaysideSystem {
 		tc6.add(t.blocks.get(152));
 		blockControllerMapGreen.put(152, wc6);
 		wc6.addBlocks(tc6);
-		PLC6 plc6 = new PLC6(wc6.blockMap, wc6.route);
-		wc6.plc = plc6;
-		wc6.containsSwitch = true;
-		
+		if(!wc6.blockMap.isEmpty()) {
+			PLC6 plc6 = new PLC6(wc6.blockMap, wc6.route);
+			wc6.plc = plc6;
+			wc6.containsSwitch = true;
+		}
 		WaysideController wc7 = new WaysideController();
 		ArrayList<TrackBlock> tc7 = new ArrayList<TrackBlock>();
 		for (int i=32; i<55; i++) {
@@ -162,8 +163,8 @@ public class WaysideSystem {
 	  //store track model
 	  tracks = t;
 	  //get lines from track model
-	  track_model.TrackLayout green = t.getLine("Green");
-	  track_model.TrackLayout red = t.getLine("Red");
+	  track_model.TrackLayout green = t.trackLayouts.get("Green");
+	  track_model.TrackLayout red = t.trackLayouts.get("Red");
 	  //createControllers for the lines
 	  createControllers(green);
 	  createControllers(red);	  
@@ -196,11 +197,11 @@ public class WaysideSystem {
 		TrackBlock b;
 		WaysideController w;
 		if (line.equals("Green")) {
-			b = tracks.getLine("Green").blocks.get(blockNum);
+			b = tracks.trackLayouts.get("Green").blocks.get(blockNum);
 			w = blockControllerMapGreen.get(blockNum);
 		}
 		else if(line.equals("Red")) {
-			b = tracks.getLine("Red").blocks.get(blockNum);
+			b = tracks.trackLayouts.get("Red").blocks.get(blockNum);
 			w = blockControllerMapRed.get(blockNum);
 		}
 		else {
@@ -224,10 +225,10 @@ public class WaysideSystem {
 	public boolean setBlockBroken(String line, int blockNum) {
 		TrackBlock b;
 		if (line.equals("Green")) {
-			b = tracks.getLine("Green").blocks.get(blockNum);
+			b = tracks.trackLayouts.get("Green").blocks.get(blockNum);
 		}
 		else if(line.equals("Red")) {
-			b = tracks.getLine("Red").blocks.get(blockNum);
+			b = tracks.trackLayouts.get("Red").blocks.get(blockNum);
 		}
 		else {
 			System.out.println("No such line exists.");
@@ -255,10 +256,10 @@ public class WaysideSystem {
 	public boolean setFailureMode (String line, int blockNum, String failureMode) {
 		TrackBlock b;
 		if (line.equals("Green")) {
-			b = tracks.getLine("Green").blocks.get(blockNum);
+			b = tracks.trackLayouts.get("Green").blocks.get(blockNum);
 		}
 		else if(line.equals("Red")) {
-			b = tracks.getLine("Red").blocks.get(blockNum);
+			b = tracks.trackLayouts.get("Red").blocks.get(blockNum);
 		}
 		else {
 			System.out.println("No such line exists.");

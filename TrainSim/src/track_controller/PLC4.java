@@ -30,6 +30,8 @@ public class PLC4 implements PLCInterface {
 	public boolean ctrlSwitch() {
 		
 		TrackSwitch relSwitch = (TrackSwitch) controlledBlocks.get(86);
+		if(this.routes.peek() != null){
+			switchCtrlSuccess = true;
 			//compute nextBlock val
 			System.out.println(routes.peek().route.isEmpty());
 			int indNextBlock = routes.peek().route.indexOf(86)+1;
@@ -63,6 +65,7 @@ public class PLC4 implements PLCInterface {
 				
 				return relSwitch.state;
 			}
+		}
 		System.out.println("No criteria met.");
 		return relSwitch.state;
 	}

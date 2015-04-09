@@ -98,7 +98,7 @@ public class TrackControllerGUI extends JFrame {
 	public TrackControllerGUI(WaysideSystem w, boolean m) {
 		wContrl = w;
 		sysMode = m;
-		if (sysMode) SystemWrapper.ctcOffice.setTrackLayout("Green", wContrl.tracks.getLine("Green").layout,wContrl.tracks.getLine("Green").blocks, wContrl.blockControllerMapGreen);
+		if (sysMode) SystemWrapper.ctcOffice.setTrackLayout("Green", wContrl.tracks.trackLayouts.get("Green").layout,wContrl.tracks.trackLayouts.get("Green").blocks, wContrl.blockControllerMapGreen);
 		initialize();
 	}
 	
@@ -132,7 +132,7 @@ public class TrackControllerGUI extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				
 				if(blockPicker.getSelectedItem()!=null) {
-					currentBlock = wContrl.tracks.getLine(currentLine).blocks.get(Integer.parseInt(blockPicker.getSelectedItem().toString()));
+					currentBlock = wContrl.tracks.trackLayouts.get(currentLine).blocks.get(Integer.parseInt(blockPicker.getSelectedItem().toString()));
 					if(currentLine!=null && currentLine.equals("Green")) {
 						currentController = wContrl.blockControllerMapGreen.get(currentBlock.number);
 					}
@@ -148,14 +148,14 @@ public class TrackControllerGUI extends JFrame {
 				currentLine = linePicker.getSelectedItem().toString();
 				//dynamically add block numbers
 				if (currentLine.equals("Red")) {
-					track_model.TrackLayout temp = wContrl.tracks.getLine("Red");
+					track_model.TrackLayout temp = wContrl.tracks.trackLayouts.get("Red");
 					blockPicker.removeAllItems();
 					for (TrackBlock b: temp.blocks) {
 	                    blockPicker.addItem(b.number);
 	                  }
 				}
 				else if (currentLine.equals("Green")) {
-				  track_model.TrackLayout temp = wContrl.tracks.getLine("Green");
+				  track_model.TrackLayout temp = wContrl.tracks.trackLayouts.get("Green");
 				  blockPicker.removeAllItems();
 				  for (TrackBlock b: temp.blocks) {
 				    blockPicker.addItem(b.number);
