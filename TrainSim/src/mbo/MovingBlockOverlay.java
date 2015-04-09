@@ -14,6 +14,7 @@ public class MovingBlockOverlay {
 	SRSTrainCurrSpeed trainCurrSpeed;
 	SRSTrainStopDist trainStopDist;
 	SRSDistFromNextTrain trainAuth;
+	SRSTrainCommSpeed trainCommSpeed;
 	//SystemWrapper sysWrapper;
 	SimClock systemClock;
 	//CTCDriver ctcDriver;   //this still need to be here?
@@ -29,6 +30,7 @@ public class MovingBlockOverlay {
 		trainCurrSpeed = new SRSTrainCurrSpeed();
 		trainStopDist = new SRSTrainStopDist();	
 		trainAuth = new SRSDistFromNextTrain();
+		trainCommSpeed = new SRSTrainCommSpeed();
 		//sysWrapper = new SystemWrapper();
 		gui = new MBOGUI();
 	}
@@ -104,6 +106,17 @@ public class MovingBlockOverlay {
 					SystemWrapper.trainModels.get(i).setCommSpeed(0);
 				}
 			}
+		}
+		
+		if(nextTrainDist > stopDist){
+			//keep current speed
+			SystemWrapper.trainModels.get(trainID).setCommSpeed(speed);
+			SystemWrapper.trainModels.get(trainID).setCommAuth(stopDist);
+		}
+		else {
+			//stopping distance is less than next train so we need to change its speed
+			SystemWrapper.trainModels.get(trainID).setCommSpeed(trainCommSpeed.calcCommSpeed(nextTrainDist));
+			SystemWrapper.trainModels.get(trainID).setCommAuth(nextTrainDist);
 		}
 		
 		// need to calculate distance between train and next train
