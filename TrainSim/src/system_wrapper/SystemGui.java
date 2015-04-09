@@ -83,8 +83,7 @@ public static void main(String[] args) {
     
     tabbedPane.addTab("Track Controller", null, SystemWrapper.trackControllerGui.getContentPane(), null);
     
-    JPanel panelTrainModel = new JPanel();
-    tabbedPane.addTab("Train Model", null, panelTrainModel, null);
+    tabbedPane.addTab("Train Model", null, SystemWrapper.trainModelGUI.getContentPane(), null);
     
     tabbedPane.addTab("Train Controller", null, SystemWrapper.trainControllerGui.getContentPane(), null);
   }
