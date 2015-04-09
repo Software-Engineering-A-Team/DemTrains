@@ -15,11 +15,11 @@ import train_model.TrainModel;
 
 public class TrackLayout {
 	private final ArrayList<DefaultBlock> blockData;
-	private final ArrayList<StationBlock> allStations;
+	private final ArrayList<StationBlock> allStations = new ArrayList<StationBlock>();
 	private final DirectedMultigraph<Integer, DefaultEdge> layout;
 	private final HashMap<Integer, List<WaysideController>> blockToControllerMap;
 	private final Scheduler scheduler = new Scheduler();
-	private final TrainRouter trainRouter = new TrainRouter();
+	private final TrainRouter trainRouter;
 	private final char trainIdPrefix;
 
 	public TrackLayout(DirectedMultigraph<Integer, DefaultEdge> tLayout, List<TrackBlock> tBlockData,  HashMap<Integer, List<WaysideController>> controllerMap, char tPrefix) {
@@ -27,11 +27,11 @@ public class TrackLayout {
 		blockToControllerMap = controllerMap;
 		trainIdPrefix = tPrefix;
 		blockData = new ArrayList<DefaultBlock>(tBlockData.size());
-            blockData.add(0, new Yard());
+        blockData.add(0, new Yard());
 		for (TrackBlock b : tBlockData) {
 		    int blockNum = b.number;
-            double blockLen = b.number;
-            double speedLimit = b.number;
+            double blockLen = b.length;
+            double speedLimit = b.speedLimit;
             boolean occupiedStatus = b.occupancy;
             boolean brokenStatus = b.hasFailure();
             if (blockData.getClass().equals(TrackCrossing.class)){
@@ -56,6 +56,7 @@ public class TrackLayout {
                 blockData.add(blockNum, new DefaultBlock(blockNum, blockLen, speedLimit, occupiedStatus, brokenStatus));
             }
 		}
+        trainRouter = new TrainRouter(tLayout, blockData, allStations);
 	}
 	
 	/**
@@ -69,9 +70,11 @@ public class TrackLayout {
 	 * Manually spawns a new train with the routing data that was passed into the method.
 	 * Returns false if a train with that name already exists.
 	 */
-	public boolean dispatchTrain(String trainId, int destinationBlock, double speed, double authority) {
+	public boolean dispatchTrain(String trainId, StopData stopData) {
 		// TODO
-	    SystemWrapper.trainModels.add(new TrainModel());
+		
+	    SystemWrapper.trainModels.add(new TrainModel(trainId, SystemWrapper.trainModels.size()));
+	    int destinationBlock = 
 		// create a new train and put it in the train list of the system wrapper
 		// add the train to the dispatch queue at the yard
 		this.manuallyRouteTrain(trainId, destinationBlock, speed, authority);
@@ -91,7 +94,7 @@ public class TrackLayout {
 	 */
 	public ArrayList<Train> getAllTrains() {
 		// TODO: call get all trains from the train router
-		return null;
+		return trainRouter.getAllTrains();
 	}
 	
 	public ArrayList<DefaultBlock> getAllBlocks() {
@@ -119,11 +122,14 @@ public class TrackLayout {
 	public ArrayList<TrainRoute> getUpdatedTrainRoutes() {
 		// TODO: Get all of the trains that have reached their destination and are ready to depart
 		// Get their next destination from the scheduler
-		// Get the next train in the dispatch queue at the yard
 		// for every train not still at the yard
 			// route the train.
 			// send the routing data to the wayside controller for that block
 			// if the route was not accepted fix the trains expected route
+		// Get the next train in the dispatch queue at the yard
+		// route that train
+		// send the routing data to the wayside controller for that block
+		// if the route was not accepted, fix the trains expected route
 		ArrayList<TrainRoute> routes = new ArrayList<TrainRoute>();
 		
 		return routes;
@@ -243,8 +249,11 @@ public class TrackLayout {
 	 * Dispatches all of the new trains according to the schedule
 	 */
     public void dispatchNewTrains() {
-        // TODO Auto-generated method stub
-        scheduler.getTrainsToDispatch();
+        // TODO 
+        HashMap<String, StopData> trainsToDispatch = scheduler.getTrainsToDispatch();
+        for (String train : trainsToDispatch.keySet()) {
+        	dispatchTrain(train, trainsToDispatch.get(train));
+        }
     }
  }
  
