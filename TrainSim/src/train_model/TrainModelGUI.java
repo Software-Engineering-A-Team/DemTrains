@@ -41,7 +41,7 @@ public class TrainModelGUI extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					TrainModelGUI frame = new TrainModelGUI();
+					TrainModelGUI frame = new TrainModelGUI(false);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -53,19 +53,20 @@ public class TrainModelGUI extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	/*public TrainModelGUI(ArrayList<TrainModel> trains, boolean mode) {
-		this.trainList = trains;
+	public TrainModelGUI(boolean mode) {
+		//this.trainList = trains;
 		if (mode == true) {
 			// TODO: Set a label indicating TrainModelGUI is in system mode
 			this.sysMode = "System mode (multiple trains)";
+			// TODO: Need to grab the system's collection of trains
 		} else {
 			// TODO: Set a label indicating TrainModelGUI is in standalone mode
 			this.sysMode = "Standalone mode (single train)";
-		}*/
+		}
 		
-	public TrainModelGUI() {	
+	//public TrainModelGUI() {	
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 750, 550);
+		setBounds(100, 100, 750, 650);
 		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -111,7 +112,7 @@ public class TrainModelGUI extends JFrame {
 		gbc_lblTrainModelInterface.gridy = 0;
 		contentPane.add(lblTrainModelInterface, gbc_lblTrainModelInterface);
 		
-		JLabel lblMode = new JLabel("Mode");
+		JLabel lblMode = new JLabel(sysMode);
 		GridBagConstraints gbc_lblMode = new GridBagConstraints();
 		gbc_lblMode.insets = new Insets(0, 0, 5, 5);
 		gbc_lblMode.gridx = 0;
@@ -330,10 +331,9 @@ public class TrainModelGUI extends JFrame {
 		contentPane.add(lblOff, gbc_lblOff);
 		
 		txtEnterPowerHere = new JTextField();
-		txtEnterPowerHere.setText("Enter power here (kW)");
+		txtEnterPowerHere.setText("Enter power(kW)");
 		GridBagConstraints gbc_txtEnterPowerHere = new GridBagConstraints();
 		gbc_txtEnterPowerHere.insets = new Insets(0, 0, 5, 0);
-		gbc_txtEnterPowerHere.fill = GridBagConstraints.HORIZONTAL;
 		gbc_txtEnterPowerHere.gridx = 4;
 		gbc_txtEnterPowerHere.gridy = 14;
 		contentPane.add(txtEnterPowerHere, gbc_txtEnterPowerHere);
