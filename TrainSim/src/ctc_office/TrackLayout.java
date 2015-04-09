@@ -15,12 +15,13 @@ import train_model.TrainModel;
 
 public class TrackLayout {
 	private final ArrayList<DefaultBlock> blockData;
-	private final ArrayList<StationBlock> allStations = new ArrayList<StationBlock>();
+	private final HashMap<String, StationBlock> allStations = new HashMap<String, StationBlock>();
 	private final DirectedMultigraph<Integer, DefaultEdge> layout;
 	private final HashMap<Integer, List<WaysideController>> blockToControllerMap;
 	private final Scheduler scheduler = new Scheduler();
 	private final TrainRouter trainRouter;
 	private final char trainIdPrefix;
+	private HashMap<String, StopData> yardTrainStopData = new HashMap<String,StopData>();
 
 	public TrackLayout(DirectedMultigraph<Integer, DefaultEdge> tLayout, List<TrackBlock> tBlockData,  HashMap<Integer, List<WaysideController>> controllerMap, char tPrefix) {
 		layout = tLayout;
@@ -49,8 +50,7 @@ public class TrackLayout {
                 String stationName = station.stationName;
                 StationBlock s = new StationBlock(blockNum, blockLen, speedLimit, occupiedStatus, brokenStatus, stationName);
                 blockData.add(blockNum, s);
-                allStations.add(s);
-                
+                allStations.put(stationName, s);
             }
             else { // it is a regular block
                 blockData.add(blockNum, new DefaultBlock(blockNum, blockLen, speedLimit, occupiedStatus, brokenStatus));
@@ -70,16 +70,29 @@ public class TrackLayout {
 	 * Manually spawns a new train with the routing data that was passed into the method.
 	 * Returns false if a train with that name already exists.
 	 */
-	public boolean dispatchTrain(String trainId, StopData stopData) {
-		// TODO
-		
-	    SystemWrapper.trainModels.add(new TrainModel(trainId, SystemWrapper.trainModels.size()));
-	    int destinationBlock = 
-		// create a new train and put it in the train list of the system wrapper
+	public boolean dispatchTrain(String trainName, StopData stopData) {
+		//TODO
 		// add the train to the dispatch queue at the yard
-		this.manuallyRouteTrain(trainId, destinationBlock, speed, authority);
-		
+	    Yard y = (Yard) blockData.get(0);
+		y.addTrainToQueue(trainName);
+		yardTrainStopData.put(trainName, stopData);
 		return true;
+	}
+	
+	/**
+	 * Creates a new train model
+	 */
+	private short createTrainModel(String trainName) {
+		// create a new train and put it in the train list of the system wrapper
+		short trainId = (short) SystemWrapper.trainModels.size();
+		for (short i = 0; i<trainId;i++) {
+			if (SystemWrapper.trainModels.get(i) == null) {
+				trainId = i;
+				break;
+			}
+		}
+	    SystemWrapper.trainModels.add(trainId, new TrainModel(trainIdPrefix + trainName, trainId));
+	    return trainId;
 	}
 
 	/**
@@ -107,8 +120,7 @@ public class TrackLayout {
 	public HashMap<Integer, String> getBeaconStrings() {
 		// TODO
 		HashMap<Integer, String> beaconStrings = new HashMap<Integer, String>();
-		for (StationBlock s : allStations) {
-			
+		for (StationBlock s : allStations.values()) {
 			// find train that will reach the station next
 			// build the beaconString
 			// add it to the list
@@ -187,6 +199,8 @@ public class TrackLayout {
 	 * Used when the system is in Fixed Block mode to set the actual locations of the trains.
 	 * Calculates the distance each train has traveled based on its speed and authority.
 	 * Calculates all of the new distances at once.
+	 * This method doesn't take into account acceleration time,
+	 * but when the train reaches the end of a block it will be more accurate
 	 */
 	public boolean setEstimatedTrainLocaitons() {
 		// TODO
@@ -249,11 +263,32 @@ public class TrackLayout {
 	 * Dispatches all of the new trains according to the schedule
 	 */
     public void dispatchNewTrains() {
-        // TODO 
         HashMap<String, StopData> trainsToDispatch = scheduler.getTrainsToDispatch();
         for (String train : trainsToDispatch.keySet()) {
         	dispatchTrain(train, trainsToDispatch.get(train));
         }
     }
+
+    /**
+     * Adds the first train from queue at the yard to the track
+     * 
+     */
+	public void routeTrainFromYard() {
+		String trainName = ((Yard) blockData.get(0)).getNextTrain();
+		short trainId = createTrainModel(trainName);
+		// Create the train in the train router
+		trainRouter.spawnNewTrain(trainName, trainId);
+		
+		if (yardTrainStopData.get(trainName).getClass().equals(BlockStopData.class)){
+			// It was dispatched manually, and the route needs to be created accordingly
+			BlockStopData stopData = (BlockStopData)yardTrainStopData.get(trainName);
+			trainRouter.updateTrainDestination(trainName, stopData.endBlock, stopData.speed, stopData.authority);
+		}
+		else { // It is a normally dispatched train and will follow a schedule
+			StopData stopData = yardTrainStopData.get(trainName);
+			trainRouter.updateTrainDestination(trainName, allStations.get(stopData.destinationStation).blockNumber, stopData.travelTime);
+			
+		}
+	}
  }
  

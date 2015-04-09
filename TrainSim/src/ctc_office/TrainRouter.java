@@ -8,12 +8,12 @@ import org.jgrapht.graph.DirectedMultigraph;
 
 public class TrainRouter {
 	private final ArrayList<DefaultBlock> blockData;
-	private final ArrayList<StationBlock> allStations;
+	private final HashMap<String, StationBlock> allStations;
 	private final DirectedMultigraph<Integer, DefaultEdge> layout;
 	private HashMap<Short, TrainRoute> trainRoutes;
 	ArrayList<Train> trains;
 
-	public TrainRouter(DirectedMultigraph<Integer, DefaultEdge> l, ArrayList<DefaultBlock> bData, ArrayList<StationBlock> stations) {
+	public TrainRouter(DirectedMultigraph<Integer, DefaultEdge> l, ArrayList<DefaultBlock> bData, HashMap<String, StationBlock> stations) {
 		layout = l;
 		blockData = bData;
 		allStations = stations;
@@ -35,7 +35,7 @@ public class TrainRouter {
 		for (Train t : trains) {
 			if (t.currentBlock == t.destination) {
 				if (t.distanceTraveledOnBlock == blockData.get(t.currentBlock).blockLength/2) { // it is at the station
-					if ((t.remainingTravelTime == 0) && (t.speed == 0)) {
+					if ((t.remainingTravelTime == 0) && (t.currSpeed == 0)) {
 						finishedTrains.add(t.trainName);
 					}
 				}
@@ -76,7 +76,7 @@ public class TrainRouter {
 	/**
 	 * Spawns a new train in the yard with no destination and a speed/authority of 0
 	 */
-	public boolean spawnNewTrain(short trainId, String trainName) {
+	public boolean spawnNewTrain(String trainName, short trainId) {
 		// check that the trainId and Name are unique
 		trains.add(new Train(trainId, trainName));
 		return true;
@@ -85,17 +85,32 @@ public class TrainRouter {
 	/**
 	 * Updates a trains destination block and travel time
 	 */
-	public boolean updateTrainDestination(String trainName, int destBlock, int travelTime) {
+	public boolean updateTrainDestination(String trainName, int destBlock, double travelTime) {
 		for (Train t : trains) {
 			if (t.trainName.equals(trainName)) {
 				t.destination = destBlock;
-				t.remainingTravelTime = travelTime;
+				t.remainingTravelTime = (int)Math.ceil(travelTime * 60000);
 				return true;
 			}
 		}
 		return false;
 	}
 	
+	/**
+	 * Updates a trains destination block and travel time
+	 */
+	public boolean updateTrainDestination(String trainName, int destBlock, double maxSpeed, double authority) {
+		for (Train t : trains) {
+			if (t.trainName.equals(trainName)) {
+				t.destination = destBlock;
+				t.maxSpeed = maxSpeed;
+				t.authority = authority;
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * Gets all of the currently dispatched trains
 	 */
@@ -112,4 +127,9 @@ public class TrainRouter {
 		return null;
 	}
 	
+	public String getTainApprochingStation() {
+		//TODO
+		return null;
+	}
+
 }
