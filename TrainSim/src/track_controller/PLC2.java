@@ -118,10 +118,13 @@ public class PLC2 implements PLCInterface {
 			b.lights = ctrlLights(b);
 		}
 		TrackCrossing t = (TrackCrossing)controlledBlocks.get(19);
+		boolean prevState = t.state;
 		t.state = ctrlCrossing();
-		if(t.state) {
-			System.out.println("Crossing on block 19 is active");
+		if(prevState != t.state){
+			if(t.state) {
+				System.out.println("Crossing on block 19 is active");
+			}
+			else System.out.println("Crossing on block 19 is inactive.");
 		}
-		else System.out.println("Crossing on block 19 is inactive.");
 	}
 }

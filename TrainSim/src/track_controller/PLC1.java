@@ -143,13 +143,12 @@ public class PLC1 implements PLCInterface {
 		
 		TrackSwitch s = (TrackSwitch) controlledBlocks.get(12);
 		boolean prevState = s.state;
-		int ind;
+		int ind, ind1;
 		if(prevState) ind = 0;
 		else ind = 1;
-		System.out.print("Switch on block 12 moved from "+s.out[ind]); 
 		s.state = ctrlSwitch();
-		if(s.state) ind = 0;
-		else ind = 1;
-		System.out.print(" to " +s.out[ind]+"\n");
+		if(s.state) ind1 = 0;
+		else ind1 = 1;
+		if (prevState != s.state) System.out.println("Switch on block 12 moved from "+s.out[ind] +" to " +s.out[ind1]);
 	}
 }

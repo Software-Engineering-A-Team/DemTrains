@@ -167,13 +167,12 @@ public class PLC6 implements PLCInterface {
 		}
 				
 		boolean prevState = current.state;
-		int ind;
+		int ind, ind1;
 		if(prevState) ind = 0;
 		else ind = 1;
-		System.out.print("Switch on block "+current.number+" moved from "+current.out[ind]); 
 		current.state = ctrlSwitch();
-		if(current.state) ind = 0;
-		else ind = 1;
-		System.out.print(" to " +current.out[ind]+"\n");
+		if(current.state) ind1 = 0;
+		else ind1 = 1;
+		if (prevState != current.state) System.out.print("Switch on block "+current.number+" moved from "+current.out[ind] + " to " +current.out[ind1]);
 	}
 }
