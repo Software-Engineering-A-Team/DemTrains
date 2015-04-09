@@ -13,15 +13,15 @@ import track_controller.WaysideController;
 import track_model.TrackSwitch;
 
 public class TrainRouter {
-	private final ArrayList<DefaultBlock> blockData;
+	private final ArrayList<BlockInterface> blockData;
 	private final HashMap<String, StationBlock> allStations;
 	private final DirectedMultigraph<Integer, DefaultEdge> layout;
 	private final String lineName;
-	private HashMap<Short, TrainRoute> trainRoutes;
-	private ArrayList<Train> trains;
+	private HashMap<Short, TrainRoute> trainRoutes = new HashMap<Short, TrainRoute>();
+	private ArrayList<Train> trains = new ArrayList<Train>();
 	private final HashMap<Integer, WaysideController> blockToControllerMap;
 
-	public TrainRouter(DirectedMultigraph<Integer, DefaultEdge> l, ArrayList<DefaultBlock> bData, HashMap<String, StationBlock> stations, HashMap<Integer, WaysideController> controllerMap, String lName) {
+	public TrainRouter(DirectedMultigraph<Integer, DefaultEdge> l, ArrayList<BlockInterface> bData, HashMap<String, StationBlock> stations, HashMap<Integer, WaysideController> controllerMap, String lName) {
 		layout = l;
 		blockData = bData;
 		allStations = stations;
@@ -35,7 +35,7 @@ public class TrainRouter {
 	public TrainRoute calculateShortestRoute(Train train) {
 		Set<Integer> allVertices = layout.vertexSet();
 		HashSet<Integer> visitedNodes = new HashSet<Integer>(layout.vertexSet().size());
-		double totalWeight = blockData.get(train.currentBlock).blockLength - train.distanceTraveledOnBlock;
+		double totalWeight = ((DefaultBlock)blockData.get(train.currentBlock)).blockLength - train.distanceTraveledOnBlock;
 		Integer currentBlock = null;
 		Integer destinationBlock = null;
 		LinkedList<Integer> path = new LinkedList<Integer>();
@@ -65,7 +65,7 @@ public class TrainRouter {
 		}
 		
 		// create the TrainRoute Object
-		double trainSpeed = blockData.get(train.currentBlock).speedLimit;
+		double trainSpeed = ((DefaultBlock)blockData.get(train.currentBlock)).speedLimit;
 		if (train.maxSpeed < trainSpeed) {
 			trainSpeed = train.maxSpeed;
 		}
@@ -100,7 +100,7 @@ public class TrainRouter {
 				allSimplePaths.put(path, totalWeight);
 				return;
 			}
-			DefaultBlock b = blockData.get((int)currentVertex);
+			BlockInterface b = blockData.get((int)currentVertex);
 			// if it is a switch make sure the next block is a valid move
 			if (b.getClass().equals(TrackSwitch.class)){
 				int [] possibleNextBlocks = ((SwitchBlock) b).getPossibleNextBlocks();
@@ -114,11 +114,11 @@ public class TrainRouter {
 				}
 			}
 			// If the block is closed, it is not a path
-			if (b.broken) {
+			if (((DefaultBlock)b).broken) {
 				return;
 			}
 			// it is part of a path
-			totalWeight += b.blockLength;
+			totalWeight += ((DefaultBlock)b).blockLength;
 			LinkedList<Integer> pathCopy = (LinkedList<Integer>)path.clone();
 			Set<Integer> visitedNodesCopy = new HashSet<Integer>(visitedNodes.size());
 			visitedNodesCopy.addAll(visitedNodes);
@@ -135,7 +135,7 @@ public class TrainRouter {
 		ArrayList<String> finishedTrains = new ArrayList<String>();
 		for (Train t : trains) {
 			if (t.currentBlock == t.destination) {
-				if (t.distanceTraveledOnBlock == blockData.get(t.currentBlock).blockLength/2) { // it is at the station
+				if (t.distanceTraveledOnBlock == ((DefaultBlock)blockData.get(t.currentBlock)).blockLength/2) { // it is at the station
 					if ((t.remainingTravelTime == 0) && (t.currSpeed == 0)) {
 						finishedTrains.add(t.trainName);
 					}

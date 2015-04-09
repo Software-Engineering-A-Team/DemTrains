@@ -1,6 +1,6 @@
 package ctc_office;
 
-public class DefaultBlock {
+public class DefaultBlock implements BlockInterface{
 	public boolean broken;
 	public boolean occupied;
 	public final double blockLength;

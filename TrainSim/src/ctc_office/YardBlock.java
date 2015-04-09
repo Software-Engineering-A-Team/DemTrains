@@ -3,10 +3,10 @@ package ctc_office;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class Yard extends DefaultBlock {
+public class YardBlock extends DefaultBlock {
 	private Queue<String> dispatchQueue = new LinkedList<String>();
 
-	public Yard() {
+	public YardBlock() {
 		super(0, 0, Integer.MAX_VALUE, false, false);
 	}
 	
@@ -21,7 +21,10 @@ public class Yard extends DefaultBlock {
 	 * Get the next train that needs to be dispatched.
 	 */
 	public String getNextTrain() {
-		return dispatchQueue.remove();
+		if (dispatchQueue.size() > 0) {
+			return dispatchQueue.remove();
+		}
+		return null;
 	}
 
 }

@@ -1,6 +1,6 @@
 package ctc_office;
 
-public class RailwayCrossingBlock extends DefaultBlock {
+public class RailwayCrossingBlock extends DefaultBlock{
 	public boolean crossingClosed;
 
 	public RailwayCrossingBlock(int num, double length, double sLimit, boolean occupiedStatus, boolean brokenStatus, boolean crossingStatus) {

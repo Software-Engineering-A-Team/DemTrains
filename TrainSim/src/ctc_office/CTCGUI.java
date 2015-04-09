@@ -38,12 +38,14 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
+
 import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
+
 import javax.swing.JButton;
+
 import java.awt.Insets;
 import java.awt.Font;
-import net.miginfocom.swing.MigLayout;
 
 public class CTCGUI extends JFrame{
 	private JTable trainTable;
@@ -52,9 +54,11 @@ public class CTCGUI extends JFrame{
 	private DefaultTableModel trackTableModel;
 	private final HashMap<String, TrackLayout> trackLayouts = SystemWrapper.ctcOffice.getAllTrackLayouts();
 	private ArrayList<Train> allTrains = null;;
-	private ArrayList<DefaultBlock> allBlocks = null;;
+	private ArrayList<BlockInterface> allBlocks = null;;
 	private String currLine = "Green";
 	private JPanel trackInfoPanel;
+	private JPanel trackTablePanel;
+	private JPanel trainTablePanel;
 	
 	public CTCGUI() {
 		setResizable(false);
@@ -64,7 +68,7 @@ public class CTCGUI extends JFrame{
 		SpringLayout springLayout = new SpringLayout();
 		getContentPane().setLayout(springLayout);
 		
-		JPanel trainTablePanel = new JPanel();
+		trainTablePanel = new JPanel();
 		trainTablePanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		springLayout.putConstraint(SpringLayout.NORTH, trainTablePanel, 0, SpringLayout.NORTH, getContentPane());
 		springLayout.putConstraint(SpringLayout.WEST, trainTablePanel, 0, SpringLayout.WEST, getContentPane());
@@ -88,13 +92,13 @@ public class CTCGUI extends JFrame{
 		JScrollPane TrackLayoutScrollPane = new JScrollPane();
 		TrackLayoutPanel.add(TrackLayoutScrollPane, "name_618311680360271");
 		
-		JPanel TrackTablePanel = new JPanel();
-		springLayout.putConstraint(SpringLayout.NORTH, TrackTablePanel, 0, SpringLayout.SOUTH, TrackLayoutPanel);
-		springLayout.putConstraint(SpringLayout.SOUTH, TrackTablePanel, 0, SpringLayout.SOUTH, getContentPane());
-		TrackTablePanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-		springLayout.putConstraint(SpringLayout.WEST, TrackTablePanel, 0, SpringLayout.WEST, getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, TrackTablePanel, 0, SpringLayout.EAST, trainTablePanel);
-		getContentPane().add(TrackTablePanel);
+		trackTablePanel = new JPanel();
+		springLayout.putConstraint(SpringLayout.NORTH, trackTablePanel, 0, SpringLayout.SOUTH, TrackLayoutPanel);
+		springLayout.putConstraint(SpringLayout.SOUTH, trackTablePanel, 0, SpringLayout.SOUTH, getContentPane());
+		trackTablePanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		springLayout.putConstraint(SpringLayout.WEST, trackTablePanel, 0, SpringLayout.WEST, getContentPane());
+		springLayout.putConstraint(SpringLayout.EAST, trackTablePanel, 0, SpringLayout.EAST, trainTablePanel);
+		getContentPane().add(trackTablePanel);
 		
 		trackTable = new JTable();
 		trackTable.setRowSelectionAllowed(false);
@@ -128,12 +132,12 @@ public class CTCGUI extends JFrame{
 			}
 		});
 		trackTable.getColumnModel().getColumn(2).setPreferredWidth(107);
-		TrackTablePanel.setLayout(new BorderLayout(0, 0));
-		TrackTablePanel.add(trackTable);
+		trackTablePanel.setLayout(new BorderLayout(0, 0));
+		trackTablePanel.add(trackTable);
 		
 		JScrollPane trackTableScrollPane = new JScrollPane(trackTable);
 		trackTableScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		TrackTablePanel.add(trackTableScrollPane);
+		trackTablePanel.add(trackTableScrollPane);
 		
 		trackInfoPanel = new JPanel();
 		springLayout.putConstraint(SpringLayout.WEST, trackInfoPanel, 0, SpringLayout.EAST, trainTablePanel);
@@ -249,6 +253,10 @@ public class CTCGUI extends JFrame{
             public void actionPerformed(final ActionEvent e) {
             	updateTrackTable();
             	updateTrainTable();
+            	trackTablePanel.revalidate();
+            	trackTablePanel.repaint();
+            	trainTablePanel.revalidate();
+            	trainTablePanel.repaint();
             	// if timer ticker changes
             	// timer.setDelay(2);
             }
@@ -298,18 +306,14 @@ public class CTCGUI extends JFrame{
     	if (tLayout == null) {
     		return;
     	}
-    	int trackRowCount = trackTableModel.getRowCount();
-    	
-    	// remove all but the first row from trackTable
-    	for (int i = 0; i < trackRowCount; i++) {
-    		trackTableModel.removeRow(i);
-    	}
+    	trackTableModel.setRowCount(0);
 
     	
     	// get the list of all the blocks
     	allBlocks = tLayout.getAllBlocks();
     	// Update the table with the new info
-    	for (DefaultBlock b : allBlocks) {
+    	for (BlockInterface block : allBlocks) {
+    		DefaultBlock b = (DefaultBlock) block;
     		String blockType;
     		String occupied = "Unoccopied";
     		if (b.occupied) {
@@ -333,8 +337,6 @@ public class CTCGUI extends JFrame{
 
     		trackTableModel.addRow(new Object[] {b.blockNumber, b.blockLength, b.speedLimit, blockType, occupied, b.broken});
     	}
-    	trackTable.revalidate();
-		trackTable.repaint();
 	}
 	
 	private void updateTrainTable() {
@@ -342,41 +344,36 @@ public class CTCGUI extends JFrame{
     	if (tLayout == null) {
     		return;
     	}
-    	int trainRowCount = trainTableModel.getRowCount();
-
-    	// remove all but the first row from trainTable
-    	for (int i = 0; i < trainRowCount; i++) {
-    		trainTableModel.removeRow(i);
-    	}
+    	trackTableModel.setRowCount(0);
 
     	// get the complete list of trains
     	allTrains = tLayout.getAllTrains();
     	// Update the table with the new info
+    	if (allTrains == null) {
+    		return;
+    	}
     	for (Train t : allTrains) {
     		trainTableModel.addRow(new Object[] {});
     	}
 
-    	trainTable.revalidate();
-		trainTable.repaint();
 	}
 	
-	private void trackBlockSelected(DefaultBlock b) {
+	private void trackBlockSelected(BlockInterface b) {
 		// determine the block type
-		String blockType;
-		if (b.getClass().equals(TrackBlock.class)) {
-			blockType = "Default";
+		if (b.getClass().equals(DefaultBlock.class)) {
+			DefaultBlock block = (DefaultBlock) b;
 		}
-		else if (b.getClass().equals(TrackCrossing.class)){
-			blockType = "Railway Crossing";
+		else if (b.getClass().equals(RailwayCrossingBlock.class)){
+			RailwayCrossingBlock block = (RailwayCrossingBlock) b;
         }
-        else if (b.getClass().equals(TrackSwitch.class)){
-			blockType = "Switch";
+        else if (b.getClass().equals(SwitchBlock.class)){
+        	SwitchBlock block = (SwitchBlock) b;
         }
-        else if (b.getClass().equals(TrackStation.class)){
-			blockType = "Station";
+        else if (b.getClass().equals(StationBlock.class)){
+        	StationBlock block = (StationBlock) b;
         }
         else { // it is the yard
-			blockType = "Yard";
+        	YardBlock block = (YardBlock) b;
         }
 		// display appropriate options for each block type
 		trackInfoPanel.revalidate();

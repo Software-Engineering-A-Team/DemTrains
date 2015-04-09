@@ -89,9 +89,6 @@ public class Scheduler {
 		else { //MBO mode
 			
 		}
-		if (trainsToDispatch.size() == 0) {
-			return null;
-		}
 		return trainsToDispatch;
 	}
 	
