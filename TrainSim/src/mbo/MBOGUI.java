@@ -406,12 +406,6 @@ public class MBOGUI extends JFrame{
 		lblNewLabel_2.setFont(new Font("Tahoma", Font.BOLD, 17));
 		lblNewLabel_2.setBounds(133, 73, 129, 20);
 		trainSchedulePanel.add(lblNewLabel_2);
-		
-		JLabel trainScheduleDisplay = new JLabel(SystemWrapper.mbo.trainSchedule); //********************************
-		//trainScheduleDisplay = .setTitle(startTimeTextField.getText());
-		trainScheduleDisplay.setVerticalAlignment(SwingConstants.TOP);
-		trainScheduleDisplay.setBounds(10, 109, 548, 472);
-		trainSchedulePanel.add(trainScheduleDisplay);
 		springLayout.putConstraint(SpringLayout.SOUTH, label_8, -6, SpringLayout.NORTH, SafeMBOAuthoPane);
 		label_8.setFont(new Font("Tahoma", Font.BOLD, 18));
 		getContentPane().add(label_8);
