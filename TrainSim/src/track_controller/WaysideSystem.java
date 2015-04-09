@@ -107,7 +107,7 @@ public class WaysideSystem {
 			blockControllerMapGreen.put(i, wc8);
 		}
 		wc8.addBlocks(tc8);
-		PLC7 plc8 = new PLC7(wc8.blockMap);
+		PLC8 plc8 = new PLC8(wc8.blockMap);
 		wc8.plc = plc8;
 		
 		
@@ -118,7 +118,7 @@ public class WaysideSystem {
 			blockControllerMapGreen.put(i, wc9);
 		}
 		wc9.addBlocks(tc9);
-		PLC7 plc9 = new PLC7(wc9.blockMap);
+		PLC9 plc9 = new PLC9(wc9.blockMap);
 		wc9.plc = plc9;
 		
 		return true;
@@ -263,8 +263,9 @@ public class WaysideSystem {
 	 * to a given wayside controller 
 	 */	
 	public TrainRoute addRoute(TrainRoute r, int startBlock) {
-		
-		
+		WaysideController needCntrl = blockControllerMapGreen.get(startBlock);
+		needCntrl.route = r;
+		needCntrl.runPLC();
 		return null;
 	}
 	

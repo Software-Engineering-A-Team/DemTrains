@@ -126,57 +126,6 @@ public class TrackControllerGUI extends JFrame {
 					currentBlock = wContrl.tracks.getLine(currentLine).blocks.get(Integer.parseInt(blockPicker.getSelectedItem().toString()));
 					if(currentLine!=null && currentLine.equals("Green")) {
 						currentController = wContrl.blockControllerMapGreen.get(currentBlock.number);
-						if(currentController!=null){
-							if(currentController.containsSwitch & !currentController.containsCrossing) {
-								switchStatus = "";
-								crossingStatus = "";
-								ArrayList<TrackSwitch> s = currentController.findSwitches();
-								System.out.println(s.size());
-								if(!s.isEmpty()){
-									for (TrackSwitch t: s) {
-										System.out.println(t.number);
-										boolean pTB = t.state;
-										int index;
-										if (pTB) index = 1;
-										else index = 0;
-										switchStatus = switchStatus +"Switch on block " + t.number + " pointing to block " +t.out[index]+ ".\n";
-									}
-									crossingStatus = "No crossings in this section.";
-								}
-							}
-							else if(currentController.containsCrossing & !currentController.containsSwitch) {
-								TrackCrossing t = (TrackCrossing) currentController.blockMap.get(19);
-								switchStatus = "No switches in this section.";
-								if(t.state) {
-									crossingStatus = "Crossing on block " + 19 + "is active.";
-								}
-								else {
-									crossingStatus = "Crossing on block " + 19 + "is inactive.";
-								}
-							}
-							else if(currentController.containsCrossing & currentController.containsSwitch) {
-								switchStatus = "";
-								TrackCrossing tc = (TrackCrossing) currentController.blockMap.get(19);
-								ArrayList<TrackSwitch> s = currentController.findSwitches();
-								for (TrackSwitch t: s) {
-									boolean pTB = t.state;
-									int index;
-									if (pTB) index = 1;
-									else index = 0;
-									switchStatus = switchStatus + "Switch on block " +t.number+ " pointing to block " + t.out[index]+ ".";
-								}
-								if(tc.state) {
-									crossingStatus = "Crossing on block " + 19 + "is active.";
-								}
-								else {
-									crossingStatus = "Crossing on block " + 19 + "is inactive.";
-								}
-							}
-							else if (!currentController.containsCrossing & !currentController.containsSwitch) {
-								switchStatus = "No switches in this section.";
-								crossingStatus = "No crossings in this section.";
-							}
-						}
 					}
 				}
 			}
@@ -430,6 +379,57 @@ public class TrackControllerGUI extends JFrame {
 		btnUpdateBlock.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				wContrl.runPLC(currentController);
+				System.out.println(currentBlock.occupancy);
+				if(currentController.containsSwitch & !currentController.containsCrossing) {
+					switchStatus = "";
+					crossingStatus = "";
+					ArrayList<TrackSwitch> s = currentController.findSwitches();
+					System.out.println(s.size());
+					if(!s.isEmpty()){
+						for (TrackSwitch t: s) {
+							System.out.println(t.number);
+							boolean pTB = t.state;
+							int index;
+							if (pTB) index = 1;
+							else index = 0;
+							switchStatus = switchStatus +"Switch on block " + t.number + " pointing to block " +t.out[index]+ ".\n";
+						}
+						crossingStatus = "No crossings in this section.";
+					}
+				}
+				else if(currentController.containsCrossing & !currentController.containsSwitch) {
+					TrackCrossing t = (TrackCrossing) currentController.blockMap.get(19);
+					switchStatus = "No switches in this section.";
+					if(t.state) {
+						crossingStatus = "Crossing on block " + 19 + " is active.";
+					}
+					else {
+						crossingStatus = "Crossing on block " + 19 + " is inactive.";
+					}
+				}
+				else if(currentController.containsCrossing & currentController.containsSwitch) {
+					switchStatus = "";
+					TrackCrossing tc = (TrackCrossing) currentController.blockMap.get(19);
+					ArrayList<TrackSwitch> s = currentController.findSwitches();
+					for (TrackSwitch t: s) {
+						boolean pTB = t.state;
+						int index;
+						if (pTB) index = 1;
+						else index = 0;
+						switchStatus = switchStatus + "Switch on block " +t.number+ " pointing to block " + t.out[index]+ ".";
+					}
+					if(tc.state) {
+						crossingStatus = "Crossing on block " + 19 + " is active.";
+					}
+					else {
+						crossingStatus = "Crossing on block " + 19 + " is inactive.";
+					}
+				}
+				else if (!currentController.containsCrossing & !currentController.containsSwitch) {
+					System.out.println("neither");
+					switchStatus = "No switches in this section.";
+					crossingStatus = "No crossings in this section.";
+				}
 				model.setValueAt(currentLine, 0, 1);
 				model.setValueAt(currentBlock.number, 1, 1);
 				model.setValueAt(currentBlock.occupancy, 2, 1);

@@ -65,7 +65,7 @@ public class SystemGui extends JFrame {
             	// Run MBO
             	SystemWrapper.mbo.run();
     
-            	// Sleep for the approprate amount of time
+            	// Sleep for the appropriate amount of time
             	long elapsedTime = System.nanoTime() - time;
             	long desiredElapsedTime = (long) Math.ceil(SystemWrapper.perceivedTimeMultiplier * 1000000000);
             	long timeDifferenceMS = (desiredElapsedTime - elapsedTime) / 1000000;

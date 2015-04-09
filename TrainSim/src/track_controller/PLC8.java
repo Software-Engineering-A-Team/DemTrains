@@ -6,34 +6,23 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
-public class PLC2 implements PLCInterface {
+public class PLC8 implements PLCInterface {
 	HashMap<Integer, TrackBlock> controlledBlocks;
 		
 		
-	public PLC2(HashMap<Integer, TrackBlock> blockList){
+	public PLC8(HashMap<Integer, TrackBlock> blockList){
 		controlledBlocks = blockList;
 	}	
 	
 	/*
-	 * Determines safe state of the railway crossing and returns the state
-	 * true for active, false for inactive
+	 * No crossings in this section.
 	 */
 	public boolean ctrlCrossing() {
-		//if any of the affected blocks are occupied crossing is active
-		if(controlledBlocks.get(16).occupancy | controlledBlocks.get(17).occupancy | controlledBlocks.get(18).occupancy
-				| controlledBlocks.get(18).occupancy | controlledBlocks.get(19).occupancy | controlledBlocks.get(20).occupancy 
-				|controlledBlocks.get(21).occupancy | controlledBlocks.get(22).occupancy | controlledBlocks.get(23).occupancy) {
-			return true;
-		}
-		//otherwise it's inactive
-		else {
-			return false;
-		}
+		return false;
 	}
 	
 	/*
-	 * Determines safe state of the switch and returns the state
-	 * true for second block in attach array , false for first block in attach array
+	 * No switches in this section.
 	 */
 	public boolean ctrlSwitch() {
 		return false;
@@ -82,13 +71,11 @@ public class PLC2 implements PLCInterface {
 	 * Runs all functions of PLC Program
 	 */
 	public void run(){
-		System.out.println("Running PLC2");
-		for (int i = 16; i<24; i++) {
+		System.out.println("Running PLC7");
+		for (int i = 68; i<75; i++) {
 			TrackBlock b = controlledBlocks.get(i);
 			b.heater = ctrlHeater(b);
 			b.lights = ctrlLights(b);
 		}
-		TrackCrossing t = (TrackCrossing)controlledBlocks.get(19);
-		t.state = ctrlCrossing();
 	}
 }

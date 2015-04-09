@@ -72,7 +72,7 @@ public class PLC7 implements PLCInterface {
 	 */
 	public void run(){
 		System.out.println("Running PLC7");
-		for (int i = 16; i<24; i++) {
+		for (int i = 32; i<55; i++) {
 			TrackBlock b = controlledBlocks.get(i);
 			b.heater = ctrlHeater(b);
 			b.lights = ctrlLights(b);
