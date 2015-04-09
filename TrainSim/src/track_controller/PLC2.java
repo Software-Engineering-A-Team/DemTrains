@@ -9,13 +9,13 @@ import java.util.PriorityQueue;
 
 public class PLC2 implements PLCInterface {
 	HashMap<Integer, TrackBlock> controlledBlocks;
-	public PriorityQueue<TrainRoute> routes;
+	public PriorityQueue<TrainRoute> routes = new PriorityQueue<TrainRoute>();
 	TrainRoute r;
 	boolean switchCtrlSuccess = false;
 		
 	public PLC2(HashMap<Integer, TrackBlock> blockList, TrainRoute route){
 		this.controlledBlocks = blockList;
-		this.routes.add(route);
+		if(route!= null) this.routes.add(route);
 	}	
 	
 	/*

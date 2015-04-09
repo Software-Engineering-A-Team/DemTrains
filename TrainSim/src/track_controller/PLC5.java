@@ -9,13 +9,13 @@ import java.util.PriorityQueue;
 
 public class PLC5 implements PLCInterface {
 	HashMap<Integer, TrackBlock> controlledBlocks;
-	public PriorityQueue<TrainRoute> routes;
+	public PriorityQueue<TrainRoute> routes = new PriorityQueue<TrainRoute>();
 	boolean switchCtrlSuccess = false;
 	
 	
 	public PLC5(HashMap<Integer, TrackBlock> blockList, TrainRoute route){
 		this.controlledBlocks = blockList;
-		this.routes.add(route);
+		if(route!= null) this.routes.add(route);
 	}	
 	/*
 	 * Determines safe state of the railway crossing and returns the state

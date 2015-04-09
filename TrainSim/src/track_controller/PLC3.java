@@ -9,13 +9,13 @@ import java.util.PriorityQueue;
 
 public class PLC3 implements PLCInterface {
 	HashMap<Integer, TrackBlock> controlledBlocks;
-	public PriorityQueue<TrainRoute> routes;
+	public PriorityQueue<TrainRoute> routes = new PriorityQueue<TrainRoute>();
 	boolean switchCtrlSuccess = false;
 	
 	
 	public PLC3(HashMap<Integer, TrackBlock> blockList, TrainRoute route){
 		this.controlledBlocks = blockList;
-		this.routes.add(route);
+		if(route!= null) this.routes.add(route);
 	}	
 	/*
 	 * Determines safe state of the railway crossing and returns the state
@@ -32,6 +32,8 @@ public class PLC3 implements PLCInterface {
 		
 		TrackSwitch relSwitch = (TrackSwitch) controlledBlocks.get(29);
 			//compute nextBlock val
+		if(this.routes.peek() != null){
+			switchCtrlSuccess = true;
 			System.out.println(routes.peek().route.isEmpty());
 			int indNextBlock = routes.peek().route.indexOf(29)+1;
 			System.out.println(indNextBlock);
@@ -64,6 +66,7 @@ public class PLC3 implements PLCInterface {
 				
 				return relSwitch.state;
 			}
+		}
 		System.out.println("No criteria met.");
 		return relSwitch.state;
 	}

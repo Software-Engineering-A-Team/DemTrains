@@ -453,7 +453,10 @@ public class TrackControllerGUI extends JFrame {
 				noSwitchCtrl = !currentController.plc.switchCtrl();
 				if(!noSwitchCtrl){
 					if(currentBlock.occupancy) {
-						int i = currentController.route.route.remove(currentBlock.number);
+						int blockInd = currentController.route.route.indexOf(currentBlock.number);
+						int i = currentController.route.route.remove(blockInd);
+						currentController.plc.getRoutes().peek().route.remove(blockInd);
+						System.out.println("Removed: " +i);
 						if(currentController.plc.getRoutes().peek().route.isEmpty()) {
 							currentController.plc.getRoutes().remove(currentController.plc.getRoutes().peek());
 						}
