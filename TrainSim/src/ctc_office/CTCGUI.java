@@ -46,6 +46,8 @@ import javax.swing.JButton;
 
 import java.awt.Insets;
 import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class CTCGUI extends JFrame{
 	private JTable trainTable;
@@ -60,6 +62,10 @@ public class CTCGUI extends JFrame{
 	private JPanel trackTablePanel;
 	private JPanel trainTablePanel;
 	private JPanel trackLayoutPanel;
+	private JTextField destinationTextBox;
+	private JTextField speedTextBox;
+	private JTextField authTextBox;
+	private JTextField trainNameTextBox;
 	
 	public CTCGUI() {
 		setResizable(false);
@@ -128,8 +134,7 @@ public class CTCGUI extends JFrame{
 		
 		trackInfoPanel = new JPanel();
 		springLayout.putConstraint(SpringLayout.WEST, trackInfoPanel, 6, SpringLayout.EAST, trainTablePanel);
-		springLayout.putConstraint(SpringLayout.SOUTH, trackInfoPanel, 0, SpringLayout.SOUTH, getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, trackInfoPanel, 0, SpringLayout.EAST, getContentPane());
+		springLayout.putConstraint(SpringLayout.SOUTH, trackInfoPanel, 0, SpringLayout.SOUTH, trackTablePanel);
 		trackInfoPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		trainTable = new JTable();
 		trainTable.setRowSelectionAllowed(false);
@@ -158,29 +163,11 @@ public class CTCGUI extends JFrame{
 		
 		JPanel panel = new JPanel();
 		springLayout.putConstraint(SpringLayout.NORTH, trackInfoPanel, 2, SpringLayout.SOUTH, panel);
+		springLayout.putConstraint(SpringLayout.EAST, trackInfoPanel, 0, SpringLayout.EAST, panel);
 		springLayout.putConstraint(SpringLayout.WEST, panel, 6, SpringLayout.EAST, trainTablePanel);
 		trackInfoPanel.setLayout(null);
 		
-		JLabel trackInfoLabel = new JLabel("Block 0");
-		trackInfoLabel.setBounds(172, 11, 65, 22);
-		trackInfoLabel.setFont(new Font("Tahoma", Font.BOLD, 18));
-		trackInfoPanel.add(trackInfoLabel);
 		
-		JLabel detailsLabel = new JLabel("Block type: Yard");
-		detailsLabel.setBounds(159, 44, 78, 14);
-		trackInfoPanel.add(detailsLabel);
-		
-		JButton btnNewButton_1 = new JButton("Dispatch Train");
-		btnNewButton_1.setBounds(182, 627, 101, 23);
-		btnNewButton_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
-		trackInfoPanel.add(btnNewButton_1);
-		
-		JButton btnNewButton = new JButton("Change Throughput");
-		btnNewButton.setBounds(172, 661, 129, 23);
-		trackInfoPanel.add(btnNewButton);
 		springLayout.putConstraint(SpringLayout.SOUTH, panel, 60, SpringLayout.NORTH, getContentPane());
 		springLayout.putConstraint(SpringLayout.NORTH, panel, 0, SpringLayout.NORTH, getContentPane());
 		springLayout.putConstraint(SpringLayout.EAST, panel, 0, SpringLayout.EAST, getContentPane());
@@ -240,7 +227,7 @@ public class CTCGUI extends JFrame{
                 int row = trackTable.rowAtPoint(evt.getPoint());
                 int col = trackTable.columnAtPoint(evt.getPoint());
                 if (row >= 0 && col >= 0) {
-                    trackBlockSelected(allBlocks.get(row-1));
+                    trackBlockSelected(allBlocks.get(row));
                 }
             }
         });
@@ -252,7 +239,7 @@ public class CTCGUI extends JFrame{
                 int row = trainTable.rowAtPoint(evt.getPoint());
                 int col = trainTable.columnAtPoint(evt.getPoint());
                 if (row >= 0 && col >= 0) {
-                    trainSelected(allTrains.get(row-1));
+                    trainSelected(allTrains.get(row));
                 }
             }
         });
@@ -302,16 +289,16 @@ public class CTCGUI extends JFrame{
     		if (b.occupied) {
     			occupied = "Occupied";
     		}
-    		if (b.getClass().equals(TrackBlock.class)) {
+    		if (block.getClass().equals(DefaultBlock.class)) {
     			blockType = "Default";
     		}
-    		else if (b.getClass().equals(TrackCrossing.class)){
+    		else if (block.getClass().equals(RailwayCrossingBlock.class)){
     			blockType = "Railway Crossing";
 	        }
-	        else if (b.getClass().equals(TrackSwitch.class)){
+	        else if (block.getClass().equals(SwitchBlock.class)){
     			blockType = "Switch";
 	        }
-            else if (b.getClass().equals(TrackStation.class)){
+            else if (block.getClass().equals(StationBlock.class)){
     			blockType = "Station";
             }
             else { // it is the yard
@@ -329,7 +316,7 @@ public class CTCGUI extends JFrame{
     	if (tLayout == null) {
     		return;
     	}
-    	trackTableModel.setRowCount(0);
+    	trainTableModel.setRowCount(0);
 
     	// get the complete list of trains
     	allTrains = tLayout.getAllTrains();
@@ -340,7 +327,8 @@ public class CTCGUI extends JFrame{
     	for (Train t : allTrains) {
     		trainTableModel.addRow(new Object[] {});
     	}
-    	trainTableModel.fireTableRowsUpdated(0, trackTableModel.getRowCount());
+    	trainTable.setModel(trainTableModel);
+    	trainTable.repaint();
 
 	}
 	
@@ -360,6 +348,67 @@ public class CTCGUI extends JFrame{
         }
         else { // it is the yard
         	YardBlock block = (YardBlock) b;
+        	JLabel trackInfoLabel = new JLabel("Block" + block.blockNumber);
+    		trackInfoLabel.setBounds(172, 11, 65, 22);
+    		trackInfoLabel.setFont(new Font("Tahoma", Font.BOLD, 18));
+    		trackInfoPanel.add(trackInfoLabel);
+    		
+    		JLabel detailsLabel = new JLabel("Block type: Yard");
+    		detailsLabel.setBounds(136, 46, 189, 14);
+    		trackInfoPanel.add(detailsLabel);
+    		
+    		JButton dispatchTrainButton = new JButton("Dispatch Train");
+    		dispatchTrainButton.addMouseListener(new MouseAdapter() {
+    			@Override
+    			public void mouseClicked(MouseEvent e) {
+    				String trainName = trainNameTextBox.getText();
+    				int destinationBlock = Integer.parseInt(destinationTextBox.getText());
+    				int speed = Integer.parseInt(speedTextBox.getText());
+    				int authority = Integer.parseInt(authTextBox.getText());
+    				SystemWrapper.ctcOffice.manuallyDispatchNewTrain(currLine, trainName, destinationBlock, speed, authority);
+    				trackInfoPanel.removeAll();
+    				trackInfoPanel.revalidate();
+    				trackInfoPanel.repaint();
+    			}
+    		});
+    		dispatchTrainButton.setBounds(154, 627, 171, 23);
+    		trackInfoPanel.add(dispatchTrainButton);
+
+    		JLabel trainName = new JLabel("Train Name:");
+    		trainName.setBounds(135, 480, 93, 14);
+    		trackInfoPanel.add(trainName);
+    		
+    		JLabel destinationLabel = new JLabel("Destination Block:");
+    		destinationLabel.setBounds(135, 506, 93, 14);
+    		trackInfoPanel.add(destinationLabel);
+    		
+    		JLabel lblMaxSpeedmph = new JLabel("Max Speed (mph):");
+    		lblMaxSpeedmph.setBounds(135, 532, 93, 14);
+    		trackInfoPanel.add(lblMaxSpeedmph);
+    		
+    		JLabel lblAuthorityyards = new JLabel("Authority (yards):");
+    		lblAuthorityyards.setBounds(135, 557, 93, 14);
+    		trackInfoPanel.add(lblAuthorityyards);
+
+    		trainNameTextBox = new JTextField();
+    		trainNameTextBox.setBounds(239, 477, 86, 20);
+    		trackInfoPanel.add(trainNameTextBox);
+    		trainNameTextBox.setColumns(10);
+    		
+    		destinationTextBox = new JTextField();
+    		destinationTextBox.setBounds(239, 503, 86, 20);
+    		trackInfoPanel.add(destinationTextBox);
+    		destinationTextBox.setColumns(10);
+    		
+    		speedTextBox = new JTextField();
+    		speedTextBox.setBounds(239, 529, 86, 20);
+    		trackInfoPanel.add(speedTextBox);
+    		speedTextBox.setColumns(10);
+    		
+    		authTextBox = new JTextField();
+    		authTextBox.setBounds(239, 554, 86, 20);
+    		trackInfoPanel.add(authTextBox);
+    		authTextBox.setColumns(10);
         }
 		// display appropriate options for each block type
 		trackInfoPanel.revalidate();

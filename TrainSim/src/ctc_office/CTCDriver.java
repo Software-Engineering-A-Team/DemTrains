@@ -13,7 +13,7 @@ import track_controller.WaysideController;
 
 public class CTCDriver {
 	private HashMap <String, TrackLayout> lines;
-	private HashMap <String, HashSet<String>> manuallyRoutedTrains;
+	private HashMap <String, HashSet<String>> manuallyRoutedTrains = new HashMap <String, HashSet<String>>();
 	public boolean MBOModeEnabled = false;
 
 	public CTCDriver() {
@@ -180,6 +180,7 @@ public class CTCDriver {
 	 */
 	public boolean setTrackLayout(String lineName, DirectedMultigraph<Integer, DefaultEdge> layout, List<track_model.TrackBlock> blockData, HashMap<Integer, WaysideController> controllerMap) {
 		lines.put(lineName, new TrackLayout(layout, blockData, controllerMap, lineName));
+		manuallyRoutedTrains.put(lineName, new HashSet<String>());
 		return true;
 	}
 
