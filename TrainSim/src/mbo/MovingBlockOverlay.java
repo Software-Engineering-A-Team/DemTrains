@@ -3,6 +3,9 @@ package mbo;
 import java.util.HashMap;
 
 
+
+import javax.swing.table.DefaultTableModel;
+
 //import ctc_office.CTCDriver;
 import system_wrapper.*;
 //import train_model.TrainModel;
@@ -11,6 +14,8 @@ public class MovingBlockOverlay {
 
 	HashMap<String,Double> trainLocationTrackRMap;
 	HashMap<String,Double> trainLocationTrackGMap;
+	DefaultTableModel trainSafeAuthorityRTable;
+	DefaultTableModel trainSafeAuthorityGTable;
 	SRSTrainCurrSpeed trainCurrSpeed;
 	SRSTrainStopDist trainStopDist;
 	SRSDistFromNextTrain trainAuth;
@@ -28,6 +33,12 @@ public class MovingBlockOverlay {
 	public MovingBlockOverlay(){
 		trainLocationTrackRMap = new HashMap<String,Double>();
 		trainLocationTrackGMap = new HashMap<String,Double>();
+		trainSafeAuthorityRTable = new DefaultTableModel();
+			trainSafeAuthorityRTable.addColumn("Train ID");
+			trainSafeAuthorityRTable.addColumn("Safe Authority");
+		trainSafeAuthorityGTable = new DefaultTableModel();
+			trainSafeAuthorityGTable.addColumn("Train ID");
+			trainSafeAuthorityGTable.addColumn("Safe Authority");
 		trainCurrSpeed = new SRSTrainCurrSpeed();
 		trainStopDist = new SRSTrainStopDist();	
 		trainAuth = new SRSDistFromNextTrain();
@@ -62,6 +73,7 @@ public class MovingBlockOverlay {
 	public void getSafeMovingBlock(short trainID, double currLocation, double weight){
 		//location is in yards
 		double prevLocation = 0;
+		//might want to change this to a function later
 		if(SystemWrapper.trainModels.get(trainID).trainName.charAt(0) == 'r'){
 			prevLocation = trainLocationTrackRMap.get(trainID);
 			trainLocationTrackRMap.put(SystemWrapper.trainModels.get(trainID).trainName, currLocation);
@@ -74,6 +86,7 @@ public class MovingBlockOverlay {
 		Double speed;
 		Double stopDist;
 		Double nextTrainDist;
+		Double commSpeed;
 		double nextTrainLocation;
 		speed = trainCurrSpeed.calcTrainSpeed(prevLocation, currLocation, SystemWrapper.simClock.getDeltaMs());
 		//if the speed is null we stop all trains
@@ -115,11 +128,36 @@ public class MovingBlockOverlay {
 			//keep current speed
 			SystemWrapper.trainModels.get(trainID).setCommSpeed(speed);
 			SystemWrapper.trainModels.get(trainID).setCommAuth(stopDist);
+			if(SystemWrapper.trainModels.get(trainID).trainName.charAt(0) == 'r'){
+				String[] info = { SystemWrapper.trainModels.get(trainID).trainName,stopDist.toString()};
+				trainSafeAuthorityRTable.addRow(info);
+			}
+			else{  //trainID.charAt(0) == 'g'
+				String[] info = { SystemWrapper.trainModels.get(trainID).trainName,stopDist.toString()};
+				trainSafeAuthorityGTable.addRow(info);
+			}
 		}
 		else {
 			//stopping distance is less than next train so we need to change its speed
-			SystemWrapper.trainModels.get(trainID).setCommSpeed(trainCommSpeed.calcCommSpeed(nextTrainDist));
+			commSpeed = trainCommSpeed.calcCommSpeed(nextTrainDist);
+			//if commanded speed cannot be found we must stop all the trains
+			if(commSpeed == null){
+				for(int i=0; i<SystemWrapper.trainModels.size(); i++){
+					if(SystemWrapper.trainModels.get(i) != null) {
+						SystemWrapper.trainModels.get(i).setCommSpeed(0);
+					}
+				}
+			}
+			SystemWrapper.trainModels.get(trainID).setCommSpeed(commSpeed);
 			SystemWrapper.trainModels.get(trainID).setCommAuth(nextTrainDist);
+			if(SystemWrapper.trainModels.get(trainID).trainName.charAt(0) == 'r'){
+				String[] info = { SystemWrapper.trainModels.get(trainID).trainName,nextTrainDist.toString()};
+				trainSafeAuthorityRTable.addRow(info);
+			}
+			else{  //trainID.charAt(0) == 'g'
+				String[] info = { SystemWrapper.trainModels.get(trainID).trainName,nextTrainDist.toString()};
+				trainSafeAuthorityGTable.addRow(info);
+			}
 		}
 		
 		// need to calculate distance between train and next train

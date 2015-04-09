@@ -26,6 +26,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.JTable;
 import javax.swing.JList;
 import javax.swing.AbstractListModel;
@@ -33,10 +34,17 @@ import javax.swing.JScrollBar;
 import javax.swing.JTextArea;
 
 import system_wrapper.SystemWrapper;
+import track_model.TrackBlock;
+
 import javax.swing.JTabbedPane;
+
 import net.miginfocom.swing.MigLayout;
+
 import java.awt.Component;
+import java.util.HashMap;
+
 import javax.swing.Box;
+import javax.swing.JScrollPane;
 
 public class MBOGUI extends JFrame{
 	private JTextField startTimeTextField;	
@@ -57,6 +65,8 @@ public class MBOGUI extends JFrame{
 	
 	int[] throughputArray;
 	int startTime;
+	private JTable SafeAuthTableR;
+	private JTable SafeAuthTableG;
 	
 	/*//if button presses mbo.getTrainSchedule
 	public void setTrainSchedule(){
@@ -68,6 +78,7 @@ public class MBOGUI extends JFrame{
 	
 	public MBOGUI(){
 		throughputArray = new int[14];
+		
 		
 		
 		SpringLayout springLayout = new SpringLayout();
@@ -377,35 +388,25 @@ public class MBOGUI extends JFrame{
 		springLayout.putConstraint(SpringLayout.EAST, tabbedPane_1, 315, SpringLayout.EAST, tabbedPane);
 		getContentPane().add(tabbedPane_1);
 		
-		JPanel panel_1 = new JPanel();
-		tabbedPane_1.addTab("Red Line", null, panel_1, null);
-		panel_1.setLayout(new MigLayout("", "[][][][]", "[][]"));
+		JPanel RedLinePanel = new JPanel();
+		tabbedPane_1.addTab("Red Line", null, RedLinePanel, null);
+		RedLinePanel.setLayout(new MigLayout("", "[grow]", "[grow]"));
 		
-		JLabel lblTrainId = new JLabel("Train ID:");
-		lblTrainId.setFont(new Font("Tahoma", Font.BOLD, 16));
-		panel_1.add(lblTrainId, "cell 0 0");
+		JScrollPane RedLinescrollPane = new JScrollPane();
+		RedLinePanel.add(RedLinescrollPane, "cell 0 0,grow");
 		
-		JLabel lblNewLabel_7 = new JLabel("Safe Authority:");
-		lblNewLabel_7.setFont(new Font("Tahoma", Font.BOLD, 16));
-		panel_1.add(lblNewLabel_7, "cell 3 0");
+		SafeAuthTableR = new JTable(SystemWrapper.mbo.trainSafeAuthorityRTable);
+		RedLinescrollPane.setViewportView(SafeAuthTableR);
 		
-		JLabel lblNewLabel_8 = new JLabel("OutputR");
-		panel_1.add(lblNewLabel_8, "cell 0 1");
+		JPanel GreenLinePanel = new JPanel();
+		tabbedPane_1.addTab("Green Line", null, GreenLinePanel, null);
+		GreenLinePanel.setLayout(new MigLayout("", "[grow]", "[grow]"));
 		
-		JPanel panel = new JPanel();
-		tabbedPane_1.addTab("Green Line", null, panel, null);
-		panel.setLayout(new MigLayout("", "[][][][]", "[][]"));
+		JScrollPane GreenLinescrollPane = new JScrollPane();
+		GreenLinePanel.add(GreenLinescrollPane, "cell 0 0,grow");
 		
-		JLabel lblTrainId_1 = new JLabel("Train ID:");
-		lblTrainId_1.setFont(new Font("Tahoma", Font.BOLD, 16));
-		panel.add(lblTrainId_1, "cell 0 0");
-		
-		JLabel lblSafeAuthority = new JLabel("Safe Authority:");
-		lblSafeAuthority.setFont(new Font("Tahoma", Font.BOLD, 16));
-		panel.add(lblSafeAuthority, "cell 3 0");
-		
-		JLabel lblNewLabel_9 = new JLabel("OutputG");
-		panel.add(lblNewLabel_9, "cell 0 1");
+		SafeAuthTableG = new JTable(SystemWrapper.mbo.trainSafeAuthorityGTable);
+		GreenLinescrollPane.setViewportView(SafeAuthTableG);
 		
 		JLabel label_8 = new JLabel("Safe Moving Block Authority:");
 		springLayout.putConstraint(SpringLayout.WEST, label_8, 32, SpringLayout.EAST, tabbedPane);
@@ -413,9 +414,6 @@ public class MBOGUI extends JFrame{
 		label_8.setFont(new Font("Tahoma", Font.BOLD, 18));
 		getContentPane().add(label_8);
 		
-		
-		
-		
-		
+				
 	}
 }

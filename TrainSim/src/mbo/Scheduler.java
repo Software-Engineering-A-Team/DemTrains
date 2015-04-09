@@ -18,6 +18,7 @@ public class Scheduler {
 	
 	public List<String> createTrainSchedule(int startTime, int[] throughput){
 		
+		
 		List<String> schedule = new ArrayList<String>();
 		
 		return schedule;
