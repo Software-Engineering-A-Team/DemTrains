@@ -7,110 +7,130 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class WaysideSystem {
-	public TrackModel tracks;
-	public String failure = null;
-	public HashMap<Integer, WaysideController> blockControllerMapGreen = new HashMap<Integer, WaysideController>();
-	public HashMap<Integer, WaysideController> blockControllerMapRed = new HashMap<Integer,WaysideController>();
+	public  TrackModel tracks;
+	public  HashMap<Integer, WaysideController> blockControllerMapGreen = new HashMap<Integer, WaysideController>();
+	public  HashMap<Integer, WaysideController> blockControllerMapRed = new HashMap<Integer,WaysideController>();
 	
 	
 	private boolean createGreenControllers(track_model.TrackLayout t) {
 		ArrayList<TrackBlock> tc1 = new ArrayList<TrackBlock>();
 		WaysideController wc1 = new WaysideController();
-		for (int i=0; i<16; i++) { 
+		for (int i=1; i<17; i++) { 
 			tc1.add(t.blocks.get(i));
 			blockControllerMapGreen.put(i, wc1);
 		}
 		wc1.addBlocks(tc1);
-		PLC1 plc1 = new PLC1(tc1);
+		PLC1 plc1 = new PLC1(wc1.blockMap, wc1.route);
 		wc1.plc = plc1;
+		wc1.containsSwitch = true;
 		
 		WaysideController wc2 = new WaysideController();
 		ArrayList<TrackBlock> tc2 = new ArrayList<TrackBlock>();
-		for (int i=15; i<23; i++) {
+		for (int i=16; i<24; i++) {
 			tc2.add(t.blocks.get(i));
 			blockControllerMapGreen.put(i, wc2);
 		}
 		wc2.addBlocks(tc2);
-		//PLC2 plc2 = new PLC2(tc2);
-		//wc2.plc = plc2;
+		PLC2 plc2 = new PLC2(wc2.blockMap, wc2.route);
+		wc2.plc = plc2;
+		wc2.containsCrossing = true;
 		
 		
 		WaysideController wc3 = new WaysideController();
 		ArrayList<TrackBlock> tc3 = new ArrayList<TrackBlock>();
-		for (int i=22; i<32; i++) {
+		for (int i=23; i<33; i++) {
 			tc3.add(t.blocks.get(i));
 			blockControllerMapGreen.put(i, wc3);
 		}
+		tc3.add(t.blocks.get(150));
+		blockControllerMapGreen.put(150, wc3);
 		tc3.add(t.blocks.get(149));
 		blockControllerMapGreen.put(149, wc3);
 		tc3.add(t.blocks.get(148));
 		blockControllerMapGreen.put(148, wc3);
 		tc3.add(t.blocks.get(147));
 		blockControllerMapGreen.put(147, wc3);
-		tc3.add(t.blocks.get(146));
-		blockControllerMapGreen.put(146, wc3);
 		wc3.addBlocks(tc3);
+		PLC3 plc3 = new PLC3(wc3.blockMap, wc3.route);
+		wc3.plc = plc3;
+		wc3.containsSwitch = true;
 		
 		WaysideController wc4 = new WaysideController();
 		ArrayList<TrackBlock> tc4 = new ArrayList<TrackBlock>();
-		for (int i=81; i<100; i++) {
+		for (int i=82; i<101; i++) {
 			tc4.add(t.blocks.get(i));
 			blockControllerMapGreen.put(i, wc4);
 		}
 		wc4.addBlocks(tc4);
+		PLC4 plc4 = new PLC4(wc4.blockMap, wc4.route);
+		wc4.plc = plc4;
+		wc4.containsSwitch = true;
 		
 		WaysideController wc5 = new WaysideController();
 		ArrayList<TrackBlock> tc5 = new ArrayList<TrackBlock>();
-		for (int i=73; i<82; i++) {
+		for (int i=74; i<83; i++) {
 			tc5.add(t.blocks.get(i));
 			blockControllerMapGreen.put(i, wc5);
 		}
-		tc5.add(t.blocks.get(100));
-		blockControllerMapGreen.put(100, wc5);
 		tc5.add(t.blocks.get(101));
 		blockControllerMapGreen.put(101, wc5);
 		tc5.add(t.blocks.get(102));
 		blockControllerMapGreen.put(102, wc5);
 		tc5.add(t.blocks.get(103));
 		blockControllerMapGreen.put(103, wc5);
+		tc5.add(t.blocks.get(104));
+		blockControllerMapGreen.put(104, wc5);
 		wc5.addBlocks(tc5);
-		
+		PLC5 plc5 = new PLC5(wc5.blockMap, wc5.route);
+		wc5.plc = plc5;
+		wc5.containsSwitch = true;
 		
 		WaysideController wc6 = new WaysideController();
 		ArrayList<TrackBlock> tc6 = new ArrayList<TrackBlock>();
-		for (int i=53; i<68; i++) {
+		for (int i=54; i<69; i++) {
 			tc6.add(t.blocks.get(i));
 			blockControllerMapGreen.put(i, wc6);
 		}
-		tc6.add(t.blocks.get(150));
-		blockControllerMapGreen.put(150, wc6);
 		tc6.add(t.blocks.get(151));
 		blockControllerMapGreen.put(151, wc6);
+		tc6.add(t.blocks.get(152));
+		blockControllerMapGreen.put(152, wc6);
 		wc6.addBlocks(tc6);
+		PLC6 plc6 = new PLC6(wc6.blockMap, wc6.route);
+		wc6.plc = plc6;
+		wc6.containsSwitch = true;
 		
 		WaysideController wc7 = new WaysideController();
 		ArrayList<TrackBlock> tc7 = new ArrayList<TrackBlock>();
-		for (int i=31; i<54; i++) {
+		for (int i=32; i<55; i++) {
 			tc7.add(t.blocks.get(i));
 			blockControllerMapGreen.put(i, wc7);
 		}
 		wc7.addBlocks(tc7);
+		PLC7 plc7 = new PLC7(wc7.blockMap, wc7.route);
+		wc7.plc = plc7;
 		
 		WaysideController wc8 = new WaysideController();
 		ArrayList<TrackBlock> tc8 = new ArrayList<TrackBlock>();
-		for (int i=67; i<74; i++) {
+		for (int i=68; i<75; i++) {
 			tc8.add(t.blocks.get(i));
 			blockControllerMapGreen.put(i, wc8);
 		}
 		wc8.addBlocks(tc8);
+		PLC8 plc8 = new PLC8(wc8.blockMap, wc8.route);
+		wc8.plc = plc8;
+		
 		
 		WaysideController wc9 = new WaysideController();
 		ArrayList<TrackBlock> tc9 = new ArrayList<TrackBlock>();
-		for (int i=103; i<147; i++) {
+		for (int i=104; i<148; i++) {
 			tc9.add(t.blocks.get(i));
 			blockControllerMapGreen.put(i, wc9);
 		}
 		wc9.addBlocks(tc9);
+		PLC9 plc9 = new PLC9(wc9.blockMap, wc9.route);
+		wc9.plc = plc9;
+		System.out.println("Done creating controllers.");
 		return true;
 	}
 	
@@ -172,8 +192,27 @@ public class WaysideSystem {
 	 * to close the provided block number. 
 	 * Can be called by user or CTC. 
 	 */
-	public boolean setBlockClosed(int blockNum) {
-		return true;
+	public boolean setBlockClosed(String line, int blockNum) {
+		TrackBlock b;
+		WaysideController w;
+		if (line.equals("Green")) {
+			b = tracks.getLine("Green").blocks.get(blockNum);
+			w = blockControllerMapGreen.get(blockNum);
+		}
+		else if(line.equals("Red")) {
+			b = tracks.getLine("Red").blocks.get(blockNum);
+			w = blockControllerMapRed.get(blockNum);
+		}
+		else {
+			System.out.println("No such line exists.");
+			return false;
+		}
+		
+		boolean plc1Result = w.plc.ctrlBlockClosed(b);
+		boolean plc2Result = w.plc.ctrlBlockClosed(b);
+		boolean outcome = (plc1Result & plc2Result);
+		
+		return outcome;
 	}
 	
 	
@@ -182,7 +221,19 @@ public class WaysideSystem {
 	 * to break the provided block number. 
 	 * Can be called by user or TrackModel. 
 	 */
-	public boolean setBlockBroken(int blockNum) {
+	public boolean setBlockBroken(String line, int blockNum) {
+		TrackBlock b;
+		if (line.equals("Green")) {
+			b = tracks.getLine("Green").blocks.get(blockNum);
+		}
+		else if(line.equals("Red")) {
+			b = tracks.getLine("Red").blocks.get(blockNum);
+		}
+		else {
+			System.out.println("No such line exists.");
+			return false;
+		}
+		b.failure = "Broken block";
 		return true;
 	}
 	
@@ -201,16 +252,20 @@ public class WaysideSystem {
 	 * and informs the wayside controller to effectively handle
 	 * the failure
 	 */
-	public boolean setFailureMode (int blockNum, String failureMode) {
+	public boolean setFailureMode (String line, int blockNum, String failureMode) {
+		TrackBlock b;
+		if (line.equals("Green")) {
+			b = tracks.getLine("Green").blocks.get(blockNum);
+		}
+		else if(line.equals("Red")) {
+			b = tracks.getLine("Red").blocks.get(blockNum);
+		}
+		else {
+			System.out.println("No such line exists.");
+			return false;
+		}
+		b.failure = failureMode;
 		return true;
-	}
-	
-	/*
-	 * Called by CTC to add a route
-	 * to a given wayside controller 
-	 */	
-	public TrainRoute addRoute(TrainRoute r, int startBlock) {
-		return null;
 	}
 	
 	/*

@@ -39,6 +39,9 @@ import javax.swing.AbstractButton;
 
 import java.text.NumberFormat;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+
+import javax.swing.JComboBox;
 
 public class TrainControllerGui extends JFrame {
   private JTextField enginePowerTextField;
@@ -58,8 +61,11 @@ public class TrainControllerGui extends JFrame {
   private JCheckBox chckbxLeftDoorsOpen;
   private JCheckBox chckbxLightsOn;
   private JCheckBox chckbxEmergencyBrake;
-  JCheckBox chckbxRightDoorsOpen;
-  public TrainController trainController = new TrainController();
+  private JCheckBox chckbxRightDoorsOpen;
+  private JComboBox comboBoxSelectedTrain;
+  private ArrayList<TrainController> trainControllers;
+  private short trainIndex;
+  public TrainController trainController;
   private NumberFormat formatter = new DecimalFormat("#0.00");
   
   private boolean standalone;
@@ -72,8 +78,14 @@ public class TrainControllerGui extends JFrame {
     EventQueue.invokeLater(new Runnable() {
       public void run() {
         try {
-          TrainControllerGui window = new TrainControllerGui(true);
-          window.trainController.setManualMode(true);
+          ArrayList<TrainController> trainControllers = new ArrayList<TrainController>();
+          for (int i = 0; i < 10; i++) {
+            trainControllers.add(new TrainController());
+          }
+          
+          
+          TrainControllerGui window = new TrainControllerGui(trainControllers, true);
+          
           
           window.setVisible(true);
           
@@ -87,15 +99,31 @@ public class TrainControllerGui extends JFrame {
   /**
    * Create the application.
    */
-  public TrainControllerGui() {
+  public TrainControllerGui(ArrayList<TrainController> trainControllers) {
     standalone = false;
+    this.trainControllers = trainControllers;
+    if (trainControllers.size() == 0) {
+      trainController = new TrainController();
+    }
+    else {
+      trainIndex = 0;
+      trainController = trainControllers.get(trainIndex); 
+    }
     initialize();
     displayTimer.start();
     controllerTimer.start();
   }
   
-  public TrainControllerGui(boolean standalone) {
+  public TrainControllerGui(ArrayList<TrainController> trainControllers, boolean standalone) {
     this.standalone = standalone;
+    this.trainControllers = trainControllers;
+    if (trainControllers.size() == 0) {
+      trainController = new TrainController();
+    }
+    else {
+      trainIndex = 0;
+      trainController = trainControllers.get(trainIndex); 
+    }
     initialize();
     displayTimer.start();
     controllerTimer.start();
@@ -233,11 +261,9 @@ public class TrainControllerGui extends JFrame {
         if (trainController.isManualMode()) {
           if (button.getModel().isSelected()) {
             trainController.setServiceBrake(true);
-            System.out.println("here");
           }
           else {
             trainController.setServiceBrake(false);
-            System.out.println("here2");
           }
         }
       }
@@ -304,6 +330,14 @@ public class TrainControllerGui extends JFrame {
     textFieldAuthority.setBounds(412, 190, 70, 19);
     this.getContentPane().add(textFieldAuthority);
     textFieldAuthority.setColumns(10);
+    
+    JLabel lblSelectedTrain = new JLabel("Selected Train");
+    lblSelectedTrain.setBounds(339, 328, 109, 15);
+    getContentPane().add(lblSelectedTrain);
+    
+    comboBoxSelectedTrain = new JComboBox();
+    comboBoxSelectedTrain.setBounds(339, 350, 109, 24);
+    getContentPane().add(comboBoxSelectedTrain);
   }
   
   public void updateDisplayData() {
@@ -334,6 +368,7 @@ public class TrainControllerGui extends JFrame {
       this.chckbxRightDoorsOpen.setSelected(trainController.isRightDoorOpen());
       this.chckbxLeftDoorsOpen.setSelected(trainController.isLeftDoorOpen());
       this.chckbxLightsOn.setSelected(trainController.isLightOn());
+      this.textFieldCurrentSpeed.setText(formatter.format(trainController.getCurrentSpeed()));
     }
   }
   
@@ -349,7 +384,11 @@ public class TrainControllerGui extends JFrame {
     @Override
     public void actionPerformed(ActionEvent e) {
       SimClock.tick();
-      trainController.calcPower();
+      
+      for (int i = 0; i < trainControllers.size(); i++) {
+
+        trainControllers.get(i).calcPower();
+      }
     }
   });
 }

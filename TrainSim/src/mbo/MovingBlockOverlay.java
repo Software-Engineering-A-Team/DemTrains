@@ -1,7 +1,7 @@
 package mbo;
 
 import java.util.HashMap;
-import java.util.Map;
+
 
 //import ctc_office.CTCDriver;
 import system_wrapper.*;
@@ -13,6 +13,9 @@ public class MovingBlockOverlay {
 	HashMap<String,Double> trainLocationTrackGMap;
 	SRSTrainCurrSpeed trainCurrSpeed;
 	SRSTrainStopDist trainStopDist;
+	SRSDistFromNextTrain trainAuth;
+	SRSTrainCommSpeed trainCommSpeed;
+	Scheduler scheduler;
 	//SystemWrapper sysWrapper;
 	SimClock systemClock;
 	//CTCDriver ctcDriver;   //this still need to be here?
@@ -27,6 +30,9 @@ public class MovingBlockOverlay {
 		trainLocationTrackGMap = new HashMap<String,Double>();
 		trainCurrSpeed = new SRSTrainCurrSpeed();
 		trainStopDist = new SRSTrainStopDist();	
+		trainAuth = new SRSDistFromNextTrain();
+		trainCommSpeed = new SRSTrainCommSpeed();
+		scheduler = new Scheduler();
 		//sysWrapper = new SystemWrapper();
 		gui = new MBOGUI();
 	}
@@ -41,18 +47,20 @@ public class MovingBlockOverlay {
 		SystemWrapper.ctcOffice.setActualTrainLocations("trackB", trainLocationTrackGMap);
 	}
 	
-	public void getTrainSchedule(){
+	public void getTrainSchedule(int startTime, int[] throughputArray){
 		//need track model
 		//initialize the trackMaps with the starting locations all being zero
 		//setMBOTrainSchedule() for CTC
+		scheduler.createTrainSchedule(startTime, throughputArray);
 	}
 	
-	public void getCrewSchedule(){
+	public void getCrewSchedule(int startTime, int[] throughputArray){
 		//need train schedule
-		gui.setCrewSchedule();  //needs to be added to the Train Model
+		scheduler.createCrewSchedule();
 	}
 	
-	public void getSafeMovingBlock(short trainID, double currLocation, double weight){		
+	public void getSafeMovingBlock(short trainID, double currLocation, double weight){
+		//location is in yards
 		double prevLocation = 0;
 		if(SystemWrapper.trainModels.get(trainID).trainName.charAt(0) == 'r'){
 			prevLocation = trainLocationTrackRMap.get(trainID);
@@ -65,6 +73,8 @@ public class MovingBlockOverlay {
 		
 		Double speed;
 		Double stopDist;
+		Double nextTrainDist;
+		double nextTrainLocation;
 		speed = trainCurrSpeed.calcTrainSpeed(prevLocation, currLocation, SystemWrapper.simClock.getDeltaMs());
 		//if the speed is null we stop all trains
 		if(speed == null){
@@ -83,6 +93,33 @@ public class MovingBlockOverlay {
 					SystemWrapper.trainModels.get(i).setCommSpeed(0);
 				}
 			}
+		}
+		//***This is temporary...need to get the train thats actually in front of curr train
+		if(SystemWrapper.trainModels.get(trainID+1)==null) {
+			nextTrainLocation = stopDist*2;
+		}
+		else {
+			nextTrainLocation = SystemWrapper.trainModels.get(trainID+1).position;
+		}
+		nextTrainDist = trainAuth.calcSafeAuth(currLocation, nextTrainLocation);
+		//if the distance to the next train cannot be found we must stop all trains
+		if(nextTrainDist == null){
+			for(int i=0; i<SystemWrapper.trainModels.size(); i++){
+				if(SystemWrapper.trainModels.get(i) != null) {
+					SystemWrapper.trainModels.get(i).setCommSpeed(0);
+				}
+			}
+		}
+		
+		if(nextTrainDist > stopDist){
+			//keep current speed
+			SystemWrapper.trainModels.get(trainID).setCommSpeed(speed);
+			SystemWrapper.trainModels.get(trainID).setCommAuth(stopDist);
+		}
+		else {
+			//stopping distance is less than next train so we need to change its speed
+			SystemWrapper.trainModels.get(trainID).setCommSpeed(trainCommSpeed.calcCommSpeed(nextTrainDist));
+			SystemWrapper.trainModels.get(trainID).setCommAuth(nextTrainDist);
 		}
 		
 		// need to calculate distance between train and next train

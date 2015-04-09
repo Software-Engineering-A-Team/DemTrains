@@ -14,49 +14,51 @@ import track_controller.WaysideController;
 import train_model.TrainModel;
 
 public class TrackLayout {
-	private final ArrayList<DefaultBlock> blockData;
+	private final ArrayList<BlockInterface> blockData;
 	private final HashMap<String, StationBlock> allStations = new HashMap<String, StationBlock>();
 	private final DirectedMultigraph<Integer, DefaultEdge> layout;
-	private final HashMap<Integer, List<WaysideController>> blockToControllerMap;
+	private final HashMap<Integer, WaysideController> blockToControllerMap;
 	private final Scheduler scheduler = new Scheduler();
 	private final TrainRouter trainRouter;
 	private final char trainIdPrefix;
 	private HashMap<String, StopData> yardTrainStopData = new HashMap<String,StopData>();
 
-	public TrackLayout(DirectedMultigraph<Integer, DefaultEdge> tLayout, List<TrackBlock> tBlockData,  HashMap<Integer, List<WaysideController>> controllerMap, char tPrefix) {
+	public TrackLayout(DirectedMultigraph<Integer, DefaultEdge> tLayout, List<TrackBlock> tBlockData, HashMap<Integer, WaysideController> controllerMap, String tPrefix) {
 		layout = tLayout;
 		blockToControllerMap = controllerMap;
-		trainIdPrefix = tPrefix;
-		blockData = new ArrayList<DefaultBlock>(tBlockData.size());
-        blockData.add(0, new Yard());
+		trainIdPrefix = tPrefix.toLowerCase().charAt(0);
+		blockData = new ArrayList<BlockInterface>(tBlockData.size());
 		for (TrackBlock b : tBlockData) {
 		    int blockNum = b.number;
             double blockLen = b.length;
             double speedLimit = b.speedLimit;
             boolean occupiedStatus = b.occupancy;
             boolean brokenStatus = b.hasFailure();
-            if (blockData.getClass().equals(TrackCrossing.class)){
+            if (b.number == 0) {
+                blockData.add(0, new YardBlock());
+            }
+            else if (b.getClass().equals(TrackBlock.class)) {
+                blockData.add(blockNum, new DefaultBlock(blockNum, blockLen, speedLimit, occupiedStatus, brokenStatus));            	
+            }
+            else if (b.getClass().equals(TrackCrossing.class)){
 	            TrackCrossing crossing = (TrackCrossing) b;
 	            boolean crossingStatus = crossing.state;
 	            blockData.add(blockNum, new RailwayCrossingBlock(blockNum, blockLen, speedLimit, occupiedStatus, brokenStatus, crossingStatus));
 	        }
-	        else if (blockData.getClass().equals(TrackSwitch.class)){
+	        else if (b.getClass().equals(TrackSwitch.class)){
                 TrackSwitch s = (TrackSwitch) b;
                 int[] nextBlocks = s.out;
                 blockData.add(blockNum, new SwitchBlock(blockNum, blockLen, speedLimit, occupiedStatus, brokenStatus, nextBlocks));
 	        }
-            else if (blockData.getClass().equals(TrackStation.class)){
+            else if (b.getClass().equals(TrackStation.class)){
                 TrackStation station = (TrackStation) b;
                 String stationName = station.stationName;
                 StationBlock s = new StationBlock(blockNum, blockLen, speedLimit, occupiedStatus, brokenStatus, stationName);
                 blockData.add(blockNum, s);
                 allStations.put(stationName, s);
             }
-            else { // it is a regular block
-                blockData.add(blockNum, new DefaultBlock(blockNum, blockLen, speedLimit, occupiedStatus, brokenStatus));
-            }
 		}
-        trainRouter = new TrainRouter(tLayout, blockData, allStations);
+        trainRouter = new TrainRouter(tLayout, blockData, allStations, blockToControllerMap, tPrefix);
 	}
 	
 	/**
@@ -71,9 +73,8 @@ public class TrackLayout {
 	 * Returns false if a train with that name already exists.
 	 */
 	public boolean dispatchTrain(String trainName, StopData stopData) {
-		//TODO
 		// add the train to the dispatch queue at the yard
-	    Yard y = (Yard) blockData.get(0);
+	    YardBlock y = (YardBlock) blockData.get(0);
 		y.addTrainToQueue(trainName);
 		yardTrainStopData.put(trainName, stopData);
 		return true;
@@ -106,11 +107,10 @@ public class TrackLayout {
 	 * gets a list of all the trains currently on the track
 	 */
 	public ArrayList<Train> getAllTrains() {
-		// TODO: call get all trains from the train router
 		return trainRouter.getAllTrains();
 	}
 	
-	public ArrayList<DefaultBlock> getAllBlocks() {
+	public ArrayList<BlockInterface> getAllBlocks() {
 		return blockData;
 	}
 
@@ -151,15 +151,8 @@ public class TrackLayout {
 	 * Manually routes a train to its destination block at the user specified speed.
 	 * Only trains created manually can be manually routed.
 	 */
-	public boolean manuallyRouteTrain(String trainId, int destinationBlock, double speed, double authority) {
-		// TODO
-		// create the route using the TrainRouter
-		
-		
-		// tell the wayside controller to move the train
-		
-		// handle the error by updating the route the train actually took
-		
+	public boolean manuallyRouteTrain(String trainName, int destinationBlock, double speed, double authority) {
+		trainRouter.updateTrainDestination(trainName, destinationBlock, speed, authority);		
 		return true;
 	}
 
@@ -180,7 +173,7 @@ public class TrackLayout {
 	 * If the status is false, the track will be set to not broken
 	 */
 	public boolean setBlockBrokenStatus(int blockNumber, boolean status) {
-		blockData.get(blockNumber).broken = status;
+		((DefaultBlock)blockData.get(blockNumber)).broken = status;
 		return true;
 	}
 
@@ -202,7 +195,7 @@ public class TrackLayout {
 	 * This method doesn't take into account acceleration time,
 	 * but when the train reaches the end of a block it will be more accurate
 	 */
-	public boolean setEstimatedTrainLocaitons() {
+	public boolean setEstimatedTrainLocations() {
 		// TODO
 		// for all of the trains on the track, calculate the estimated position on its current block.
 		return true;
@@ -226,7 +219,7 @@ public class TrackLayout {
 	 */
 	public void setOccupiedBlock(int blockNumber) {
 		
-		blockData.get(blockNumber).occupied = true;
+		((DefaultBlock)blockData.get(blockNumber)).occupied = true;
 	}
 
 	/**
@@ -254,8 +247,9 @@ public class TrackLayout {
 	 * If they are still occupied at the next step, the Track controller will set them as occupied
 	 */
 	public void unsetOccupiedStatusAllBlocks() {
-		for (DefaultBlock b : blockData) {
-			b.occupied = false;
+		for (BlockInterface b : blockData) {
+			
+			((DefaultBlock)b).occupied = false;
 		}
 	}
 
@@ -274,7 +268,10 @@ public class TrackLayout {
      * 
      */
 	public void routeTrainFromYard() {
-		String trainName = ((Yard) blockData.get(0)).getNextTrain();
+		String trainName = ((YardBlock) blockData.get(0)).getNextTrain();
+		if (trainName == null) { //there are no more trains
+			return;
+		}
 		short trainId = createTrainModel(trainName);
 		// Create the train in the train router
 		trainRouter.spawnNewTrain(trainName, trainId);

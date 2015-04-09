@@ -1,5 +1,7 @@
 package track_controller;
+import system_wrapper.SystemWrapper;
 import track_model.*;
+import ctc_office.TrainRoute;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
@@ -25,9 +27,15 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 import javax.swing.filechooser.*;
+
 import java.awt.GridLayout;
+
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JScrollPane;
+
+import java.util.List;
+import java.util.ArrayList;
+
 
 public class TrackControllerGUI extends JFrame {
 
@@ -43,17 +51,38 @@ public class TrackControllerGUI extends JFrame {
 	private JTable table;
 	private String switchStatus = "No information available.";
 	private String crossingStatus = "No information available.";
+	private boolean sysMode = false;
+	private boolean noSwitchCtrl = false;
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
 	  track_model.TrackModel t = new track_model.TrackModel();
-	  final WaysideSystem ws = new WaysideSystem(t);
-	  
+	  WaysideSystem ws = new WaysideSystem(t);
+	  List<Integer> route = new ArrayList<Integer>();
+	  route.add(14);
+	  route.add(13);
+	  route.add(12);
+	  route.add(11);
+	  route.add(10);
+	  route.add(9);
+	  route.add(8);
+	  route.add(7);
+	  route.add(6);
+	  route.add(5);
+	  route.add(4);
+	  route.add(3);
+	  route.add(2);
+	  route.add(1);
+	  route.add(12);
+	  route.add(13);
+	  TrainRoute r = new TrainRoute("Green", 14, route, 22.0, 1910);
+	  WaysideController routed = ws.blockControllerMapGreen.get(1);
+	  routed.addRoute(r);
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					TrackControllerGUI frame = new TrackControllerGUI(ws);
+					TrackControllerGUI frame = new TrackControllerGUI(ws, false);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -65,8 +94,10 @@ public class TrackControllerGUI extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public TrackControllerGUI(WaysideSystem w) {
+	public TrackControllerGUI(WaysideSystem w, boolean m) {
 		wContrl = w;
+		sysMode = m;
+		if (sysMode) SystemWrapper.ctcOffice.setTrackLayout("Green", wContrl.tracks.getLine("Green").layout,wContrl.tracks.getLine("Green").blocks, wContrl.blockControllerMapGreen);
 		initialize();
 	}
 	
@@ -100,9 +131,9 @@ public class TrackControllerGUI extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				
 				if(blockPicker.getSelectedItem()!=null) {
-					currentBlock = wContrl.tracks.getLine(currentLine).blocks.get(Integer.parseInt(blockPicker.getSelectedItem().toString())-1);
+					currentBlock = wContrl.tracks.getLine(currentLine).blocks.get(Integer.parseInt(blockPicker.getSelectedItem().toString()));
 					if(currentLine!=null && currentLine.equals("Green")) {
-						currentController = wContrl.blockControllerMapGreen.get(currentBlock.number);	
+						currentController = wContrl.blockControllerMapGreen.get(currentBlock.number);
 					}
 				}
 			}
@@ -179,7 +210,6 @@ public class TrackControllerGUI extends JFrame {
 		weatherPicker.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				currentBlock.weather = weatherPicker.getSelectedItem().toString();
-				System.out.println("block "+ currentBlock.number+ " weather set to "+ currentBlock.weather);
 			}
 		});
 		weatherPicker.setBounds(223, 89, 76, 20);
@@ -199,10 +229,20 @@ public class TrackControllerGUI extends JFrame {
 		
 		
 		JRadioButton rdbtnOccupied = new JRadioButton("occupied");
+		rdbtnOccupied.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				currentBlock.occupancy = true;
+			}
+		});
 		rdbtnOccupied.setBounds(223, 113, 89, 23);
 		inputPanel.add(rdbtnOccupied);
 		
 		JRadioButton rdbtnFree = new JRadioButton("free");
+		rdbtnFree.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				currentBlock.occupancy = false;
+			}
+		});
 		rdbtnFree.setSelected(true);
 		rdbtnFree.setBounds(314, 113, 67, 23);
 		inputPanel.add(rdbtnFree);
@@ -325,11 +365,7 @@ public class TrackControllerGUI extends JFrame {
 		
 		JPanel outputPanel = new JPanel();
 		tabbedPane.addTab("Outputs", null, outputPanel, null);
-		outputPanel.setLayout(null);
-		
-		
-		
-		
+		outputPanel.setLayout(null);	
 		
 		DefaultTableModel model = new DefaultTableModel(new Object[][] {
 			      { "Line", currentLine }, { "Block", currentBlock.number }, { "Occupancy", currentBlock.occupancy},
@@ -349,7 +385,55 @@ public class TrackControllerGUI extends JFrame {
 		JButton btnUpdateBlock = new JButton("Update block");
 		btnUpdateBlock.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				currentController.runPLC();
+				wContrl.runPLC(currentController);
+				if(currentController.containsSwitch & !currentController.containsCrossing) {
+					switchStatus = "";
+					crossingStatus = "";
+					ArrayList<TrackSwitch> s = currentController.findSwitches();
+					if(!s.isEmpty()){
+						for (TrackSwitch t: s) {
+							System.out.println(t.state);
+							boolean pTB = t.state;
+							int index;
+							if (pTB) index = 0;
+							else index = 1;
+							switchStatus = switchStatus +"Switch on block " + t.number + " pointing to block " +t.out[index]+ ".\n";
+						}
+						crossingStatus = "No crossings in this section.";
+					}
+				}
+				else if(currentController.containsCrossing & !currentController.containsSwitch) {
+					TrackCrossing t = (TrackCrossing) currentController.blockMap.get(19);
+					switchStatus = "No switches in this section.";
+					if(t.state) {
+						crossingStatus = "Crossing on block " + 19 + " is active.";
+					}
+					else {
+						crossingStatus = "Crossing on block " + 19 + " is inactive.";
+					}
+				}
+				else if(currentController.containsCrossing & currentController.containsSwitch) {
+					switchStatus = "";
+					TrackCrossing tc = (TrackCrossing) currentController.blockMap.get(19);
+					ArrayList<TrackSwitch> s = currentController.findSwitches();
+					for (TrackSwitch t: s) {
+						boolean pTB = t.state;
+						int index;
+						if (pTB) index = 0;
+						else index = 1;
+						switchStatus = switchStatus + "Switch on block " +t.number+ " pointing to block " + t.out[index]+ ".";
+					}
+					if(tc.state) {
+						crossingStatus = "Crossing on block " + 19 + " is active.";
+					}
+					else {
+						crossingStatus = "Crossing on block " + 19 + " is inactive.";
+					}
+				}
+				else if (!currentController.containsCrossing & !currentController.containsSwitch) {
+					switchStatus = "No switches in this section.";
+					crossingStatus = "No crossings in this section.";
+				}
 				model.setValueAt(currentLine, 0, 1);
 				model.setValueAt(currentBlock.number, 1, 1);
 				model.setValueAt(currentBlock.occupancy, 2, 1);
@@ -365,13 +449,19 @@ public class TrackControllerGUI extends JFrame {
 				model.setValueAt(crossingStatus, 12, 1);
 				table.setModel(model);
 				table.repaint();
+				noSwitchCtrl = !currentController.plc.switchCtrl();
+				if(!noSwitchCtrl){
+					if(currentBlock.occupancy) {
+						int i = currentController.route.route.remove(currentBlock.number);
+						System.out.println("Removed "+ i + " from route.");
+					}
+				}
 			}
 		});
 		btnUpdateBlock.setBounds(399, 244, 112, 23);
 		inputPanel.add(btnUpdateBlock);
 	}
 	
-	public void updateData() {
-		
+	public void updateData() {	
 	}
 }

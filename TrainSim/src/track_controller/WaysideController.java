@@ -1,13 +1,21 @@
 package track_controller;
 import javax.tools.*;
-//import track_model.TrackBlock;
+
 import track_model.*;
+import ctc_office.TrainRoute;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class WaysideController {
-	ArrayList<TrackBlock> affectedBlocks = new ArrayList<TrackBlock>();
-	PLCInterface plc;
-	int span = 0;
+	public ArrayList<TrackBlock> affectedBlocks = new ArrayList<TrackBlock>();
+	public HashMap<Integer, TrackBlock> blockMap = new HashMap<Integer, TrackBlock>();
+	public TrainRoute route;
+	public PLCInterface plc;
+	public int span = 0;
+	
+	public boolean containsSwitch = false;
+	public boolean containsCrossing = false;
 	
 			
 	/*
@@ -41,8 +49,34 @@ public class WaysideController {
 	public boolean addBlocks(ArrayList<TrackBlock> b) {
 		for (TrackBlock block: b){
 			affectedBlocks.add(block);
+			blockMap.put(block.number, block);
 			span++;
 		}
 		return true;
-	}	
+	}
+	
+	public ArrayList<TrackSwitch> findSwitches(){
+		ArrayList<TrackSwitch> foundSwitches = new ArrayList<TrackSwitch>();
+		for (TrackBlock b : affectedBlocks) {
+			if(b.number == 12) foundSwitches.add((TrackSwitch)blockMap.get(12));
+			if(b.number == 29) foundSwitches.add((TrackSwitch)blockMap.get(29));
+			if(b.number == 58) foundSwitches.add((TrackSwitch)blockMap.get(58));
+			if(b.number == 62) foundSwitches.add((TrackSwitch)blockMap.get(62));
+			if(b.number == 76) foundSwitches.add((TrackSwitch)blockMap.get(76));
+			if(b.number == 86) foundSwitches.add((TrackSwitch)blockMap.get(86));
+		}
+		return foundSwitches;
+	}
+	
+	/*
+	 * Called by CTC to add a route
+	 * to a given wayside controller 
+	 */	
+	public TrainRoute addRoute(TrainRoute r) {
+		this.route = r;
+		this.plc.changeRoute(r);
+		boolean routeStatus = this.plc.checkRoute();
+		if(routeStatus) return null;
+		else return this.route;
+	}
 }

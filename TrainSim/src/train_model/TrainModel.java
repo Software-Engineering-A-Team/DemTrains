@@ -3,7 +3,10 @@ package train_model;
 
 import java.util.ArrayList;
 
-import mbo.MovingBlockOverlay;
+import system_wrapper.SimClock;
+import system_wrapper.SystemWrapper;
+import track_model.TrackBlock;
+import train_controller.TrainController;
 
 
 public class TrainModel {
@@ -11,8 +14,12 @@ public class TrainModel {
 	public String trainName;
 	
 	// TODO: Train Controller here
+	TrainController controller = null;
+	
 	// TODO: Track blocks?
-	// TODO: TrainModel GUI
+	TrackBlock currBlock = null;
+	
+	// TODO: Connect to TrainModel GUI
 	
 	static final double LENGTH = 105.643;	// ft
 	static final double HEIGHT = 11.2205;	// ft
@@ -59,27 +66,15 @@ public class TrainModel {
 	double speed = 0;
 	
 	public double commandedSpeed = 0;	// km/h
-	public double commandedAuthority = 0;	// ???
+	public double commandedAuthority = 0;	// yards
 	
 	
 	// Constructor used when a train is spawned
 	public TrainModel (String name, short number) {
 		this.trainID = number;
 		this.trainName = name;
-		// TODO: Instantiate GUI (system mode)
-		// TODO: this.trainController = new TrainController();
-	}
-	
-	// Constructor used if TrainModel is started on its own
-	public TrainModel () {
-		this.trainID = 0;
-		this.trainName = "Default";
 		
-		// TODO: this.trainController = null;
-		
-		ArrayList<TrainModel> trainList = new ArrayList<TrainModel>(1);
-		trainList.add(this);
-		// TODO: Instantiate GUI (independent mode)
+		this.controller = new TrainController();
 	}
 	
 	// public getter & setter methods
@@ -92,10 +87,11 @@ public class TrainModel {
 	}
 	
 	/*
-	 * Returns the current position of the train
+	 * Returns the current position of the train in yards
 	 */
 	public double getPosition() {
-		return this.position;
+		// Convert current position (in ft) to yards and then send it
+		return this.position / 3.0;
 	}
 	
 	/*
@@ -123,6 +119,24 @@ public class TrainModel {
 	 */
 	public void setLightStatus(boolean state) {
 		this.lightStatus = state;
+	}
+	
+	/*
+	 * Opens / closes the left doors
+	 * False = Closed
+	 * True = Open
+	 */
+	public void setLeftDoors(boolean state) {
+		this.leftDoorStatus = state;
+	}
+	
+	/*
+	 * Opens / closes the right doors
+	 * False = Closed
+	 * True = Open
+	 */
+	public void setRightDoors(boolean state) {
+		this.rightDoorStatus = state;
 	}
 	
 	/*
@@ -205,6 +219,26 @@ public class TrainModel {
 		}
 	}
 	
+	/*
+	 * Called on a clock tick to update the train's information
+	 */
+	public void run() {
+		// Get time difference needed for calculations
+		// divide by 1000 to get value in seconds
+		double delta = (double)SimClock.getDeltaMs() / 1000;	
+
+		// Calculate the current velocity
+		this.calcVelocity(delta);
+		// Update weight of the train
+		this.calcWeight();
+		
+		// Update position
+		this.calcPosition(delta);
+		
+		// Check if we need a new Track Block
+		this.currBlock = SystemWrapper.trackMod.getCurrentBlock(this.trainID, this.position / 3);
+	}
+	
 	// internal methods for calculations *********************
 	
 	/*
@@ -233,22 +267,47 @@ public class TrainModel {
 	 * Calculates the velocity of the train using the equation
 	 * v = (P/v) * (1/m) * (1/s)
 	 */
-	private double calcVelocity() {
-		double newVelocity = (powCommand / this.velocity) * (1 / this.weight) * (1 / sec);
+	private void calcVelocity(double sec) {
+		double newForce = 0, newAccel = 0, newVelocity = 0;
+		
+		// Calculate the force
+		if (this.velocity == 0) {	// if velocity == 0, use max power
+			newForce = powCommand / 0.001;
+		} else if (velocity != 0) {
+			newForce = (powCommand / this.velocity);
+		}
+		if (this.engineFailure == true) {
+			newForce = 0;
+		}
+		
+		// Calculate the acceleration
+		if (this.sBrake == false && this.eBrake == false) {
+			newAccel = newForce / this.weight;
+		} else if (this.sBrake == true && this.brakeFailure == false) {
+			newAccel = (newForce / this.weight) + SBRAKE_ACCEL;
+		} else if (this.eBrake == true) {
+			newAccel = (newForce / this.weight) + EBRAKE_ACCEL;
+		}
+		if (this.velocity == 0 && this.accel < 0)
+			newAccel = 0;
+		
+		newVelocity += newAccel * (1 / sec);
+		if (newVelocity < 0)
+			newVelocity = 0;
+		
+		this.force = newForce;
+		this.accel = newAccel;
 		this.velocity = newVelocity;
-		return newVelocity;
-		// TODO: account for engine failures
-		// TODO: determine what the time interval is for the calculation
+		// TODO: account for track grade variations
+		// TODO: account for friction..?
 	}
 	
 	/*
 	 * Calculates the position of the train
 	 */
-	private double calcPosition() {
+	private void calcPosition(double sec) {
 		double newPosition = (this.velocity / sec);
 		this.position += newPosition;
-		return newPosition;
-		// TODO: figure out how to get time interval
 	}
 	
 	

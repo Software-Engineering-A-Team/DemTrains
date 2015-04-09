@@ -12,7 +12,7 @@ public class Scheduler {
 	
 	private Schedule scheduleFixedBlock;
 	private HashMap<String, Schedule> scheduleMBO;
-	private int throughput;
+	private int throughput = 10;
 	private ArrayList<String> dispatchedTrains = new ArrayList<String>();
 	private ArrayList<String> availableTrains = new ArrayList<String>();
 	private HashMap<String, Integer> dispatchTimesMBO = new HashMap<String, Integer>();
@@ -88,9 +88,6 @@ public class Scheduler {
 		}
 		else { //MBO mode
 			
-		}
-		if (trainsToDispatch.size() == 0) {
-			return null;
 		}
 		return trainsToDispatch;
 	}

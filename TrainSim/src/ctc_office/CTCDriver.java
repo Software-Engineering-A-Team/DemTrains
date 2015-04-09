@@ -33,7 +33,7 @@ public class CTCDriver {
 	       t.getUpdatedTrainRoutes();
 	       // if in fixed block mode, calculate the estimated positions of those trains.
 	       if (!MBOModeEnabled) {
-	           t.setEstimatedTrainLocaitons();
+	           t.setEstimatedTrainLocations();
 	       }
 	   }
 	 	return true;
@@ -121,13 +121,7 @@ public class CTCDriver {
 	 * If a route is not approved, it is updated in the CTC
 	 */
 	public void routeTrains(String lineName) {
-		ArrayList<TrainRoute> routes = lines.get(lineName).getUpdatedTrainRoutes();
-		for (TrainRoute r : routes) {
-			// send the route to the track controller
-			// if it is not approved
-				//update the route in the TrackLayout class
-		}
-		
+		ArrayList<TrainRoute> routes = lines.get(lineName).getUpdatedTrainRoutes();		
 	}
 
 	/**
@@ -184,8 +178,8 @@ public class CTCDriver {
 	/**
 	 * Creates a new track layout given a graph of blocks and a list of blockData
 	 */
-	public boolean setTrackLayout(String lineName, DirectedMultigraph<Integer, DefaultEdge> layout, List<track_model.TrackBlock> blockData, HashMap<Integer, List<WaysideController>> controllerMap) {
-		lines.put(lineName, new TrackLayout(layout, blockData, controllerMap, lineName.toLowerCase().charAt(0)));
+	public boolean setTrackLayout(String lineName, DirectedMultigraph<Integer, DefaultEdge> layout, List<track_model.TrackBlock> blockData, HashMap<Integer, WaysideController> controllerMap) {
+		lines.put(lineName, new TrackLayout(layout, blockData, controllerMap, lineName));
 		return true;
 	}
 
