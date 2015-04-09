@@ -8,6 +8,8 @@ import javax.swing.JTextField;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
 
 import javax.swing.JLabel;
 import javax.swing.Timer;
@@ -26,7 +28,6 @@ import java.awt.Component;
 import javax.swing.Box;
 
 import system_wrapper.SimClock;
-import system_wrapper.SystemWrapper;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -42,6 +43,8 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import javax.swing.JComboBox;
+import javax.swing.event.PopupMenuListener;
+import javax.swing.event.PopupMenuEvent;
 
 public class TrainControllerGui extends JFrame {
   private JTextField enginePowerTextField;
@@ -64,7 +67,7 @@ public class TrainControllerGui extends JFrame {
   private JCheckBox chckbxRightDoorsOpen;
   private JComboBox comboBoxSelectedTrain;
   private ArrayList<TrainController> trainControllers;
-  private short trainIndex;
+  private int trainIndex;
   public TrainController trainController;
   private NumberFormat formatter = new DecimalFormat("#0.00");
   
@@ -80,7 +83,7 @@ public class TrainControllerGui extends JFrame {
         try {
           ArrayList<TrainController> trainControllers = new ArrayList<TrainController>();
           for (int i = 0; i < 10; i++) {
-            trainControllers.add(new TrainController());
+            trainControllers.add(new TrainController(i));
           }
           
           
@@ -98,7 +101,19 @@ public class TrainControllerGui extends JFrame {
 
   /**
    * Create the application.
+   * @wbp.parser.constructor
    */
+  public TrainControllerGui() {
+    standalone = false;
+    trainControllers = new ArrayList<TrainController>();
+    trainControllers.add(new TrainController());
+    trainIndex = 0;
+    trainController = trainControllers.get(trainIndex);
+    initialize();
+    this.updateDisplayData();
+    displayTimer.start();
+  }
+  
   public TrainControllerGui(ArrayList<TrainController> trainControllers) {
     standalone = false;
     this.trainControllers = trainControllers;
@@ -110,8 +125,8 @@ public class TrainControllerGui extends JFrame {
       trainController = trainControllers.get(trainIndex); 
     }
     initialize();
+    this.updateDisplayData();
     displayTimer.start();
-    controllerTimer.start();
   }
   
   public TrainControllerGui(ArrayList<TrainController> trainControllers, boolean standalone) {
@@ -125,8 +140,12 @@ public class TrainControllerGui extends JFrame {
       trainController = trainControllers.get(trainIndex); 
     }
     initialize();
+    this.updateDisplayData();
     displayTimer.start();
-    controllerTimer.start();
+    
+    if (standalone) {
+      controllerTimer.start();
+    }
   }
 
   /**
@@ -335,12 +354,45 @@ public class TrainControllerGui extends JFrame {
     lblSelectedTrain.setBounds(339, 328, 109, 15);
     getContentPane().add(lblSelectedTrain);
     
-    comboBoxSelectedTrain = new JComboBox();
+    comboBoxSelectedTrain = new JComboBox<Integer>();
+    comboBoxSelectedTrain.addItemListener(new ItemListener() {
+      @Override
+      public void itemStateChanged(ItemEvent e) {
+        if (e.getStateChange() == ItemEvent.SELECTED) {
+          if (trainControllers != null && trainControllers.size() > 0) {
+            trainIndex = comboBoxSelectedTrain.getSelectedIndex();
+            
+            System.out.println(trainIndex);
+            
+            if (trainIndex >= 0 && trainIndex < trainControllers.size()) {
+              trainController = trainControllers.get(trainIndex);
+            }
+          }
+        }
+      }
+    });
+    PopupMenuListener selectedTrainPopupListener = new PopupMenuListener() {
+      @Override
+      public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+        comboBoxSelectedTrain.removeAllItems();
+
+        for (TrainController t : trainControllers) {
+          comboBoxSelectedTrain.addItem(t.getId());
+        }
+      }
+
+      @Override
+      public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {}
+
+      @Override
+      public void popupMenuCanceled(PopupMenuEvent e) {}
+    };
+    comboBoxSelectedTrain.addPopupMenuListener(selectedTrainPopupListener);
     comboBoxSelectedTrain.setBounds(339, 350, 109, 24);
     getContentPane().add(comboBoxSelectedTrain);
   }
   
-  public void updateDisplayData() {
+  public void updateDisplayData() {    
     textFieldTargetSpeed.setText(formatter.format(trainController.getTargetSpeed()));
     
     textFieldSafeStoppingDistance.setText(formatter.format(trainController.getSafeStoppingDistance()));
@@ -380,7 +432,7 @@ public class TrainControllerGui extends JFrame {
     }
   });
   
-  private Timer controllerTimer = new Timer(10, new ActionListener() {
+  private Timer controllerTimer = new Timer(SimClock.getDeltaMs(), new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
       SimClock.tick();

@@ -23,7 +23,15 @@ public class TrainController {
   private double speedLimitMph;
   private double powerKw;
   private double safeStoppingDistanceMi;
-  private short id;
+  private int id;
+  
+  public TrainController() {
+    
+  }
+  
+  public TrainController(int id) {
+    this.id = id;
+  }
   
   // Current speed reported by TrainModel
   public void setCurrentSpeed(double currentSpeedMph) {
@@ -152,5 +160,9 @@ public class TrainController {
   
   public boolean isLightOn() {
     return lightsOn;
+  }
+  
+  public int getId() {
+    return id;
   }
 }
