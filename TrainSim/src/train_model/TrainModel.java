@@ -92,10 +92,11 @@ public class TrainModel {
 	}
 	
 	/*
-	 * Returns the current position of the train
+	 * Returns the current position of the train in yards
 	 */
 	public double getPosition() {
-		return this.position;
+		// Convert current position (in ft) to yards and then send it
+		return this.position / 3.0;
 	}
 	
 	/*
@@ -203,6 +204,18 @@ public class TrainModel {
 			this.commandedSpeed = speed;
 			return true;
 		}
+	}
+	
+	/*
+	 * Called on a clock tick to update the train's information
+	 */
+	public void run() {
+		// Get power command from Train Controller
+		// Calculate the force
+		// Calculate the acceleration
+		// Calculate the current velocity
+		// Update position
+		// Check if we need a new Track Block
 	}
 	
 	// internal methods for calculations *********************
