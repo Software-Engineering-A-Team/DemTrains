@@ -13,6 +13,9 @@ public class TrainModel {
 	public short trainID;
 	public String trainName;
 	
+	// True if run by its own GUI, false if spawned in system mode
+	private boolean standAlone = true;
+	
 	// TODO: Train Controller here
 	TrainController controller = null;
 	
@@ -59,6 +62,8 @@ public class TrainModel {
 	boolean sBrake = false;	// false = off, true = on
 	boolean eBrake = false;	// false = off, true = on
 	
+	boolean airConditioning = false; // false = off, true = on
+	
 	double powCommand = 0;	// kW
 	double accel = 0;	// ft/s^2
 	double velocity = 0;	// ft/s
@@ -79,10 +84,11 @@ public class TrainModel {
 		if (!this.trainName.equals("SingleTrain")){
 			this.controller = new TrainController();
 			SystemWrapper.trainControllers.add(this.controller);
+			this.standAlone = false;
 		}
 	}
 	
-	// public getter & setter methods
+	// public getter & setter methods ********************************************
 	
 	/*
 	 * Returns the current weight of the train
@@ -228,12 +234,31 @@ public class TrainModel {
 	 * Called on a clock tick to update the train's information
 	 */
 	public void run() {
+		
+		// Handle comms with trainController (if there is one)
+		if (this.standAlone == false) {
+			this.controller.setCurrentSpeed(this.velocity);
+			
+			this.powCommand = this.controller.calcPower();
+			this.sBrake = this.controller.isServiceBrakeOn();
+			this.eBrake = this.controller.isEmergencyBrakeOn();
+			this.leftDoorStatus = this.controller.isLeftDoorOpen();
+			this.rightDoorStatus = this.controller.isRightDoorOpen();
+			this.lightStatus = this.controller.isLightOn();
+			this.airConditioning = this.controller.isAirConditioningOn();
+		}
+		
+		
+		
+		
 		// Get time difference needed for calculations
 		// divide by 1000 to get value in seconds
 		double delta = (double)SimClock.getDeltaMs() / 1000;	
 
 		// Calculate the current velocity
 		this.calcVelocity(delta);
+		
+		
 		// Update weight of the train
 		this.calcWeight();
 		
