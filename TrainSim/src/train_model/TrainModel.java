@@ -4,6 +4,7 @@ package train_model;
 import java.util.ArrayList;
 
 import system_wrapper.SimClock;
+import system_wrapper.SpeedAuthCmd;
 import system_wrapper.SystemWrapper;
 import track_model.TrackBlock;
 import train_controller.TrainController;
@@ -240,6 +241,10 @@ public class TrainModel {
 		
 		// Handle comms with trainController (if there is one)
 		if (this.standAlone == false) {
+			// Set the speed & authority command
+			SpeedAuthCmd cmd = new SpeedAuthCmd(this.commandedSpeed, this.commandedAuthority);
+			this.controller.setSpeedAuthCmd(cmd);
+			
 			this.controller.setCurrentSpeed(this.velocity);
 			
 			this.powCommand = this.controller.calcPower();
