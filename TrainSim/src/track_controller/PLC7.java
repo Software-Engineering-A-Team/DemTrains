@@ -5,15 +5,16 @@ import track_model.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.PriorityQueue;
 
 public class PLC7 implements PLCInterface {
 	HashMap<Integer, TrackBlock> controlledBlocks;
-	TrainRoute r;
+	public PriorityQueue<TrainRoute> routes = new PriorityQueue<TrainRoute>();
 	boolean switchCtrlSuccess = false;
 		
 	public PLC7(HashMap<Integer, TrackBlock> blockList, TrainRoute route){
 		this.controlledBlocks = blockList;
-		this.r = route;		
+		if(route!= null) this.routes.add(route);	
 	}	
 	
 	/*
@@ -75,8 +76,8 @@ public class PLC7 implements PLCInterface {
 	 * and other errors.
 	 */
 	public boolean checkRoute() {
-		if (this.r == null) return false;
-		for (int i : this.r.route) {
+		if (this.routes.peek() == null) return false;
+		for (int i : this.routes.peek().route) {
 			TrackBlock b = controlledBlocks.get(i);
 			if(b.occupancy) return false;
 		}
@@ -87,12 +88,16 @@ public class PLC7 implements PLCInterface {
 	 * Changes the route.
 	 */
 	public void changeRoute(TrainRoute route) {
-		this.r = route;
+		this.routes.add(route);
 	}
 	
 	public boolean switchCtrl() {
-		if (this.r != null) return true;
+		if (this.routes.peek() != null) return true;
 		else return false;
+	}
+	
+	public PriorityQueue<TrainRoute> getRoutes(){
+		return this.routes;
 	}
 	
 	/*

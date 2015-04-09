@@ -8,9 +8,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.DirectedMultigraph;
-
 public class TrackModel {
   
     public Map<String, TrackLayout> trackLayouts;
@@ -30,8 +27,9 @@ public class TrackModel {
 	 * @param totalDistance The total distance traveled by the train from the yard.
 	 * @return The TrackBlock on which the train with unique identifier trainID is located.
 	 */	
-	public TrackBlock getCurrentBlock(short trainID, double totalDistance) {
-		return null;
+	public TrackBlock getCurrentBlock(String trainName, double totalDistance, TrackBlock previousBlock) {
+		String lineName = trainName.contains("G") ? "Green" : "Red";
+		return trackLayouts.get(lineName).getCurrentBlock(trainName, totalDistance, previousBlock);
 	}
 	
 	/**

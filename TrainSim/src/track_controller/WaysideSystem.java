@@ -148,7 +148,7 @@ public class WaysideSystem {
     		createGreenControllers(t);
     	}
     	else if (t.blocks.size() < 79) {
-    		//createRedControllers();
+    		createRedControllers(t);
     	}
         return false;
     }

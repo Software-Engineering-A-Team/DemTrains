@@ -5,26 +5,27 @@ import track_model.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.PriorityQueue;
 
 public class PLC6 implements PLCInterface {
 	HashMap<Integer, TrackBlock> controlledBlocks;
-	TrainRoute r;
+	public PriorityQueue<TrainRoute> routes = new PriorityQueue<TrainRoute>();
 	boolean switchCtrlSuccess = false;
 	
 	public PLC6(HashMap<Integer, TrackBlock> blockList, TrainRoute route){
 		this.controlledBlocks = blockList;
-		this.r = route;
+		if(route!= null) this.routes.add(route);
 	}	
 	
 	/*
 	 * Changes the route.
 	 */
 	public void changeRoute(TrainRoute route) {
-		this.r = route;
+		this.routes.add(route);
 	}
 	
 	public boolean switchCtrl() {
-		if (this.r != null) return true;
+		if (this.routes.peek() != null) return true;
 		else return false;
 	}
 	
@@ -42,11 +43,13 @@ public class PLC6 implements PLCInterface {
 	public boolean ctrlSwitch() {
 		
 		TrackSwitch relSwitch = (TrackSwitch) controlledBlocks.get(76);
+		if(this.routes.peek() != null){
+			switchCtrlSuccess = true;
 			//compute nextBlock val
-			System.out.println(r.route.isEmpty());
-			int indNextBlock = r.route.indexOf(76)+1;
+			System.out.println(routes.peek().route.isEmpty());
+			int indNextBlock = routes.peek().route.indexOf(76)+1;
 			System.out.println(indNextBlock);
-			int nextBlock = r.route.get(indNextBlock);
+			int nextBlock = routes.peek().route.get(indNextBlock);
 			System.out.println(nextBlock);
 			//int prevBlock = r.route.get(r.route.indexOf(12)-1);
 			
@@ -88,6 +91,7 @@ public class PLC6 implements PLCInterface {
 				
 				return relSwitch.state;
 			}
+		}
 		System.out.println("No criteria met.");
 		return relSwitch.state;
 	}
@@ -131,12 +135,16 @@ public class PLC6 implements PLCInterface {
 	 * and other errors.
 	 */
 	public boolean checkRoute() {
-		if (this.r == null) return false;
-		for (int i : this.r.route) {
+		if (this.routes.peek() == null) return false;
+		for (int i : this.routes.peek().route) {
 			TrackBlock b = controlledBlocks.get(i);
 			if(b.occupancy) return false;
 		}
 	 return true;
+	}
+	
+	public PriorityQueue<TrainRoute> getRoutes(){
+		return this.routes;
 	}
 	
 	/*

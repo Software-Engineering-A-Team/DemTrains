@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+
 import org.jgrapht.graph.DirectedMultigraph;
 import org.jgrapht.graph.DefaultEdge;
 
@@ -13,7 +14,7 @@ public class TrackLayout {
 	public List<TrackSection> sections;
 	public List<TrackBlock> blocks;
 	public Map<Integer, Integer> switchToBlocks;
-	public Map<Short, Integer> trains; // maps from train ID to block ID
+	public Map<String, Integer> trains; // maps from train ID to block ID
 	
 	/**
 	 * Creates a new instance of the TrackLayout class.
@@ -23,7 +24,18 @@ public class TrackLayout {
 		sections = new ArrayList<TrackSection>();
 		blocks = new ArrayList<TrackBlock>();
 		switchToBlocks = new HashMap<Integer, Integer>();
-		trains = new HashMap<Short, Integer>();
+		trains = new HashMap<String, Integer>();
+	}
+	
+	/**
+	 * Retrieves the TrackBlock corresponding to a specific train and its total distance traveled.
+	 * @param trainID The unique identifier of the train requesting the TrackBlock.
+	 * @param totalDistance The total distance traveled by the train from the yard.
+	 * @return The TrackBlock on which the train with unique identifier trainID is located.
+	 */	
+	public TrackBlock getCurrentBlock(String trainName, double totalDistance, TrackBlock previousBlock) {
+		
+		return null;
 	}
     
     /**

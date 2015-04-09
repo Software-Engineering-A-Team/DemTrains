@@ -79,13 +79,11 @@ public static void main(String[] args) {
     
     tabbedPane.addTab("MBO", null, SystemWrapper.mboGUI.getContentPane(), null);
     
-    JPanel panelTrackModel = new JPanel();
-    tabbedPane.addTab("Track Model", null, panelTrackModel, null);
+    tabbedPane.addTab("Track Model", null, SystemWrapper.trackModelGUI.getContentPane(), null);
     
     tabbedPane.addTab("Track Controller", null, SystemWrapper.trackControllerGui.getContentPane(), null);
     
-    JPanel panelTrainModel = new JPanel();
-    tabbedPane.addTab("Train Model", null, panelTrainModel, null);
+    tabbedPane.addTab("Train Model", null, SystemWrapper.trainModelGUI.getContentPane(), null);
     
     tabbedPane.addTab("Train Controller", null, SystemWrapper.trainControllerGui.getContentPane(), null);
   }

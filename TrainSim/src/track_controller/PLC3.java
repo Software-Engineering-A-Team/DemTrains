@@ -5,16 +5,17 @@ import track_model.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.PriorityQueue;
 
 public class PLC3 implements PLCInterface {
 	HashMap<Integer, TrackBlock> controlledBlocks;
-	TrainRoute r;
+	public PriorityQueue<TrainRoute> routes = new PriorityQueue<TrainRoute>();
 	boolean switchCtrlSuccess = false;
 	
 	
 	public PLC3(HashMap<Integer, TrackBlock> blockList, TrainRoute route){
 		this.controlledBlocks = blockList;
-		this.r = route;
+		if(route!= null) this.routes.add(route);
 	}	
 	/*
 	 * Determines safe state of the railway crossing and returns the state
@@ -31,10 +32,12 @@ public class PLC3 implements PLCInterface {
 		
 		TrackSwitch relSwitch = (TrackSwitch) controlledBlocks.get(29);
 			//compute nextBlock val
-			System.out.println(r.route.isEmpty());
-			int indNextBlock = r.route.indexOf(29)+1;
+		if(this.routes.peek() != null){
+			switchCtrlSuccess = true;
+			System.out.println(routes.peek().route.isEmpty());
+			int indNextBlock = routes.peek().route.indexOf(29)+1;
 			System.out.println(indNextBlock);
-			int nextBlock = r.route.get(indNextBlock);
+			int nextBlock = routes.peek().route.get(indNextBlock);
 			System.out.println(nextBlock);
 			//int prevBlock = r.route.get(r.route.indexOf(12)-1);
 			
@@ -63,6 +66,7 @@ public class PLC3 implements PLCInterface {
 				
 				return relSwitch.state;
 			}
+		}
 		System.out.println("No criteria met.");
 		return relSwitch.state;
 	}
@@ -106,8 +110,8 @@ public class PLC3 implements PLCInterface {
 	 * and other errors.
 	 */
 	public boolean checkRoute() {
-		if (this.r == null) return false;
-		for (int i : this.r.route) {
+		if (this.routes.peek().route == null) return false;
+		for (int i : this.routes.peek().route) {
 			TrackBlock b = controlledBlocks.get(i);
 			if(b.occupancy) return false;
 		}
@@ -118,12 +122,16 @@ public class PLC3 implements PLCInterface {
 	 * Changes the route.
 	 */
 	public void changeRoute(TrainRoute route) {
-		this.r = route;
+		this.routes.add(route);
 	}
 	
 	public boolean switchCtrl() {
-		if (this.r != null) return true;
+		if (this.routes.peek() != null) return true;
 		else return false;
+	}
+	
+	public PriorityQueue<TrainRoute> getRoutes(){
+		return this.routes;
 	}
 	
 	/*

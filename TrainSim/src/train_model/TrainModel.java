@@ -4,7 +4,9 @@ package train_model;
 import java.util.ArrayList;
 
 import system_wrapper.SimClock;
-import mbo.MovingBlockOverlay;
+import system_wrapper.SystemWrapper;
+import track_model.TrackBlock;
+import train_controller.TrainController;
 
 
 public class TrainModel {
@@ -12,8 +14,12 @@ public class TrainModel {
 	public String trainName;
 	
 	// TODO: Train Controller here
+	TrainController controller = null;
+	
 	// TODO: Track blocks?
-	// TODO: TrainModel GUI
+	TrackBlock currBlock = null;
+	
+	// TODO: Connect to TrainModel GUI
 	
 	static final double LENGTH = 105.643;	// ft
 	static final double HEIGHT = 11.2205;	// ft
@@ -60,27 +66,15 @@ public class TrainModel {
 	double speed = 0;
 	
 	public double commandedSpeed = 0;	// km/h
-	public double commandedAuthority = 0;	// ???
+	public double commandedAuthority = 0;	// yards
 	
 	
 	// Constructor used when a train is spawned
 	public TrainModel (String name, short number) {
 		this.trainID = number;
 		this.trainName = name;
-		// TODO: Instantiate GUI (system mode)
-		// TODO: this.trainController = new TrainController();
-	}
-	
-	// Constructor used if TrainModel is started on its own
-	public TrainModel () {
-		this.trainID = 0;
-		this.trainName = "Default";
 		
-		// TODO: this.trainController = null;
-		
-		ArrayList<TrainModel> trainList = new ArrayList<TrainModel>(1);
-		trainList.add(this);
-		// TODO: Instantiate GUI (independent mode)
+		this.controller = new TrainController();
 	}
 	
 	// public getter & setter methods
@@ -125,6 +119,24 @@ public class TrainModel {
 	 */
 	public void setLightStatus(boolean state) {
 		this.lightStatus = state;
+	}
+	
+	/*
+	 * Opens / closes the left doors
+	 * False = Closed
+	 * True = Open
+	 */
+	public void setLeftDoors(boolean state) {
+		this.leftDoorStatus = state;
+	}
+	
+	/*
+	 * Opens / closes the right doors
+	 * False = Closed
+	 * True = Open
+	 */
+	public void setRightDoors(boolean state) {
+		this.rightDoorStatus = state;
 	}
 	
 	/*
@@ -222,7 +234,10 @@ public class TrainModel {
 		
 		// Update position
 		this.calcPosition(delta);
+		
 		// Check if we need a new Track Block
+		TrackBlock oldBlock = this.currBlock;
+		this.currBlock = SystemWrapper.trackModelGUI.trackModel.getCurrentBlock(this.trainName, this.position / 3, oldBlock);
 	}
 	
 	// internal methods for calculations *********************
