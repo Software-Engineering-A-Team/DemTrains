@@ -5,7 +5,7 @@ import java.util.HashMap;
 public class Schedule {
 	private HashMap<String, StopData> trainStops;
 	private HashMap<String, StopData> currentTrainStops;
-	
+	public double minutesForOneTrip;
 
 	public Schedule() {
 		trainStops = new HashMap<String, StopData>();
@@ -28,6 +28,7 @@ public class Schedule {
 	 */
 	public void addNewStop(String startStation, String destination, double minutes){
 		trainStops.put(startStation, new StopData(startStation, destination, minutes));
+		minutesForOneTrip += minutes;
 	}
 	
 	/*
@@ -35,6 +36,7 @@ public class Schedule {
 	 */
 	public void addNewStop(StopData newStopData){
 		trainStops.put(newStopData.startStation, newStopData);
+		minutesForOneTrip += newStopData.travelTime;
 	}
 	
 	/*
@@ -44,5 +46,12 @@ public class Schedule {
 		StopData nextStop = getNextStopForTrain(trainId);
 		currentTrainStops.put(trainId, nextStop);
 		return nextStop;
+	}
+
+	 /**
+	  * Gets the number of stations the train will stop at
+	  */
+	public int getNumberOfStations() {
+		return trainStops.size();
 	}
 }
