@@ -35,6 +35,7 @@ import javax.swing.JScrollPane;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.PriorityQueue;
 
 
 public class TrackControllerGUI extends JFrame {
@@ -370,7 +371,7 @@ public class TrackControllerGUI extends JFrame {
 		DefaultTableModel model = new DefaultTableModel(new Object[][] {
 			      { "Line", currentLine }, { "Block", currentBlock.number }, { "Occupancy", currentBlock.occupancy},
 			      { "Weather", weatherPicker.getSelectedItem().toString() }, { "Speed limit (mph)", currentBlock.speedLimit }, { "Commanded speed (mph)", currentBlock.commandedSpeed },
-			      { "Commanded authority (miles)", currentBlock.commandedAuthority }, { "Broken status", null }, { "Light status", currentBlock.lights }, {"Closed status", null},
+			      { "Commanded authority (yards)", currentBlock.commandedAuthority }, { "Broken status", null }, { "Light status", currentBlock.lights }, {"Closed status", null},
 			      { "Heater status", currentBlock.heater }, { "Switch position", switchStatus }, {"Crossing status", crossingStatus}}, 
 			      new Object[] { "Attribute", "Value" });
 		
@@ -453,7 +454,9 @@ public class TrackControllerGUI extends JFrame {
 				if(!noSwitchCtrl){
 					if(currentBlock.occupancy) {
 						int i = currentController.route.route.remove(currentBlock.number);
-						System.out.println("Removed "+ i + " from route.");
+						if(currentController.plc.getRoutes().peek().route.isEmpty()) {
+							currentController.plc.getRoutes().remove(currentController.plc.getRoutes().peek());
+						}
 					}
 				}
 			}
