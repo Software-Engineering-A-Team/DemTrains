@@ -70,7 +70,7 @@ public static void main(String[] args) {
   
   public SystemGui() {
 
-    this.setBounds(100, 100, 562, 569);
+    this.setBounds(100, 100, 1100, 900);
     
     JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
     getContentPane().add(tabbedPane, BorderLayout.CENTER);
