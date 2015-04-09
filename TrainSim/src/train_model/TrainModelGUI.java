@@ -8,6 +8,8 @@ import java.awt.Font;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
 import java.util.ArrayList;
 import java.awt.GridBagLayout;
@@ -22,6 +24,8 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import javax.swing.JComboBox;
 import javax.swing.JButton;
@@ -29,6 +33,7 @@ import javax.swing.JTextField;
 
 import system_wrapper.SystemWrapper;
 import track_model.TrackBlock;
+import train_controller.TrainController;
 
 
 public class TrainModelGUI extends JFrame {
@@ -135,10 +140,45 @@ public class TrainModelGUI extends JFrame {
 		contentPane.add(lblTrainModelSelector, gbc_lblTrainModelSelector);
 		
 		JComboBox comboBox = new JComboBox();
-		
 		// TODO: Setup ComboBox to provide a list of trains for user to select
 		
+		comboBox.addItemListener(new ItemListener() {
+		      @Override
+		      public void itemStateChanged(ItemEvent e) {
+		        if (e.getStateChange() == ItemEvent.SELECTED) {
+		          if (trainList != null && trainList.size() > 0) {
+		            int trainIndex = comboBox.getSelectedIndex();
+		            
+		            //System.out.println(trainIndex);
+		            
+		            if (trainIndex >= 0 && trainIndex < trainList.size()) {
+		              currTrain = trainList.get(trainIndex);
+		            }
+		          }
+		        }
+		      }
+		    });
+		    PopupMenuListener selectedTrainPopupListener = new PopupMenuListener() {
+		      @Override
+		      public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+		        comboBox.removeAllItems();
+
+		        for (TrainModel t : trainList) {
+		          comboBox.addItem((int)t.trainID);
+		        }
+		      }
+
+		      @Override
+		      public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {}
+
+		      @Override
+		      public void popupMenuCanceled(PopupMenuEvent e) {}
+		    };
+		    comboBox.addPopupMenuListener(selectedTrainPopupListener);
 		
+		
+		    
+		    
 		
 		GridBagConstraints gbc_comboBox = new GridBagConstraints();
 		gbc_comboBox.insets = new Insets(0, 0, 5, 0);
