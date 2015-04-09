@@ -34,13 +34,8 @@ public class PLC3 implements PLCInterface {
 			//compute nextBlock val
 		if(this.routes.peek() != null){
 			switchCtrlSuccess = true;
-			System.out.println(routes.peek().route.isEmpty());
 			int indNextBlock = routes.peek().route.indexOf(29)+1;
-			System.out.println(indNextBlock);
-			int nextBlock = routes.peek().route.get(indNextBlock);
-			System.out.println(nextBlock);
-			//int prevBlock = r.route.get(r.route.indexOf(12)-1);
-			
+			int nextBlock = routes.peek().route.get(indNextBlock);			
 			
 			// if train on 25,26,27 and nothing else within range and next block after 29 in route is 30
 			//set switch connected to block 30
@@ -61,13 +56,11 @@ public class PLC3 implements PLCInterface {
 			//if there is a conflict, keep switch where it is and set speed and authority of conflicting
 			//occupied blocks to 0
 			else {
-				System.out.println("No criteria met. In else.");
 				if(!relSwitch.state) {}
 				
 				return relSwitch.state;
 			}
 		}
-		System.out.println("No criteria met.");
 		return relSwitch.state;
 	}
 	/*
@@ -138,7 +131,6 @@ public class PLC3 implements PLCInterface {
 	 * Runs all functions of PLC Program
 	 */
 	public void run(){
-		System.out.println("Running PLC1");
 		for (int i = 23; i<33; i++) {
 			TrackBlock b = controlledBlocks.get(i);
 			b.heater = ctrlHeater(b);
@@ -156,7 +148,7 @@ public class PLC3 implements PLCInterface {
 		int ind;
 		if(prevState) ind = 0;
 		else ind = 1;
-		System.out.println("Switch on block 29 moved from "+s.out[ind]); 
+		System.out.print("Switch on block 29 moved from "+s.out[ind]); 
 		s.state = ctrlSwitch();
 		if(s.state) ind = 0;
 		else ind = 1;

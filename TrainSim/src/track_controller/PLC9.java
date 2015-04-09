@@ -104,7 +104,6 @@ public class PLC9 implements PLCInterface {
 	 * Runs all functions of PLC Program
 	 */
 	public void run(){
-		System.out.println("Running PLC7");
 		for (int i = 104; i<148; i++) {
 			TrackBlock b = controlledBlocks.get(i);
 			b.heater = ctrlHeater(b);

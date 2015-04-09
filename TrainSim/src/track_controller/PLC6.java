@@ -51,13 +51,8 @@ public class PLC6 implements PLCInterface {
 			switchCtrlSuccess = true;
 			TrackSwitch current = relSwitch2;
 			//compute nextBlock val
-			System.out.println(routes.peek().route.isEmpty());
 			int indNextBlock = routes.peek().route.indexOf(76)+1;
-			System.out.println(indNextBlock);
-			int nextBlock = routes.peek().route.get(indNextBlock);
-			System.out.println(nextBlock);
-			//int prevBlock = r.route.get(r.route.indexOf(12)-1);
-			
+			int nextBlock = routes.peek().route.get(indNextBlock);			
 			
 			// if train on 55,56,57 and nothing on 59 and next block after 58 in route is 59
 			//set switch connected to block 59
@@ -95,13 +90,12 @@ public class PLC6 implements PLCInterface {
 			//if there is a conflict, keep switch where it is and set speed and authority of conflicting
 			//occupied blocks to 0
 			else {
-				System.out.println("No criteria met. In else.");
 				if(this.routes.peek().route.contains(58)) current = relSwitch2;
-				else current = relSwitch;
+				else if (this.routes.peek().route.contains(62)) current = relSwitch;
+				else current = relSwitch2;
 				return current.state;
 			}
 		}
-		System.out.println("No criteria met.");
 		return false;
 	}
 	/*
@@ -160,7 +154,6 @@ public class PLC6 implements PLCInterface {
 	 * Runs all functions of PLC Program
 	 */
 	public void run(){
-		System.out.println("Running PLC6");
 		for (int i = 54; i<69; i++) {
 			TrackBlock b = controlledBlocks.get(i);
 			b.heater = ctrlHeater(b);
@@ -177,7 +170,7 @@ public class PLC6 implements PLCInterface {
 		int ind;
 		if(prevState) ind = 0;
 		else ind = 1;
-		System.out.println("Switch on block "+current.number+" moved from "+current.out[ind]); 
+		System.out.print("Switch on block "+current.number+" moved from "+current.out[ind]); 
 		current.state = ctrlSwitch();
 		if(current.state) ind = 0;
 		else ind = 1;

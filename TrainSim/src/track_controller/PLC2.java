@@ -112,7 +112,6 @@ public class PLC2 implements PLCInterface {
 	 * Runs all functions of PLC Program
 	 */
 	public void run(){
-		System.out.println("Running PLC2");
 		for (int i = 16; i<24; i++) {
 			TrackBlock b = controlledBlocks.get(i);
 			b.heater = ctrlHeater(b);

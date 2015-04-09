@@ -59,12 +59,10 @@ public class PLC1 implements PLCInterface {
 			//if there is a conflict, keep switch where it is and set speed and authority of conflicting
 			//occupied blocks to 0
 			else {
-				System.out.println("No criteria met. In else.");
 				if(!relSwitch.state) {}
 				return relSwitch.state;
 			}
 		}
-		System.out.println("No criteria met.");
 		return relSwitch.state;
 	}
 	/*
@@ -148,7 +146,7 @@ public class PLC1 implements PLCInterface {
 		int ind;
 		if(prevState) ind = 0;
 		else ind = 1;
-		System.out.println("Switch on block 12 moved from "+s.out[ind]); 
+		System.out.print("Switch on block 12 moved from "+s.out[ind]); 
 		s.state = ctrlSwitch();
 		if(s.state) ind = 0;
 		else ind = 1;
