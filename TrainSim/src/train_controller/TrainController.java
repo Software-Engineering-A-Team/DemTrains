@@ -2,6 +2,8 @@ package train_controller;
 
 import system_wrapper.SpeedAuthCmd;
 
+// Class whose main function is to control the engine power of a TrainModel.
+// 
 public class TrainController {
   private final VitalTrainControl vitalPrimary = new VitalTrainControlPrimary();
   
@@ -19,8 +21,10 @@ public class TrainController {
   private double currentSpeedMph;
   private double targetSpeedMph;
   private double speedLimitMph;
-  private double powerW;
+  private double powerKw;
   private double safeStoppingDistanceMi;
+  private short id;
+  
   // Current speed reported by TrainModel
   public void setCurrentSpeed(double currentSpeedMph) {
     this.currentSpeedMph = currentSpeedMph;
@@ -82,7 +86,7 @@ public class TrainController {
   private void getVitalControlOutputs() {
     emergencyBrake = vitalPrimary.emergencyBrake;
     serviceBrake = vitalPrimary.serviceBrake;
-    powerW = vitalPrimary.powerW;
+    targetSpeedMph = vitalPrimary.targetSpeedMph;
   }
   
   // Called by TrainModel to 
@@ -91,11 +95,11 @@ public class TrainController {
     
     vitalPrimary.determineSafeSpeed();
     
-    vitalPrimary.calcPower();
+    powerKw = vitalPrimary.calcPower() / 1000.0;
     
     getVitalControlOutputs();
     
-    return powerW;
+    return powerKw;
   }
   
   public double getTargetSpeed() {
@@ -103,7 +107,7 @@ public class TrainController {
   }
   
   public double getPower() {
-    return powerW;
+    return powerKw;
   }
   
   public double getSafeStoppingDistance() {

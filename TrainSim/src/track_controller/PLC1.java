@@ -1,14 +1,18 @@
 package track_controller;
+import ctc_office.TrainRoute;
 import track_model.TrackBlock;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 
 public class PLC1 implements PLCInterface {
-	ArrayList<TrackBlock> controlledBlocks;
+	HashMap<Integer, TrackBlock> controlledBlocks;
+	TrainRoute r;
 	
 	
-	public PLC1(ArrayList<TrackBlock> blockList){
+	public PLC1(HashMap<Integer, TrackBlock> blockList, TrainRoute route){
 		controlledBlocks = blockList;
+		r = route;
 	}	
 	/*
 	 * Determines safe state of the railway crossing and returns the state
@@ -22,6 +26,7 @@ public class PLC1 implements PLCInterface {
 	 * true for second block in attach array , false for first block in attach array
 	 */
 	public boolean ctrlSwitch() {
+		
 		return false;
 	}
 	/*
@@ -58,7 +63,8 @@ public class PLC1 implements PLCInterface {
 	
 	public void run(){
 		System.out.println("Running PLC1");
-		for (TrackBlock b : controlledBlocks) {
+		for (int i = 1; i<17; i++) {
+			TrackBlock b = controlledBlocks.get(i);
 			b.heater = ctrlHeater(b);
 			b.lights = ctrlLights(b);
 		}
