@@ -145,8 +145,14 @@ public class PLC4 implements PLCInterface {
 		}
 		
 		TrackSwitch s = (TrackSwitch) controlledBlocks.get(86);
-		System.out.println("Current state is : " + s.state);
+		boolean prevState = s.state;
+		int ind;
+		if(prevState) ind = 0;
+		else ind = 1;
+		System.out.println("Switch on block 86 moved from "+s.out[ind]); 
 		s.state = ctrlSwitch();
-		System.out.println("Switch state changed to "+ s.state);
+		if(s.state) ind = 0;
+		else ind = 1;
+		System.out.print(" to " +s.out[ind]+"\n");
 	}
 }

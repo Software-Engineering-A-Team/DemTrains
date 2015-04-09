@@ -44,10 +44,7 @@ public class PLC6 implements PLCInterface {
 	 * true for second block in attach array , false for first block in attach array
 	 */
 	public boolean ctrlSwitch() {
-		System.out.println(controlledBlocks.containsKey(58));
-		System.out.println(controlledBlocks.containsKey(62));
-		
-		
+				
 		TrackSwitch relSwitch = (TrackSwitch) controlledBlocks.get(62);
 		TrackSwitch relSwitch2 = (TrackSwitch) controlledBlocks.get(58);
 		if(this.routes.peek() != null){
@@ -175,9 +172,15 @@ public class PLC6 implements PLCInterface {
 			b.heater = ctrlHeater(b);
 			b.lights = ctrlLights(b);
 		}
-		
-		System.out.println("Current state is : " + current.state);
+				
+		boolean prevState = current.state;
+		int ind;
+		if(prevState) ind = 0;
+		else ind = 1;
+		System.out.println("Switch on block "+current.number+" moved from "+current.out[ind]); 
 		current.state = ctrlSwitch();
-		System.out.println("Switch state changed to "+ current.state);
+		if(current.state) ind = 0;
+		else ind = 1;
+		System.out.print(" to " +current.out[ind]+"\n");
 	}
 }
