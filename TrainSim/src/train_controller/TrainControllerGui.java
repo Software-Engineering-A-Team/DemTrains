@@ -256,7 +256,7 @@ public class TrainControllerGui extends JFrame {
     if (standalone) {
       textFieldCurrentSpeed.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
-          System.out.println("current speed = " + textFieldCurrentSpeed.getText());
+          //System.out.println("current speed = " + textFieldCurrentSpeed.getText());
           trainController.setCurrentSpeed(Double.parseDouble(textFieldCurrentSpeed.getText()));
         }
       });
@@ -291,6 +291,17 @@ public class TrainControllerGui extends JFrame {
     this.getContentPane().add(chckbxServiceBrake);
     
     chckbxEmergencyBrake = new JCheckBox("Emergency Brake");
+    chckbxEmergencyBrake.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        AbstractButton button = (AbstractButton) e.getSource();
+        if (button.getModel().isSelected()) {
+          trainController.setEmergencyBrake(true);
+        }
+        else {
+          trainController.setEmergencyBrake(false);
+        }
+      }
+    });
     chckbxEmergencyBrake.setBounds(266, 162, 151, 23);
     this.getContentPane().add(chckbxEmergencyBrake);
     
@@ -362,7 +373,7 @@ public class TrainControllerGui extends JFrame {
           if (trainControllers != null && trainControllers.size() > 0) {
             trainIndex = comboBoxSelectedTrain.getSelectedIndex();
             
-            System.out.println(trainIndex);
+            //System.out.println(trainIndex);
             
             if (trainIndex >= 0 && trainIndex < trainControllers.size()) {
               trainController = trainControllers.get(trainIndex);
