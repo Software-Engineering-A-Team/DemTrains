@@ -23,7 +23,7 @@ public class TrackLayout {
 	private final char trainIdPrefix;
 	private HashMap<String, StopData> yardTrainStopData = new HashMap<String,StopData>();
 
-	public TrackLayout(DirectedMultigraph<Integer, DefaultEdge> tLayout, List<TrackBlock> tBlockData,  HashMap<Integer, List<WaysideController>> controllerMap, String tPrefix) {
+	public TrackLayout(DirectedMultigraph<Integer, DefaultEdge> tLayout, List<TrackBlock> tBlockData,  HashMap<Integer, WaysideController> controllerMap, String tPrefix) {
 		layout = tLayout;
 		blockToControllerMap = controllerMap;
 		trainIdPrefix = tPrefix.toLowerCase().charAt(0);
