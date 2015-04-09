@@ -283,6 +283,7 @@ public class MBOGUI extends JFrame{
 				throughputArray[12]=Integer.parseInt(SunRtextField.getText());
 				throughputArray[13]=Integer.parseInt(SunGtextField.getText());
 				
+				
 				startTime=Integer.parseInt(startTimeTextField.getText());
 				
 				SystemWrapper.mbo.getTrainSchedule(startTime, throughputArray);
@@ -293,17 +294,17 @@ public class MBOGUI extends JFrame{
 		btnCreateSchedule.setBounds(50, 411, 208, 31);
 		createSchedPanel.add(btnCreateSchedule);
 		
-		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		springLayout.putConstraint(SpringLayout.EAST, createSchedPanel, -6, SpringLayout.WEST, tabbedPane);
-		springLayout.putConstraint(SpringLayout.NORTH, tabbedPane, 10, SpringLayout.NORTH, getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, tabbedPane, 330, SpringLayout.WEST, getContentPane());
-		springLayout.putConstraint(SpringLayout.SOUTH, tabbedPane, -10, SpringLayout.SOUTH, getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, tabbedPane, -325, SpringLayout.EAST, getContentPane());
-		getContentPane().add(tabbedPane);
+		JTabbedPane SchedulePane = new JTabbedPane(JTabbedPane.TOP);
+		springLayout.putConstraint(SpringLayout.EAST, createSchedPanel, -6, SpringLayout.WEST, SchedulePane);
+		springLayout.putConstraint(SpringLayout.NORTH, SchedulePane, 10, SpringLayout.NORTH, getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, SchedulePane, 330, SpringLayout.WEST, getContentPane());
+		springLayout.putConstraint(SpringLayout.SOUTH, SchedulePane, -10, SpringLayout.SOUTH, getContentPane());
+		springLayout.putConstraint(SpringLayout.EAST, SchedulePane, -325, SpringLayout.EAST, getContentPane());
+		getContentPane().add(SchedulePane);
 		
 		JPanel trainSchedulePanel = new JPanel();
 		trainSchedulePanel.setToolTipText("");
-		tabbedPane.addTab("Train Schedule", null, trainSchedulePanel, null);
+		SchedulePane.addTab("Train Schedule", null, trainSchedulePanel, null);
 		trainSchedulePanel.setLayout(null);
 		
 		JLabel lblTrackLine = new JLabel("Track Line:");
@@ -343,13 +344,14 @@ public class MBOGUI extends JFrame{
 		lblNewLabel_2.setBounds(133, 73, 129, 20);
 		trainSchedulePanel.add(lblNewLabel_2);
 		
-		JLabel trainScheduleDisplay = new JLabel("New label");
+		JLabel trainScheduleDisplay = new JLabel("Schedule shall appear"); //********************************
+		//trainScheduleDisplay = .setTitle(startTimeTextField.getText());
 		trainScheduleDisplay.setVerticalAlignment(SwingConstants.TOP);
 		trainScheduleDisplay.setBounds(10, 109, 548, 472);
 		trainSchedulePanel.add(trainScheduleDisplay);
 		
 		JPanel crewSchedulePanel = new JPanel();
-		tabbedPane.addTab("Crew Schedule", null, crewSchedulePanel, null);
+		SchedulePane.addTab("Crew Schedule", null, crewSchedulePanel, null);
 		crewSchedulePanel.setLayout(null);
 		
 		JLabel lblNewLabel_3 = new JLabel("Day of Week:");
@@ -381,15 +383,15 @@ public class MBOGUI extends JFrame{
 		lblNewLabel_6.setBounds(440, 68, 106, 20);
 		crewSchedulePanel.add(lblNewLabel_6);
 		
-		JTabbedPane tabbedPane_1 = new JTabbedPane(JTabbedPane.TOP);
-		springLayout.putConstraint(SpringLayout.NORTH, tabbedPane_1, 46, SpringLayout.NORTH, getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, tabbedPane_1, 6, SpringLayout.EAST, tabbedPane);
-		springLayout.putConstraint(SpringLayout.SOUTH, tabbedPane_1, 0, SpringLayout.SOUTH, tabbedPane);
-		springLayout.putConstraint(SpringLayout.EAST, tabbedPane_1, 315, SpringLayout.EAST, tabbedPane);
-		getContentPane().add(tabbedPane_1);
+		JTabbedPane SafeMBOAuthoPane = new JTabbedPane(JTabbedPane.TOP);
+		springLayout.putConstraint(SpringLayout.NORTH, SafeMBOAuthoPane, 46, SpringLayout.NORTH, getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, SafeMBOAuthoPane, 6, SpringLayout.EAST, SchedulePane);
+		springLayout.putConstraint(SpringLayout.SOUTH, SafeMBOAuthoPane, 0, SpringLayout.SOUTH, SchedulePane);
+		springLayout.putConstraint(SpringLayout.EAST, SafeMBOAuthoPane, 315, SpringLayout.EAST, SchedulePane);
+		getContentPane().add(SafeMBOAuthoPane);
 		
 		JPanel RedLinePanel = new JPanel();
-		tabbedPane_1.addTab("Red Line", null, RedLinePanel, null);
+		SafeMBOAuthoPane.addTab("Red Line", null, RedLinePanel, null);
 		RedLinePanel.setLayout(new MigLayout("", "[grow]", "[grow]"));
 		
 		JScrollPane RedLinescrollPane = new JScrollPane();
@@ -399,7 +401,7 @@ public class MBOGUI extends JFrame{
 		RedLinescrollPane.setViewportView(SafeAuthTableR);
 		
 		JPanel GreenLinePanel = new JPanel();
-		tabbedPane_1.addTab("Green Line", null, GreenLinePanel, null);
+		SafeMBOAuthoPane.addTab("Green Line", null, GreenLinePanel, null);
 		GreenLinePanel.setLayout(new MigLayout("", "[grow]", "[grow]"));
 		
 		JScrollPane GreenLinescrollPane = new JScrollPane();
@@ -409,8 +411,8 @@ public class MBOGUI extends JFrame{
 		GreenLinescrollPane.setViewportView(SafeAuthTableG);
 		
 		JLabel label_8 = new JLabel("Safe Moving Block Authority:");
-		springLayout.putConstraint(SpringLayout.WEST, label_8, 32, SpringLayout.EAST, tabbedPane);
-		springLayout.putConstraint(SpringLayout.SOUTH, label_8, -6, SpringLayout.NORTH, tabbedPane_1);
+		springLayout.putConstraint(SpringLayout.WEST, label_8, 32, SpringLayout.EAST, SchedulePane);
+		springLayout.putConstraint(SpringLayout.SOUTH, label_8, -6, SpringLayout.NORTH, SafeMBOAuthoPane);
 		label_8.setFont(new Font("Tahoma", Font.BOLD, 18));
 		getContentPane().add(label_8);
 		
