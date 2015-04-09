@@ -71,7 +71,6 @@ public class TrackLayout {
 	 * Returns false if a train with that name already exists.
 	 */
 	public boolean dispatchTrain(String trainName, StopData stopData) {
-		//TODO
 		// add the train to the dispatch queue at the yard
 	    Yard y = (Yard) blockData.get(0);
 		y.addTrainToQueue(trainName);
@@ -106,7 +105,6 @@ public class TrackLayout {
 	 * gets a list of all the trains currently on the track
 	 */
 	public ArrayList<Train> getAllTrains() {
-		// TODO: call get all trains from the train router
 		return trainRouter.getAllTrains();
 	}
 	
@@ -151,15 +149,8 @@ public class TrackLayout {
 	 * Manually routes a train to its destination block at the user specified speed.
 	 * Only trains created manually can be manually routed.
 	 */
-	public boolean manuallyRouteTrain(String trainId, int destinationBlock, double speed, double authority) {
-		// TODO
-		// create the route using the TrainRouter
-		
-		
-		// tell the wayside controller to move the train
-		
-		// handle the error by updating the route the train actually took
-		
+	public boolean manuallyRouteTrain(String trainName, int destinationBlock, double speed, double authority) {
+		trainRouter.updateTrainDestination(trainName, destinationBlock, speed, authority);		
 		return true;
 	}
 
