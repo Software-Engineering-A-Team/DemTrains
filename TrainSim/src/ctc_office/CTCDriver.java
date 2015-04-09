@@ -131,7 +131,7 @@ public class CTCDriver {
 	 * Calculates all of the new distances at once
 	 */
 	public boolean setActualTrainLocations(String lineName, HashMap<String, Double> trainDistanceMap) {
-		lines.get(lineName).setActualTrainLocations(trainDistanceMap);
+		//lines.get(lineName).setActualTrainLocations(trainDistanceMap);
 		return true;
 	}
 

@@ -30,7 +30,7 @@ public static void main(String[] args) {
         }
       }
     });
-    EventQueue.invokeLater(new Runnable() {
+    Thread t = new Thread(new Runnable() {
         public void run() {
             long time = System.nanoTime();
             while (true) {
@@ -63,9 +63,13 @@ public static void main(String[] args) {
 					e.printStackTrace();
 				}
             	time = System.nanoTime();
+            	
+            	
             }
         }
       });
+    
+    t.start();
   }
   
   public SystemGui() {

@@ -397,11 +397,12 @@ public class MBOGUI extends JFrame{
 		trainComboBox.setBounds(484, 17, 72, 26);
 		trainSchedulePanel.add(trainComboBox);
 		
+		/*
 		JLabel lblNewLabel_1 = new JLabel("Station:");
 		lblNewLabel_1.setFont(new Font("Tahoma", Font.BOLD, 17));
 		lblNewLabel_1.setBounds(10, 73, 69, 20);
 		trainSchedulePanel.add(lblNewLabel_1);
-		
+		*/
 		JLabel lblNewLabel_2 = new JLabel("Arrival Times:");
 		lblNewLabel_2.setFont(new Font("Tahoma", Font.BOLD, 17));
 		lblNewLabel_2.setBounds(133, 73, 129, 20);
