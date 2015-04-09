@@ -15,11 +15,11 @@ public class SystemWrapper {
   public static SimClock simClock = new SimClock(10);
   public static CTCDriver ctcOffice = new CTCDriver();
   public static ArrayList<TrainModel> trainModels = new ArrayList<TrainModel>();
-  public static ArrayList<TrainController> trainControllers = new ArrayList<TrainController>();
   public static TrackModel trackMod = new TrackModel();
   public static WaysideSystem waysideSys = new WaysideSystem(trackMod);
   public static MovingBlockOverlay mbo = new MovingBlockOverlay();
   public static JFrame trackControllerGui = new TrackControllerGUI(waysideSys, true);
-  public static JFrame trainControllerGui = new TrainControllerGui(trainControllers);
+  public static JFrame trainControllerGui = new TrainControllerGui();
   public static JFrame ctcGUI = new CTCGUI();
+  public static JFrame mboGUI = new MBOGUI();
 }
