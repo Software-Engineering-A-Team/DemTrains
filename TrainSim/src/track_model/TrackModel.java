@@ -198,17 +198,18 @@ public class TrackModel {
 				trackLayout.blocks.add(block);
 				System.out.printf("Adding block number %d to TrackLayout layout graph.\n", block.number);
 				trackLayout.layout.addVertex(block.number);
-				// populate the switch-block number reference map with this TrackSwitch object
-//				if (block.infrastructure != null && block.infrastructure.equals("switch")) {
-//					System.out.printf("Adding a switch #%d to block #%d reference to TrackLayout.\n", block.connectsToSwitch, block.number);
-//					trackLayout.switchToBlocks.put(block.connectsToSwitch, block.number);
-//				}
                 // add the new TrackBlock object to the current section of blocks
                 System.out.printf("Adding block number %d to TrackSection with name %s.\n", block.number, sectionName);
                 section.blocks.add(block);
 				row = file.readLine();
 			}
-	        // connect all of the blocks within sections and to switches
+			String firstDirection = section.blocks.get(0).direction;
+            String lastDirection = section.blocks.get(section.blocks.size() - 1).direction;
+            // calculate the direction of travel for the whole section
+            section.leastToGreatest = lastDirection.equals("head") || lastDirection.equals("tail/head") || lastDirection.equals("head/head");
+            section.greatestToLeast = firstDirection.equals("head") || firstDirection.equals("head/tail") || firstDirection.equals("head/head");
+            System.out.printf("For section %s, leastToGreatest is %b and greatestToLeast is %b.\n", sectionName, section.leastToGreatest, section.greatestToLeast);
+            // connect all of the blocks within sections and to switches
 	        trackLayout.connectBlocks();
 			System.out.printf("Successfully loaded track data file with filename %s.\n", filename);
 		} catch (FileNotFoundException e) {

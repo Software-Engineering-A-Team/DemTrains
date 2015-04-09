@@ -43,36 +43,46 @@ public class TrackLayout {
                     TrackBlock nextBlock = section.blocks.get(j + 1);
                     System.out.printf("And grabbing nextBlock #%d...\n", nextBlock.number);
                     // add edges between consecutive blocks in this section
-                    if (section.leastToGreatest && !layout.containsEdge(block.number, nextBlock.number)) {
-            			System.out.printf("Connecting block #%d and block #%d.\n", block.number, nextBlock.number);
-                        layout.addEdge(block.number, nextBlock.number);
+                    if (section.leastToGreatest) {
+                    	connectBlocks(block.number, nextBlock.number);
                     }
-                    if (section.greatestToLeast && !layout.containsEdge(nextBlock.number, block.number)) {
-            			System.out.printf("Connecting block #%d and block #%d.\n", nextBlock.number, block.number);
-                        layout.addEdge(nextBlock.number, block.number);
+                    if (section.greatestToLeast) {
+                    	connectBlocks(nextBlock.number, block.number);
                     }
                 }
                 // if this is the first or last block in the section, we need to connect to the next/previous section
                 if (block.connectsTo != null) {
                 	System.out.printf("Block #%d connects to another section...\n", block.number);
-                	for (int k = 0; k < block.connectsTo.length; k++) {
-                		System.out.printf("...block #%d.\n", block.connectsTo[k]);
-                		// add edges between the section-connecting TrackBlocks in this section
-                		// TODO: simplify this logic down (possible?)
+                	// special case for single blocked sections which requires distinction between previous/next blocks
+                	if (section.blocks.size() == 1) {
                 		if (section.leastToGreatest) {
-                			if (j == 0) {
-                				connectBlocks(block.connectsTo[k], block.number);
-                			} else {
-                				connectBlocks(block.number, block.connectsTo[k]);
-                			}
+                			connectBlocks(block.connectsTo[0], block.number);
+                			connectBlocks(block.number, block.connectsTo[1]);
                 		}
                 		if (section.greatestToLeast) {
-                			if (j == 0) {
-                				connectBlocks(block.number, block.connectsTo[k]);
-                			} else {
-                				connectBlocks(block.connectsTo[k], block.number);
-                			}
+                			connectBlocks(block.connectsTo[1], block.number);
+                			connectBlocks(block.number, block.connectsTo[0]);
                 		}
+                	} else {
+	                	for (int k = 0; k < block.connectsTo.length; k++) {
+	                		System.out.printf("...block #%d.\n", block.connectsTo[k]);
+	                		// add edges between the section-connecting TrackBlocks in this section
+	                		// TODO: simplify this logic down (possible?)
+	                		if (section.leastToGreatest) {
+	                			if (j == 0) {
+	                				connectBlocks(block.connectsTo[k], block.number);
+	                			} else {
+	                				connectBlocks(block.number, block.connectsTo[k]);
+	                			}
+	                		}
+	                		if (section.greatestToLeast) {
+	                			if (j == 0) {
+	                				connectBlocks(block.number, block.connectsTo[k]);
+	                			} else {
+	                				connectBlocks(block.connectsTo[k], block.number);
+	                			}
+	                		}
+	                	}
                 	}
                 }
             }
@@ -84,7 +94,7 @@ public class TrackLayout {
      */ 
     public void connectBlocks(int source, int target) {
     	if (!layout.containsEdge(source, target)) {
-    		System.out.printf("Connecting sections using block #%d to block #%d.\n", source, target);
+    		System.out.printf("Adding edge between block #%d --> block #%d.\n", source, target);
     		layout.addEdge(source, target);
     	}
     }
