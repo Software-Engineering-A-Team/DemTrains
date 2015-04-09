@@ -74,7 +74,12 @@ public class TrainModel {
 		this.trainID = number;
 		this.trainName = name;
 		
-		this.controller = new TrainController();
+		// If train is NOT spawned by standalone TrainModel GUI, 
+		// create a train controller and add to system list
+		if (!this.trainName.equals("SingleTrain")){
+			this.controller = new TrainController();
+			SystemWrapper.trainControllers.add(this.controller);
+		}
 	}
 	
 	// public getter & setter methods

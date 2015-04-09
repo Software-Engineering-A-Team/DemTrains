@@ -22,17 +22,25 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+
 import javax.swing.JComboBox;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 
+import system_wrapper.SystemWrapper;
+import track_model.TrackBlock;
+
 
 public class TrainModelGUI extends JFrame {
 	ArrayList<TrainModel> trainList = null;
-	String sysMode = null;
+	String sysModeStr = null;
+	boolean guiMode;
+	
+	// TrainModel to control / monitor using the GUI
+	TrainModel currTrain = null;
 	
 	private JPanel contentPane;
-	private JTextField txtEnterPowerHere;
+	private JTextField txtSetPower;
 
 	/**
 	 * Launch the application.
@@ -54,17 +62,17 @@ public class TrainModelGUI extends JFrame {
 	 * Create the frame.
 	 */
 	public TrainModelGUI(boolean mode) {
-		//this.trainList = trains;
-		if (mode == true) {
-			// TODO: Set a label indicating TrainModelGUI is in system mode
-			this.sysMode = "System mode (multiple trains)";
-			// TODO: Need to grab the system's collection of trains
-		} else {
-			// TODO: Set a label indicating TrainModelGUI is in standalone mode
-			this.sysMode = "Standalone mode (single train)";
+		this.guiMode = mode;
+		// Setup the GUI system variables depending on how it was started
+		if (this.guiMode == true) {
+			this.sysModeStr = "System mode (multiple trains)";
+			this.trainList = SystemWrapper.trainModels;
+		} else if (this.guiMode == false) {
+			this.sysModeStr = "Standalone mode (single train)";
+			this.trainList = new ArrayList<TrainModel>(1);
+			this.trainList.add(new TrainModel("SingleTrain", (short)1));
 		}
 		
-	//public TrainModelGUI() {	
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 750, 650);
 		
@@ -112,7 +120,7 @@ public class TrainModelGUI extends JFrame {
 		gbc_lblTrainModelInterface.gridy = 0;
 		contentPane.add(lblTrainModelInterface, gbc_lblTrainModelInterface);
 		
-		JLabel lblMode = new JLabel(sysMode);
+		JLabel lblMode = new JLabel(sysModeStr);
 		GridBagConstraints gbc_lblMode = new GridBagConstraints();
 		gbc_lblMode.insets = new Insets(0, 0, 5, 5);
 		gbc_lblMode.gridx = 0;
@@ -127,6 +135,11 @@ public class TrainModelGUI extends JFrame {
 		contentPane.add(lblTrainModelSelector, gbc_lblTrainModelSelector);
 		
 		JComboBox comboBox = new JComboBox();
+		
+		// TODO: Setup ComboBox to provide a list of trains for user to select
+		
+		
+		
 		GridBagConstraints gbc_comboBox = new GridBagConstraints();
 		gbc_comboBox.insets = new Insets(0, 0, 5, 0);
 		gbc_comboBox.fill = GridBagConstraints.HORIZONTAL;
@@ -141,12 +154,12 @@ public class TrainModelGUI extends JFrame {
 		gbc_lblCurrentPower.gridy = 3;
 		contentPane.add(lblCurrentPower, gbc_lblCurrentPower);
 		
-		JLabel label = new JLabel("0000");
-		GridBagConstraints gbc_label = new GridBagConstraints();
-		gbc_label.insets = new Insets(0, 0, 5, 5);
-		gbc_label.gridx = 1;
-		gbc_label.gridy = 3;
-		contentPane.add(label, gbc_label);
+		JLabel currPowLabel = new JLabel("0000");
+		GridBagConstraints gbc_currPowLabel = new GridBagConstraints();
+		gbc_currPowLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_currPowLabel.gridx = 1;
+		gbc_currPowLabel.gridy = 3;
+		contentPane.add(currPowLabel, gbc_currPowLabel);
 		
 		JLabel lblForce = new JLabel("Force:");
 		GridBagConstraints gbc_lblForce = new GridBagConstraints();
@@ -155,12 +168,12 @@ public class TrainModelGUI extends JFrame {
 		gbc_lblForce.gridy = 4;
 		contentPane.add(lblForce, gbc_lblForce);
 		
-		JLabel label_1 = new JLabel("0000");
-		GridBagConstraints gbc_label_1 = new GridBagConstraints();
-		gbc_label_1.insets = new Insets(0, 0, 5, 5);
-		gbc_label_1.gridx = 1;
-		gbc_label_1.gridy = 4;
-		contentPane.add(label_1, gbc_label_1);
+		JLabel currForceLabel = new JLabel("0000");
+		GridBagConstraints gbc_currForceLabel = new GridBagConstraints();
+		gbc_currForceLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_currForceLabel.gridx = 1;
+		gbc_currForceLabel.gridy = 4;
+		contentPane.add(currForceLabel, gbc_currForceLabel);
 		
 		JLabel lblSimulationControls = new JLabel("Simulation Controls");
 		GridBagConstraints gbc_lblSimulationControls = new GridBagConstraints();
@@ -176,12 +189,12 @@ public class TrainModelGUI extends JFrame {
 		gbc_lblAcceleration.gridy = 5;
 		contentPane.add(lblAcceleration, gbc_lblAcceleration);
 		
-		JLabel label_2 = new JLabel("0000");
-		GridBagConstraints gbc_label_2 = new GridBagConstraints();
-		gbc_label_2.insets = new Insets(0, 0, 5, 5);
-		gbc_label_2.gridx = 1;
-		gbc_label_2.gridy = 5;
-		contentPane.add(label_2, gbc_label_2);
+		JLabel currAccelLabel = new JLabel("0000");
+		GridBagConstraints gbc_currAccelLabel = new GridBagConstraints();
+		gbc_currAccelLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_currAccelLabel.gridx = 1;
+		gbc_currAccelLabel.gridy = 5;
+		contentPane.add(currAccelLabel, gbc_currAccelLabel);
 		
 		JLabel lblVelocity = new JLabel("Velocity:");
 		GridBagConstraints gbc_lblVelocity = new GridBagConstraints();
@@ -190,12 +203,12 @@ public class TrainModelGUI extends JFrame {
 		gbc_lblVelocity.gridy = 6;
 		contentPane.add(lblVelocity, gbc_lblVelocity);
 		
-		JLabel label_3 = new JLabel("0000");
-		GridBagConstraints gbc_label_3 = new GridBagConstraints();
-		gbc_label_3.insets = new Insets(0, 0, 5, 5);
-		gbc_label_3.gridx = 1;
-		gbc_label_3.gridy = 6;
-		contentPane.add(label_3, gbc_label_3);
+		JLabel currVelocityLabel = new JLabel("0000");
+		GridBagConstraints gbc_currVelocityLabel = new GridBagConstraints();
+		gbc_currVelocityLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_currVelocityLabel.gridx = 1;
+		gbc_currVelocityLabel.gridy = 6;
+		contentPane.add(currVelocityLabel, gbc_currVelocityLabel);
 		
 		JButton btnEngineFailure = new JButton("Engine Failure");
 		GridBagConstraints gbc_btnEngineFailure = new GridBagConstraints();
@@ -211,12 +224,12 @@ public class TrainModelGUI extends JFrame {
 		gbc_lblPosition.gridy = 7;
 		contentPane.add(lblPosition, gbc_lblPosition);
 		
-		JLabel label_4 = new JLabel("0000");
-		GridBagConstraints gbc_label_4 = new GridBagConstraints();
-		gbc_label_4.insets = new Insets(0, 0, 5, 5);
-		gbc_label_4.gridx = 1;
-		gbc_label_4.gridy = 7;
-		contentPane.add(label_4, gbc_label_4);
+		JLabel currPositionLabel = new JLabel("0000");
+		GridBagConstraints gbc_currPositionLabel = new GridBagConstraints();
+		gbc_currPositionLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_currPositionLabel.gridx = 1;
+		gbc_currPositionLabel.gridy = 7;
+		contentPane.add(currPositionLabel, gbc_currPositionLabel);
 		
 		JButton btnRestoreEngine = new JButton("Restore Engine");
 		GridBagConstraints gbc_btnRestoreEngine = new GridBagConstraints();
@@ -239,12 +252,12 @@ public class TrainModelGUI extends JFrame {
 		gbc_lblPassengerCount.gridy = 9;
 		contentPane.add(lblPassengerCount, gbc_lblPassengerCount);
 		
-		JLabel label_5 = new JLabel("0");
-		GridBagConstraints gbc_label_5 = new GridBagConstraints();
-		gbc_label_5.insets = new Insets(0, 0, 5, 5);
-		gbc_label_5.gridx = 1;
-		gbc_label_5.gridy = 9;
-		contentPane.add(label_5, gbc_label_5);
+		JLabel crewCountLabel = new JLabel("0");
+		GridBagConstraints gbc_crewCountLabel = new GridBagConstraints();
+		gbc_crewCountLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_crewCountLabel.gridx = 1;
+		gbc_crewCountLabel.gridy = 9;
+		contentPane.add(crewCountLabel, gbc_crewCountLabel);
 		
 		JButton btnRestoreBrakes = new JButton("Restore Brakes");
 		GridBagConstraints gbc_btnRestoreBrakes = new GridBagConstraints();
@@ -260,12 +273,12 @@ public class TrainModelGUI extends JFrame {
 		gbc_lblCrewCount.gridy = 10;
 		contentPane.add(lblCrewCount, gbc_lblCrewCount);
 		
-		JLabel label_6 = new JLabel("0");
-		GridBagConstraints gbc_label_6 = new GridBagConstraints();
-		gbc_label_6.insets = new Insets(0, 0, 5, 5);
-		gbc_label_6.gridx = 1;
-		gbc_label_6.gridy = 10;
-		contentPane.add(label_6, gbc_label_6);
+		JLabel passCountLabel = new JLabel("0");
+		GridBagConstraints gbc_passCountLabel = new GridBagConstraints();
+		gbc_passCountLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_passCountLabel.gridx = 1;
+		gbc_passCountLabel.gridy = 10;
+		contentPane.add(passCountLabel, gbc_passCountLabel);
 		
 		JButton btnSigPickupFailure = new JButton("Sig. Pickup Failure");
 		GridBagConstraints gbc_btnSigPickupFailure = new GridBagConstraints();
@@ -288,12 +301,12 @@ public class TrainModelGUI extends JFrame {
 		gbc_lblLeftDoors.gridy = 12;
 		contentPane.add(lblLeftDoors, gbc_lblLeftDoors);
 		
-		JLabel lblClosed = new JLabel("Closed");
-		GridBagConstraints gbc_lblClosed = new GridBagConstraints();
-		gbc_lblClosed.insets = new Insets(0, 0, 5, 5);
-		gbc_lblClosed.gridx = 1;
-		gbc_lblClosed.gridy = 12;
-		contentPane.add(lblClosed, gbc_lblClosed);
+		JLabel leftDoorLabel = new JLabel("Closed");
+		GridBagConstraints gbc_leftDoorLabel = new GridBagConstraints();
+		gbc_leftDoorLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_leftDoorLabel.gridx = 1;
+		gbc_leftDoorLabel.gridy = 12;
+		contentPane.add(leftDoorLabel, gbc_leftDoorLabel);
 		
 		JLabel lblRightDoors = new JLabel("Right Doors:");
 		GridBagConstraints gbc_lblRightDoors = new GridBagConstraints();
@@ -302,12 +315,12 @@ public class TrainModelGUI extends JFrame {
 		gbc_lblRightDoors.gridy = 13;
 		contentPane.add(lblRightDoors, gbc_lblRightDoors);
 		
-		JLabel lblClosed_1 = new JLabel("Closed");
-		GridBagConstraints gbc_lblClosed_1 = new GridBagConstraints();
-		gbc_lblClosed_1.insets = new Insets(0, 0, 5, 5);
-		gbc_lblClosed_1.gridx = 1;
-		gbc_lblClosed_1.gridy = 13;
-		contentPane.add(lblClosed_1, gbc_lblClosed_1);
+		JLabel rightDoorLabel = new JLabel("Closed");
+		GridBagConstraints gbc_rightDoorLabel = new GridBagConstraints();
+		gbc_rightDoorLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_rightDoorLabel.gridx = 1;
+		gbc_rightDoorLabel.gridy = 13;
+		contentPane.add(rightDoorLabel, gbc_rightDoorLabel);
 		
 		JLabel lblSetPowerCommand = new JLabel("Set Power Command:");
 		GridBagConstraints gbc_lblSetPowerCommand = new GridBagConstraints();
@@ -323,21 +336,21 @@ public class TrainModelGUI extends JFrame {
 		gbc_lblLights.gridy = 14;
 		contentPane.add(lblLights, gbc_lblLights);
 		
-		JLabel lblOff = new JLabel("Off");
-		GridBagConstraints gbc_lblOff = new GridBagConstraints();
-		gbc_lblOff.insets = new Insets(0, 0, 5, 5);
-		gbc_lblOff.gridx = 1;
-		gbc_lblOff.gridy = 14;
-		contentPane.add(lblOff, gbc_lblOff);
+		JLabel lightsLabel = new JLabel("Off");
+		GridBagConstraints gbc_lightsLabel = new GridBagConstraints();
+		gbc_lightsLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_lightsLabel.gridx = 1;
+		gbc_lightsLabel.gridy = 14;
+		contentPane.add(lightsLabel, gbc_lightsLabel);
 		
-		txtEnterPowerHere = new JTextField();
-		txtEnterPowerHere.setText("Enter power(kW)");
-		GridBagConstraints gbc_txtEnterPowerHere = new GridBagConstraints();
-		gbc_txtEnterPowerHere.insets = new Insets(0, 0, 5, 0);
-		gbc_txtEnterPowerHere.gridx = 4;
-		gbc_txtEnterPowerHere.gridy = 14;
-		contentPane.add(txtEnterPowerHere, gbc_txtEnterPowerHere);
-		txtEnterPowerHere.setColumns(10);
+		txtSetPower = new JTextField();
+		txtSetPower.setText("Enter power(kW)");
+		GridBagConstraints gbc_txtSetPower = new GridBagConstraints();
+		gbc_txtSetPower.insets = new Insets(0, 0, 5, 0);
+		gbc_txtSetPower.gridx = 4;
+		gbc_txtSetPower.gridy = 14;
+		contentPane.add(txtSetPower, gbc_txtSetPower);
+		txtSetPower.setColumns(10);
 		
 		JLabel lblBeacon = new JLabel("Beacon:");
 		GridBagConstraints gbc_lblBeacon = new GridBagConstraints();
@@ -346,12 +359,12 @@ public class TrainModelGUI extends JFrame {
 		gbc_lblBeacon.gridy = 15;
 		contentPane.add(lblBeacon, gbc_lblBeacon);
 		
-		JLabel lblMsg = new JLabel("Msg");
-		GridBagConstraints gbc_lblMsg = new GridBagConstraints();
-		gbc_lblMsg.insets = new Insets(0, 0, 5, 5);
-		gbc_lblMsg.gridx = 1;
-		gbc_lblMsg.gridy = 15;
-		contentPane.add(lblMsg, gbc_lblMsg);
+		JLabel beaconLabel = new JLabel("Msg");
+		GridBagConstraints gbc_beaconLabel = new GridBagConstraints();
+		gbc_beaconLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_beaconLabel.gridx = 1;
+		gbc_beaconLabel.gridy = 15;
+		contentPane.add(beaconLabel, gbc_beaconLabel);
 		
 		JButton btnSetPower = new JButton("Set Power");
 		GridBagConstraints gbc_btnSetPower = new GridBagConstraints();
@@ -367,12 +380,12 @@ public class TrainModelGUI extends JFrame {
 		gbc_lblServiceBrake.gridy = 16;
 		contentPane.add(lblServiceBrake, gbc_lblServiceBrake);
 		
-		JLabel lblstatus = new JLabel("[Status]");
-		GridBagConstraints gbc_lblstatus = new GridBagConstraints();
-		gbc_lblstatus.insets = new Insets(0, 0, 5, 5);
-		gbc_lblstatus.gridx = 1;
-		gbc_lblstatus.gridy = 16;
-		contentPane.add(lblstatus, gbc_lblstatus);
+		JLabel sBrakeLabel = new JLabel("[Status]");
+		GridBagConstraints gbc_sBrakeLabel = new GridBagConstraints();
+		gbc_sBrakeLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_sBrakeLabel.gridx = 1;
+		gbc_sBrakeLabel.gridy = 16;
+		contentPane.add(sBrakeLabel, gbc_sBrakeLabel);
 		
 		JLabel lblEmergencyBrake = new JLabel("Emergency Brake:");
 		GridBagConstraints gbc_lblEmergencyBrake = new GridBagConstraints();
@@ -381,12 +394,12 @@ public class TrainModelGUI extends JFrame {
 		gbc_lblEmergencyBrake.gridy = 17;
 		contentPane.add(lblEmergencyBrake, gbc_lblEmergencyBrake);
 		
-		JLabel lblstatus_1 = new JLabel("[Status]");
-		GridBagConstraints gbc_lblstatus_1 = new GridBagConstraints();
-		gbc_lblstatus_1.insets = new Insets(0, 0, 5, 5);
-		gbc_lblstatus_1.gridx = 1;
-		gbc_lblstatus_1.gridy = 17;
-		contentPane.add(lblstatus_1, gbc_lblstatus_1);
+		JLabel eBrakeLabel = new JLabel("[Status]");
+		GridBagConstraints gbc_eBrakeLabel = new GridBagConstraints();
+		gbc_eBrakeLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_eBrakeLabel.gridx = 1;
+		gbc_eBrakeLabel.gridy = 17;
+		contentPane.add(eBrakeLabel, gbc_eBrakeLabel);
 		
 		JLabel lblEngineStatus = new JLabel("Engine Status:");
 		GridBagConstraints gbc_lblEngineStatus = new GridBagConstraints();
@@ -395,12 +408,12 @@ public class TrainModelGUI extends JFrame {
 		gbc_lblEngineStatus.gridy = 18;
 		contentPane.add(lblEngineStatus, gbc_lblEngineStatus);
 		
-		JLabel lblstatus_2 = new JLabel("[Status]");
-		GridBagConstraints gbc_lblstatus_2 = new GridBagConstraints();
-		gbc_lblstatus_2.insets = new Insets(0, 0, 5, 5);
-		gbc_lblstatus_2.gridx = 1;
-		gbc_lblstatus_2.gridy = 18;
-		contentPane.add(lblstatus_2, gbc_lblstatus_2);
+		JLabel engineStatusLabel = new JLabel("[Status]");
+		GridBagConstraints gbc_engineStatusLabel = new GridBagConstraints();
+		gbc_engineStatusLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_engineStatusLabel.gridx = 1;
+		gbc_engineStatusLabel.gridy = 18;
+		contentPane.add(engineStatusLabel, gbc_engineStatusLabel);
 		
 		JLabel lblBrakeStatus = new JLabel("Brake Status:");
 		GridBagConstraints gbc_lblBrakeStatus = new GridBagConstraints();
@@ -409,12 +422,12 @@ public class TrainModelGUI extends JFrame {
 		gbc_lblBrakeStatus.gridy = 19;
 		contentPane.add(lblBrakeStatus, gbc_lblBrakeStatus);
 		
-		JLabel lblstatus_3 = new JLabel("[Status]");
-		GridBagConstraints gbc_lblstatus_3 = new GridBagConstraints();
-		gbc_lblstatus_3.insets = new Insets(0, 0, 5, 5);
-		gbc_lblstatus_3.gridx = 1;
-		gbc_lblstatus_3.gridy = 19;
-		contentPane.add(lblstatus_3, gbc_lblstatus_3);
+		JLabel brakeStatusLabel = new JLabel("[Status]");
+		GridBagConstraints gbc_brakeStatusLabel = new GridBagConstraints();
+		gbc_brakeStatusLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_brakeStatusLabel.gridx = 1;
+		gbc_brakeStatusLabel.gridy = 19;
+		contentPane.add(brakeStatusLabel, gbc_brakeStatusLabel);
 		
 		JLabel lblSignalPickupStatus = new JLabel("Signal Pickup Status:");
 		GridBagConstraints gbc_lblSignalPickupStatus = new GridBagConstraints();
@@ -423,12 +436,12 @@ public class TrainModelGUI extends JFrame {
 		gbc_lblSignalPickupStatus.gridy = 20;
 		contentPane.add(lblSignalPickupStatus, gbc_lblSignalPickupStatus);
 		
-		JLabel lblstatus_4 = new JLabel("[Status]");
-		GridBagConstraints gbc_lblstatus_4 = new GridBagConstraints();
-		gbc_lblstatus_4.insets = new Insets(0, 0, 5, 5);
-		gbc_lblstatus_4.gridx = 1;
-		gbc_lblstatus_4.gridy = 20;
-		contentPane.add(lblstatus_4, gbc_lblstatus_4);
+		JLabel sigPickupLabel = new JLabel("[Status]");
+		GridBagConstraints gbc_sigPickupLabel = new GridBagConstraints();
+		gbc_sigPickupLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_sigPickupLabel.gridx = 1;
+		gbc_sigPickupLabel.gridy = 20;
+		contentPane.add(sigPickupLabel, gbc_sigPickupLabel);
 	}
 
 }
