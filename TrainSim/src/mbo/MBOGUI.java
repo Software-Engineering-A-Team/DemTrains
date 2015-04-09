@@ -282,37 +282,12 @@ public class MBOGUI extends JFrame{
 		btnCreateSchedule.setBounds(50, 411, 208, 31);
 		createSchedPanel.add(btnCreateSchedule);
 		
-		JPanel displaySafeAuthPanel = new JPanel();
-		springLayout.putConstraint(SpringLayout.NORTH, displaySafeAuthPanel, 10, SpringLayout.NORTH, getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, displaySafeAuthPanel, -24, SpringLayout.EAST, getContentPane());
-		getContentPane().add(displaySafeAuthPanel);
-		displaySafeAuthPanel.setLayout(new MigLayout("", "[][][grow][]", "[][][]"));
-		
-		JLabel lblTrainSafeMoving = new JLabel("Safe Moving Block Authority:");
-		lblTrainSafeMoving.setFont(new Font("Tahoma", Font.BOLD, 18));
-		displaySafeAuthPanel.add(lblTrainSafeMoving, "cell 0 0 3 1");
-		
-		Component verticalStrut = Box.createVerticalStrut(20);
-		displaySafeAuthPanel.add(verticalStrut, "cell 0 1");
-		
-		JLabel lblTrackLine_1 = new JLabel("Track Line:");
-		displaySafeAuthPanel.add(lblTrackLine_1, "cell 0 2,alignx trailing");
-		
-		Component horizontalStrut = Box.createHorizontalStrut(20);
-		displaySafeAuthPanel.add(horizontalStrut, "cell 1 2");
-		
-		JComboBox comboBox_3 = new JComboBox();
-		comboBox_3.setModel(new DefaultComboBoxModel(new String[] {"Red Line", "Green Line"}));
-		displaySafeAuthPanel.add(comboBox_3, "cell 2 2,growx");
-		
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		springLayout.putConstraint(SpringLayout.EAST, createSchedPanel, -6, SpringLayout.WEST, tabbedPane);
 		springLayout.putConstraint(SpringLayout.NORTH, tabbedPane, 10, SpringLayout.NORTH, getContentPane());
 		springLayout.putConstraint(SpringLayout.WEST, tabbedPane, 330, SpringLayout.WEST, getContentPane());
 		springLayout.putConstraint(SpringLayout.SOUTH, tabbedPane, -10, SpringLayout.SOUTH, getContentPane());
 		springLayout.putConstraint(SpringLayout.EAST, tabbedPane, -325, SpringLayout.EAST, getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, displaySafeAuthPanel, 6, SpringLayout.EAST, tabbedPane);
-		springLayout.putConstraint(SpringLayout.SOUTH, displaySafeAuthPanel, 0, SpringLayout.SOUTH, tabbedPane);
 		getContentPane().add(tabbedPane);
 		
 		JPanel trainSchedulePanel = new JPanel();
@@ -324,23 +299,119 @@ public class MBOGUI extends JFrame{
 		lblTrackLine.setBounds(10, 20, 79, 20);
 		trainSchedulePanel.add(lblTrackLine);
 		
-		JComboBox comboBox_1 = new JComboBox();
-		comboBox_1.setBounds(95, 15, 107, 26);
-		comboBox_1.setModel(new DefaultComboBoxModel(new String[] {"Red Line", "Green Line"}));
-		trainSchedulePanel.add(comboBox_1);
+		JComboBox trackLineComboBox = new JComboBox();
+		trackLineComboBox.setBounds(95, 15, 107, 26);
+		trackLineComboBox.setModel(new DefaultComboBoxModel(new String[] {"Red Line", "Green Line"}));
+		trainSchedulePanel.add(trackLineComboBox);
 		
 		JLabel lblNewLabel = new JLabel("Day of Week:");
-		lblNewLabel.setBounds(230, 20, 95, 20);
+		lblNewLabel.setBounds(215, 20, 95, 20);
 		trainSchedulePanel.add(lblNewLabel);
 		
-		JComboBox comboBox_2 = new JComboBox();
-		comboBox_2.setBounds(330, 15, 111, 26);
-		comboBox_2.setModel(new DefaultComboBoxModel(new String[] {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"}));
-		trainSchedulePanel.add(comboBox_2);
+		JComboBox dayOfWeekComboBox = new JComboBox();
+		dayOfWeekComboBox.setBounds(315, 15, 111, 26);
+		dayOfWeekComboBox.setModel(new DefaultComboBoxModel(new String[] {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"}));
+		trainSchedulePanel.add(dayOfWeekComboBox);
+		
+		JLabel lblTrain = new JLabel("Train:");
+		lblTrain.setBounds(433, 20, 49, 23);
+		trainSchedulePanel.add(lblTrain);
+		
+		JComboBox trainComboBox = new JComboBox();
+		trainComboBox.setModel(new DefaultComboBoxModel(new String[] {"r0", "r1", "r2"}));
+		trainComboBox.setBounds(484, 17, 72, 26);
+		trainSchedulePanel.add(trainComboBox);
+		
+		JLabel lblNewLabel_1 = new JLabel("Station:");
+		lblNewLabel_1.setFont(new Font("Tahoma", Font.BOLD, 17));
+		lblNewLabel_1.setBounds(10, 73, 69, 20);
+		trainSchedulePanel.add(lblNewLabel_1);
+		
+		JLabel lblNewLabel_2 = new JLabel("Arrival Times:");
+		lblNewLabel_2.setFont(new Font("Tahoma", Font.BOLD, 17));
+		lblNewLabel_2.setBounds(133, 73, 129, 20);
+		trainSchedulePanel.add(lblNewLabel_2);
+		
+		JLabel trainScheduleDisplay = new JLabel("New label");
+		trainScheduleDisplay.setVerticalAlignment(SwingConstants.TOP);
+		trainScheduleDisplay.setBounds(10, 109, 548, 472);
+		trainSchedulePanel.add(trainScheduleDisplay);
 		
 		JPanel crewSchedulePanel = new JPanel();
 		tabbedPane.addTab("Crew Schedule", null, crewSchedulePanel, null);
-		crewSchedulePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		crewSchedulePanel.setLayout(null);
+		
+		JLabel lblNewLabel_3 = new JLabel("Day of Week:");
+		lblNewLabel_3.setBounds(15, 16, 106, 20);
+		crewSchedulePanel.add(lblNewLabel_3);
+		
+		JComboBox comboBox_1 = new JComboBox();
+		comboBox_1.setModel(new DefaultComboBoxModel(new String[] {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"}));
+		comboBox_1.setBounds(122, 13, 129, 26);
+		crewSchedulePanel.add(comboBox_1);
+		
+		JLabel lblCrewMember = new JLabel("Crew Member:");
+		lblCrewMember.setFont(new Font("Tahoma", Font.BOLD, 17));
+		lblCrewMember.setBounds(15, 67, 137, 20);
+		crewSchedulePanel.add(lblCrewMember);
+		
+		JLabel lblNewLabel_4 = new JLabel("Start Time:");
+		lblNewLabel_4.setFont(new Font("Tahoma", Font.BOLD, 17));
+		lblNewLabel_4.setBounds(167, 68, 121, 20);
+		crewSchedulePanel.add(lblNewLabel_4);
+		
+		JLabel lblNewLabel_5 = new JLabel("Break Time:");
+		lblNewLabel_5.setFont(new Font("Tahoma", Font.BOLD, 17));
+		lblNewLabel_5.setBounds(303, 68, 112, 20);
+		crewSchedulePanel.add(lblNewLabel_5);
+		
+		JLabel lblNewLabel_6 = new JLabel("End Time:");
+		lblNewLabel_6.setFont(new Font("Tahoma", Font.BOLD, 17));
+		lblNewLabel_6.setBounds(440, 68, 106, 20);
+		crewSchedulePanel.add(lblNewLabel_6);
+		
+		JTabbedPane tabbedPane_1 = new JTabbedPane(JTabbedPane.TOP);
+		springLayout.putConstraint(SpringLayout.NORTH, tabbedPane_1, 46, SpringLayout.NORTH, getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, tabbedPane_1, 6, SpringLayout.EAST, tabbedPane);
+		springLayout.putConstraint(SpringLayout.SOUTH, tabbedPane_1, 0, SpringLayout.SOUTH, tabbedPane);
+		springLayout.putConstraint(SpringLayout.EAST, tabbedPane_1, 315, SpringLayout.EAST, tabbedPane);
+		getContentPane().add(tabbedPane_1);
+		
+		JPanel panel_1 = new JPanel();
+		tabbedPane_1.addTab("Red Line", null, panel_1, null);
+		panel_1.setLayout(new MigLayout("", "[][][][]", "[][]"));
+		
+		JLabel lblTrainId = new JLabel("Train ID:");
+		lblTrainId.setFont(new Font("Tahoma", Font.BOLD, 16));
+		panel_1.add(lblTrainId, "cell 0 0");
+		
+		JLabel lblNewLabel_7 = new JLabel("Safe Authority:");
+		lblNewLabel_7.setFont(new Font("Tahoma", Font.BOLD, 16));
+		panel_1.add(lblNewLabel_7, "cell 3 0");
+		
+		JLabel lblNewLabel_8 = new JLabel("OutputR");
+		panel_1.add(lblNewLabel_8, "cell 0 1");
+		
+		JPanel panel = new JPanel();
+		tabbedPane_1.addTab("Green Line", null, panel, null);
+		panel.setLayout(new MigLayout("", "[][][][]", "[][]"));
+		
+		JLabel lblTrainId_1 = new JLabel("Train ID:");
+		lblTrainId_1.setFont(new Font("Tahoma", Font.BOLD, 16));
+		panel.add(lblTrainId_1, "cell 0 0");
+		
+		JLabel lblSafeAuthority = new JLabel("Safe Authority:");
+		lblSafeAuthority.setFont(new Font("Tahoma", Font.BOLD, 16));
+		panel.add(lblSafeAuthority, "cell 3 0");
+		
+		JLabel lblNewLabel_9 = new JLabel("OutputG");
+		panel.add(lblNewLabel_9, "cell 0 1");
+		
+		JLabel label_8 = new JLabel("Safe Moving Block Authority:");
+		springLayout.putConstraint(SpringLayout.WEST, label_8, 32, SpringLayout.EAST, tabbedPane);
+		springLayout.putConstraint(SpringLayout.SOUTH, label_8, -6, SpringLayout.NORTH, tabbedPane_1);
+		label_8.setFont(new Font("Tahoma", Font.BOLD, 18));
+		getContentPane().add(label_8);
 		
 		
 		

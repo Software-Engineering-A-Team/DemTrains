@@ -1,4 +1,6 @@
 package track_controller;
+import java.util.PriorityQueue;
+
 import track_model.TrackBlock;
 import ctc_office.TrainRoute;
 
@@ -47,4 +49,5 @@ public interface PLCInterface {
 	
 	public boolean switchCtrl();
 	
+	public PriorityQueue<TrainRoute> getRoutes();	
 }
