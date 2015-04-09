@@ -2,9 +2,14 @@ package ctc_office;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Set;
 
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
+
+import track_model.TrackSwitch;
 
 public class TrainRouter {
 	private final ArrayList<DefaultBlock> blockData;
@@ -24,11 +29,87 @@ public class TrainRouter {
 	/**
 	 * Calculates the shortest route that will not interfere with another train.
 	 */
-	public TrainRoute calculateShortestRoute(short trainId) {
-		// TODO
+	public TrainRoute calculateShortestRoute(Train train) {
+		Set<Integer> allVertices = layout.vertexSet();
+		HashSet<Integer> visitedNodes = new HashSet<Integer>(layout.vertexSet().size());
+		double totalWeight = blockData.get(train.currentBlock).blockLength - train.distanceTraveledOnBlock;
+		Integer currentBlock = null;
+		Integer destinationBlock = null;
+		LinkedList<Integer> path = new LinkedList<Integer>();
+		HashMap<LinkedList<Integer>, Double> allSimplePaths = new HashMap<LinkedList<Integer>, Double>();
+		for (Integer i : allVertices) {
+			if (i.equals(train.currentBlock)) {
+				currentBlock = i;
+			}
+			if (i.equals(train.destination)) {
+				destinationBlock = i;
+			}
+		}
+		findSimplePaths(currentBlock, destinationBlock, totalWeight, path, allVertices, visitedNodes, allSimplePaths);
+		
+		// find the shortest path of all the calculated paths
+		double min = Double.MAX_VALUE;
+		LinkedList<Integer> minPath = null;
+		for (LinkedList<Integer> p : allSimplePaths.keySet()) {
+			if (allSimplePaths.get(p) < min) {
+				min = allSimplePaths.get(p);
+				minPath = p;
+			}
+		}
+		
+		// create the TrainRoute Object
+		int trainSpeed = blockData.get(train.currentBlock).speedLimit;
+		if (train.maxSpeed < trainSpeed) {
+			
+		}
+		TrainRoute r = new TrainRoute(train.currentBlock, minPath, )
 		return null;
 	}
-
+	
+	
+	@SuppressWarnings("unchecked")
+	private void findSimplePaths(Integer currentVertex, Integer destinationVertex, double totalWeight, LinkedList<Integer> path, Set<Integer> allVertices, Set<Integer> visitedNodes, HashMap<LinkedList<Integer>, Double> allSimplePaths) {
+		// get all the edges it connects to
+		Set<DefaultEdge> connectedEdges = layout.edgesOf(currentVertex);
+		// remove all of the edges that have been visited
+		for (DefaultEdge e : connectedEdges) {
+			Integer v = layout.getEdgeSource(e);
+			if (visitedNodes.contains(v)){
+				continue; //already visited the edge, so skip it
+			}
+			if (destinationVertex.equals(currentVertex)){
+				// Completed the loop
+				allSimplePaths.put(path, totalWeight);
+				return;
+			}
+			DefaultBlock b = blockData.get((int)currentVertex);
+			// if it is a switch make sure the next block is a valid move
+			if (b.getClass().equals(TrackSwitch.class)){
+				int [] possibleNextBlocks = ((SwitchBlock) b).getPossibleNextBlocks();
+				for (Integer i : allVertices) {
+					if (i.equals(possibleNextBlocks[0])) {
+						return;
+					}
+					if (i.equals(possibleNextBlocks[1])) {
+						return;
+					}
+				}
+			}
+			// If the block is closed, it is not a path
+			if (b.broken) {
+				return;
+			}
+			// it is part of a path
+			totalWeight += b.blockLength;
+			LinkedList<Integer> pathCopy = (LinkedList<Integer>)path.clone();
+			Set<Integer> visitedNodesCopy = new HashSet<Integer>(visitedNodes.size());
+			visitedNodesCopy.addAll(visitedNodes);
+			visitedNodesCopy.add(v);
+			pathCopy.add(v);
+			findSimplePaths(v, destinationVertex, totalWeight, pathCopy, allVertices, visitedNodesCopy, allSimplePaths);
+		}
+	}
+	
 	/**
 	 * Gets all of the trains that have reached their destinations and finished dwelling.
 	 */

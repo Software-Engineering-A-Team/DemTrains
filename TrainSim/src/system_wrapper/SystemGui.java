@@ -59,13 +59,13 @@ public class SystemGui extends JFrame {
             	
             	// Run all Train Models
             	for (TrainModel train : SystemWrapper.trainModels) {
-            		//train.run();
+            		train.run();
     			}
             	
             	// Run MBO
             	SystemWrapper.mbo.run();
     
-            	// Sleep for the approprate amount of time
+            	// Sleep for the appropriate amount of time
             	long elapsedTime = System.nanoTime() - time;
             	long desiredElapsedTime = (long) Math.ceil(SystemWrapper.perceivedTimeMultiplier * 1000000000);
             	long timeDifferenceMS = (desiredElapsedTime - elapsedTime) / 1000000;
@@ -87,16 +87,13 @@ public class SystemGui extends JFrame {
     JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
     getContentPane().add(tabbedPane, BorderLayout.CENTER);
 
-    JPanel panelCTC = new JPanel();
     tabbedPane.addTab("CTC Office", null, SystemWrapper.ctcGUI.getContentPane(), null);
     
-    JPanel panelMbo = new JPanel();
     tabbedPane.addTab("MBO", null, SystemWrapper.mboGUI.getContentPane(), null);
     
     JPanel panelTrackModel = new JPanel();
     tabbedPane.addTab("Track Model", null, panelTrackModel, null);
     
-    JPanel panelTrackController = new JPanel();
     tabbedPane.addTab("Track Controller", null, SystemWrapper.trackControllerGui.getContentPane(), null);
     
     JPanel panelTrainModel = new JPanel();

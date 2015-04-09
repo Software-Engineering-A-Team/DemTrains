@@ -287,6 +287,9 @@ public class CTCGUI extends JFrame{
 	}
 	private void updateTrackTable() {
     	TrackLayout tLayout = trackLayouts.get(currLine);
+    	if (tLayout == null) {
+    		return;
+    	}
     	int trackRowCount = trackTableModel.getRowCount();
     	
     	// remove all but the first row from trackTable
@@ -328,6 +331,9 @@ public class CTCGUI extends JFrame{
 	
 	private void updateTrainTable() {
     	TrackLayout tLayout = trackLayouts.get(currLine);
+    	if (tLayout == null) {
+    		return;
+    	}
     	int trainRowCount = trainTableModel.getRowCount();
 
     	// remove all but the first row from trainTable

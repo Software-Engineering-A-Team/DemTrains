@@ -1,6 +1,7 @@
 package ctc_office;
 
 public class Train {
+	public int previousBlock = -1;
 	public int currentBlock = 0;
 	public int destination = -1;
 	public int remainingTravelTime = 0;

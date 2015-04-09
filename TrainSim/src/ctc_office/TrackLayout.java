@@ -17,7 +17,7 @@ public class TrackLayout {
 	private final ArrayList<DefaultBlock> blockData;
 	private final HashMap<String, StationBlock> allStations = new HashMap<String, StationBlock>();
 	private final DirectedMultigraph<Integer, DefaultEdge> layout;
-	private final HashMap<Integer, List<WaysideController>> blockToControllerMap;
+	private final HashMap<Integer, WaysideController> blockToControllerMap;
 	private final Scheduler scheduler = new Scheduler();
 	private final TrainRouter trainRouter;
 	private final char trainIdPrefix;

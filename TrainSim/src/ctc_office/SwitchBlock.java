@@ -26,5 +26,9 @@ public class SwitchBlock extends DefaultBlock {
 	public int getNextBlock() {
 		return possibleNextBlocks[pointingToBlock];
 	}
+	
+	public int[] getPossibleNextBlocks() {
+		return possibleNextBlocks;
+	}
 
 }
