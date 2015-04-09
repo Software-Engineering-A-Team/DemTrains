@@ -39,6 +39,8 @@ import javax.swing.AbstractButton;
 
 import java.text.NumberFormat;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+
 import javax.swing.JComboBox;
 
 public class TrainControllerGui extends JFrame {
@@ -61,7 +63,7 @@ public class TrainControllerGui extends JFrame {
   private JCheckBox chckbxEmergencyBrake;
   private JCheckBox chckbxRightDoorsOpen;
   private JComboBox comboBoxSelectedTrain;
-  public TrainController[] trainControllers;
+  private ArrayList<TrainController> trainControllers;
   private short trainIndex;
   public TrainController trainController;
   private NumberFormat formatter = new DecimalFormat("#0.00");
@@ -76,11 +78,11 @@ public class TrainControllerGui extends JFrame {
     EventQueue.invokeLater(new Runnable() {
       public void run() {
         try {
-          TrainController[] trainControllers = new TrainController[10];
-          
+          ArrayList<TrainController> trainControllers = new ArrayList<TrainController>();
           for (int i = 0; i < 10; i++) {
-            trainControllers[i] = new TrainController();
+            trainControllers.add(new TrainController());
           }
+          
           
           TrainControllerGui window = new TrainControllerGui(trainControllers, true);
           
@@ -97,21 +99,31 @@ public class TrainControllerGui extends JFrame {
   /**
    * Create the application.
    */
-  public TrainControllerGui(TrainController[] trainControllers) {
+  public TrainControllerGui(ArrayList<TrainController> trainControllers) {
     standalone = false;
     this.trainControllers = trainControllers;
-    trainIndex = 0;
-    trainController = trainControllers[trainIndex];
+    if (trainControllers.size() == 0) {
+      trainController = new TrainController();
+    }
+    else {
+      trainIndex = 0;
+      trainController = trainControllers.get(trainIndex); 
+    }
     initialize();
     displayTimer.start();
     controllerTimer.start();
   }
   
-  public TrainControllerGui(TrainController[] trainControllers, boolean standalone) {
+  public TrainControllerGui(ArrayList<TrainController> trainControllers, boolean standalone) {
     this.standalone = standalone;
     this.trainControllers = trainControllers;
-    trainIndex = 0;
-    trainController = trainControllers[trainIndex];
+    if (trainControllers.size() == 0) {
+      trainController = new TrainController();
+    }
+    else {
+      trainIndex = 0;
+      trainController = trainControllers.get(trainIndex); 
+    }
     initialize();
     displayTimer.start();
     controllerTimer.start();
@@ -373,8 +385,9 @@ public class TrainControllerGui extends JFrame {
     public void actionPerformed(ActionEvent e) {
       SimClock.tick();
       
-      for (int i = 0; i < trainControllers.length; i++) {
-        trainControllers[i].calcPower();
+      for (int i = 0; i < trainControllers.size(); i++) {
+
+        trainControllers.get(i).calcPower();
       }
     }
   });
