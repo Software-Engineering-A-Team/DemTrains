@@ -400,7 +400,6 @@ public class TrackControllerGUI extends JFrame {
 					ArrayList<TrackSwitch> s = currentController.findSwitches();
 					if(!s.isEmpty()){
 						for (TrackSwitch t: s) {
-							System.out.println(t.state);
 							boolean pTB = t.state;
 							int index;
 							if (pTB) index = 0;
@@ -460,10 +459,8 @@ public class TrackControllerGUI extends JFrame {
 				noSwitchCtrl = !currentController.plc.switchCtrl();
 				if(!noSwitchCtrl){
 					if(currentBlock.occupancy) {
-						int blockInd = currentController.route.route.indexOf(currentBlock.number);
-						int i = currentController.route.route.remove(blockInd);
-						currentController.plc.getRoutes().peek().route.remove(blockInd);
-						System.out.println("Removed: " +i);
+						int blockInd = currentController.plc.getRoutes().peek().route.indexOf(currentBlock.number);
+						int i = currentController.plc.getRoutes().peek().route.remove(blockInd);
 						if(currentController.plc.getRoutes().peek().route.isEmpty()) {
 							currentController.plc.getRoutes().remove(currentController.plc.getRoutes().peek());
 						}
