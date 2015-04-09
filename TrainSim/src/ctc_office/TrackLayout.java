@@ -117,13 +117,21 @@ public class TrackLayout {
 	/**
 	 * returns a list of beacon strings that need to be updated for trains approaching a station
 	 */
-	public HashMap<Integer, String> getBeaconStrings() {
+	public HashMap<Integer, String> updateBeaconStrings() {
 		// TODO
 		HashMap<Integer, String> beaconStrings = new HashMap<Integer, String>();
 		for (StationBlock s : allStations.values()) {
 			// find train that will reach the station next
+			String beaconString = "";
+			Train t = trainRouter.getTainApprochingStation(s.blockNumber);
+			if (t == null) {
+				continue;
+			}
 			// build the beaconString
-			// add it to the list
+			beaconString += (((double)s.blockLength)/2.0) + "1" + (char)t.trainId + s.stationName;
+			beaconString = beaconString.substring(0,19);
+			// send it to the wayside controller
+			//blockToControllerMap.get(s.blockNumber).setBeaconString(beaconString);
 		}
 		return beaconStrings;
 	}
@@ -143,7 +151,7 @@ public class TrackLayout {
 		// send the routing data to the wayside controller for that block
 		// if the route was not accepted, fix the trains expected route
 		ArrayList<TrainRoute> routes = new ArrayList<TrainRoute>();
-		
+		trainRouter.routeAllTrains();
 		return routes;
 	}
 
@@ -198,6 +206,7 @@ public class TrackLayout {
 	public boolean setEstimatedTrainLocations() {
 		// TODO
 		// for all of the trains on the track, calculate the estimated position on its current block.
+		trainRouter.setEstimatedTrainLocations();
 		return true;
 	}
 

@@ -9,6 +9,8 @@ import java.util.Set;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
 
+import system_wrapper.SimClock;
+import system_wrapper.SystemWrapper;
 import track_controller.WaysideController;
 import track_model.TrackSwitch;
 
@@ -131,8 +133,8 @@ public class TrainRouter {
 	/**
 	 * Gets all of the trains that have reached their destinations and finished dwelling.
 	 */
-	public ArrayList<String> getTrainsWithFinishedRoutes() {
-		ArrayList<String> finishedTrains = new ArrayList<String>();
+	public HashSet<String> getTrainsWithFinishedRoutes() {
+		HashSet<String> finishedTrains = new HashSet<String>();
 		for (Train t : trains) {
 			if (t.currentBlock == t.destination) {
 				if (t.distanceTraveledOnBlock == ((DefaultBlock)blockData.get(t.currentBlock)).blockLength/2) { // it is at the station
@@ -146,6 +148,16 @@ public class TrainRouter {
 			return finishedTrains;
 		}
 		return null;
+	}
+	
+	/**
+	 * Routes all of the trains
+	 */
+	public void routeAllTrains() {
+		for (Train t : trains) {
+			calculateShortestRoute(t);
+		}
+		
 	}
 
 	/**
@@ -169,9 +181,23 @@ public class TrainRouter {
 	 */
 	public void setEstimatedTrainLocations() {
 		// TODO: for each train
+		for (Train t : trains) {
 			// calculate the distance traveled since the last tick
+			double speed = t.currSpeed * 0.488888889; // in yards/second
+			double elapsedTime = SimClock.getDeltaMs() * 0.001; //in seconds
+			double distanceTraveled = speed*elapsedTime; //yards
+			DefaultBlock block = ((DefaultBlock)blockData.get(t.currentBlock));
+			// check if the train has entered a new block
+			if (block.occupied == false) {
+				// it has. 
+				t.currentBlock = trainRoutes.get(t.trainId).route.get(1);
+				t.distanceTraveledOnBlock = block.blockLength - t.distanceTraveledOnBlock;
+			}
 			// calculate the distance traveled on block
-			// update the total distance traveled for the train.
+			else if ((t.distanceTraveledOnBlock + distanceTraveled) > block.blockLength) {
+				t.distanceTraveledOnBlock = block.blockLength;
+			}
+		}
 	}
 
 	/**
@@ -228,9 +254,30 @@ public class TrainRouter {
 		return null;
 	}
 	
-	public String getTainApprochingStation() {
+	public Train getTainApprochingStation(int blockNumber) {
 		//TODO
-		return null;
+		double shortestDistance = Double.MAX_VALUE;
+		Train shortestDistanceTrain = null;
+		for (Short trainId : trainRoutes.keySet()) {
+			Train t = trains.get(trainId);
+			double distanceToStation = Double.MAX_VALUE;
+			boolean found = false;
+			for (Integer blockNum : trainRoutes.get(trainId).route) {
+				if (distanceToStation < shortestDistance) {
+					distanceToStation += ((DefaultBlock) blockData.get((int)blockNum)).blockLength;
+					if (blockNum.equals(blockNumber)) {
+						found = true;
+						break;
+					}
+				}
+			}
+			if (found) {
+				shortestDistanceTrain = t;
+				shortestDistance = distanceToStation;
+			}
+		}
+		return shortestDistanceTrain;
 	}
+
 
 }

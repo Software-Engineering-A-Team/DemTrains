@@ -27,14 +27,14 @@ public class CTCDriver {
 	 public boolean runCTC() {
 	   // for each track
 	   for (TrackLayout t : lines.values()) {
-	       // dispatch all new trains and calculate their routes.
-	       t.dispatchNewTrains();
-	       t.routeTrainFromYard();
-	       t.getUpdatedTrainRoutes();
 	       // if in fixed block mode, calculate the estimated positions of those trains.
 	       if (!MBOModeEnabled) {
 	           t.setEstimatedTrainLocations();
 	       }
+	       // dispatch all new trains and calculate their routes.
+	       t.dispatchNewTrains();
+	       t.routeTrainFromYard();
+	       t.getUpdatedTrainRoutes();
 	   }
 	 	return true;
 	 }
