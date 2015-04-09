@@ -16,7 +16,7 @@ public class TrackBlock {
 	public final boolean underground;
 	
 	// helper attributes for the purpose of building the track layout
-	public final Integer connectsToSwitch;
+	public final int[] connectsTo;
 	public final String direction;
 	
 	// attributes of TrackBlock controllable by system
@@ -42,7 +42,7 @@ public class TrackBlock {
 		this.elevation = 0;
 		this.cumulativeElevation = 0;
 		this.underground = false;
-		this.connectsToSwitch = 0;
+		this.connectsTo = null;
 		this.direction = null;
 	}
 	
@@ -60,7 +60,16 @@ public class TrackBlock {
 		this.elevation = Double.parseDouble(descriptor.get("elevation"));
 		this.cumulativeElevation = Double.parseDouble(descriptor.get("cumulativeElevation"));
 		this.underground = descriptor.get("underground") != null ? true : false;
-		this.connectsToSwitch = descriptor.get("connectsToSwitch") != null ? Integer.parseInt(descriptor.get("connectsToSwitch")) : null;
+		String connectsToString = descriptor.get("connectsTo");
+		if (connectsToString != null) {
+			String[] connectsToArr = connectsToString.split(";", -1);
+			this.connectsTo = new int[connectsToArr.length];
+			for (int i = 0; i < connectsToArr.length; i++) {
+				this.connectsTo[i] = Integer.parseInt(connectsToArr[i]);
+			}
+		} else {
+			this.connectsTo = null;
+		}
 		this.direction = descriptor.get("direction");
 		this.weather = null;
 		this.failure = null;
