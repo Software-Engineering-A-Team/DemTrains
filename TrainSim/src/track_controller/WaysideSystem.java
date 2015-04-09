@@ -21,8 +21,9 @@ public class WaysideSystem {
 			blockControllerMapGreen.put(i, wc1);
 		}
 		wc1.addBlocks(tc1);
-		PLC1 plc1 = new PLC1(tc1);
+		PLC1 plc1 = new PLC1(wc1.blockMap, wc1.route);
 		wc1.plc = plc1;
+		wc1.containsSwitch = true;
 		
 		WaysideController wc2 = new WaysideController();
 		ArrayList<TrackBlock> tc2 = new ArrayList<TrackBlock>();
@@ -31,8 +32,9 @@ public class WaysideSystem {
 			blockControllerMapGreen.put(i, wc2);
 		}
 		wc2.addBlocks(tc2);
-		//PLC2 plc2 = new PLC2(tc2);
-		//wc2.plc = plc2;
+		PLC2 plc2 = new PLC2(wc2.blockMap);
+		wc2.plc = plc2;
+		wc2.containsCrossing = true;
 		
 		
 		WaysideController wc3 = new WaysideController();
@@ -253,6 +255,8 @@ public class WaysideSystem {
 	 * to a given wayside controller 
 	 */	
 	public TrainRoute addRoute(TrainRoute r, int startBlock) {
+		
+		
 		return null;
 	}
 	

@@ -1,6 +1,6 @@
 package track_controller;
 import track_model.*;
-
+import ctc_office.TrainRoute;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
@@ -28,6 +28,9 @@ import javax.swing.filechooser.*;
 import java.awt.GridLayout;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JScrollPane;
+import java.util.List;
+import java.util.ArrayList;
+
 
 public class TrackControllerGUI extends JFrame {
 
@@ -50,6 +53,24 @@ public class TrackControllerGUI extends JFrame {
 	public static void main(String[] args) {
 	  track_model.TrackModel t = new track_model.TrackModel();
 	  final WaysideSystem ws = new WaysideSystem(t);
+	  List<Integer> route = new ArrayList<Integer>();
+	  route.add(14);
+	  route.add(13);
+	  route.add(12);
+	  route.add(11);
+	  route.add(10);
+	  route.add(9);
+	  route.add(8);
+	  route.add(7);
+	  route.add(6);
+	  route.add(5);
+	  route.add(4);
+	  route.add(3);
+	  route.add(2);
+	  route.add(1);
+	  route.add(12);
+	  route.add(13);
+	  TrainRoute r = new TrainRoute(13, route, 22.0, 1910);
 	  
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
