@@ -32,9 +32,10 @@ public class CTCDriver {
 	           t.setEstimatedTrainLocations();
 	       }
 	       // dispatch all new trains and calculate their routes.
-	       t.dispatchNewTrains();
+	       //t.dispatchNewTrains();
 	       t.routeTrainFromYard();
 	       t.getUpdatedTrainRoutes();
+	       t.updateBeaconStrings();
 	   }
 	 	return true;
 	 }

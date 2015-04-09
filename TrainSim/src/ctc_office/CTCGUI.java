@@ -15,10 +15,6 @@ import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
 
 import system_wrapper.SystemWrapper;
-import track_model.TrackBlock;
-import track_model.TrackCrossing;
-import track_model.TrackStation;
-import track_model.TrackSwitch;
 
 import javax.swing.JLabel;
 
@@ -30,7 +26,6 @@ import java.awt.BorderLayout;
 
 import javax.swing.border.EmptyBorder;
 
-import java.awt.GridBagLayout;
 import java.awt.FlowLayout;
 
 import javax.swing.JComboBox;
@@ -40,11 +35,9 @@ import javax.swing.JSlider;
 import javax.swing.JTextField;
 
 import java.awt.CardLayout;
-import java.awt.GridBagConstraints;
 
 import javax.swing.JButton;
 
-import java.awt.Insets;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -142,7 +135,7 @@ public class CTCGUI extends JFrame{
 				new Object[][] {
 				},
 				new String[] {
-					"Train Name", "Train ID", "Destination Block", "Speed(MPH)", "Authority (Yards)"
+					"Train Name", "Train ID", "Current Block", "Destination Block", "Speed(MPH)", "Authority (Yards)"
 				}
 			) {
 				Class[] columnTypes = new Class[] {
@@ -325,7 +318,7 @@ public class CTCGUI extends JFrame{
     		return;
     	}
     	for (Train t : allTrains) {
-    		trainTableModel.addRow(new Object[] {});
+    		trainTableModel.addRow(new Object[] {t.trainName, t.trainId, t.currentBlock, t.destination, t.currSpeed, t.authority});
     	}
     	trainTable.setModel(trainTableModel);
     	trainTable.repaint();
@@ -417,6 +410,57 @@ public class CTCGUI extends JFrame{
 	
 	private void trainSelected(Train t) {
 		// If train is manually dispatched display button that allows for train routing
+		
+		JLabel trackInfoLabel = new JLabel(t.trainName.substring(1));
+		trackInfoLabel.setBounds(172, 11, 65, 22);
+		trackInfoLabel.setFont(new Font("Tahoma", Font.BOLD, 18));
+		trackInfoPanel.add(trackInfoLabel);
+		
+		
+		JButton dispatchTrainButton = new JButton("Route Train");
+		dispatchTrainButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				String trainName = trainNameTextBox.getText();
+				int destinationBlock = Integer.parseInt(destinationTextBox.getText());
+				int speed = Integer.parseInt(speedTextBox.getText());
+				int authority = Integer.parseInt(authTextBox.getText());
+				SystemWrapper.ctcOffice.manuallyRouteTrain(currLine, trainName, destinationBlock, speed, authority);
+				trackInfoPanel.removeAll();
+				trackInfoPanel.revalidate();
+				trackInfoPanel.repaint();
+			}
+		});
+		dispatchTrainButton.setBounds(154, 627, 171, 23);
+		trackInfoPanel.add(dispatchTrainButton);
+
+		JLabel destinationLabel = new JLabel("Destination Block:");
+		destinationLabel.setBounds(135, 506, 93, 14);
+		trackInfoPanel.add(destinationLabel);
+		
+		JLabel lblMaxSpeedmph = new JLabel("Max Speed (mph):");
+		lblMaxSpeedmph.setBounds(135, 532, 93, 14);
+		trackInfoPanel.add(lblMaxSpeedmph);
+		
+		JLabel lblAuthorityyards = new JLabel("Authority (yards):");
+		lblAuthorityyards.setBounds(135, 557, 93, 14);
+		trackInfoPanel.add(lblAuthorityyards);
+		
+		destinationTextBox = new JTextField();
+		destinationTextBox.setBounds(239, 503, 86, 20);
+		trackInfoPanel.add(destinationTextBox);
+		destinationTextBox.setColumns(10);
+		
+		speedTextBox = new JTextField();
+		speedTextBox.setBounds(239, 529, 86, 20);
+		trackInfoPanel.add(speedTextBox);
+		speedTextBox.setColumns(10);
+		
+		authTextBox = new JTextField();
+		authTextBox.setBounds(239, 554, 86, 20);
+		trackInfoPanel.add(authTextBox);
+		authTextBox.setColumns(10);
+		
 		trackInfoPanel.revalidate();
 		trackInfoPanel.repaint();
 	}
