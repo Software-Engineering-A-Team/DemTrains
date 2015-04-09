@@ -7,5 +7,4 @@ TrainSim/.settings
 =======
 TrainSim/bin/*/
 >>>>>>> 2f2463578855ebcca315efe8a803bc8aa8be3949
-*.class
-*.class
+TrainSim/bin/ctc_office/CTCDriver.class

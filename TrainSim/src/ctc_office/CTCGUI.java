@@ -14,7 +14,6 @@ import javax.swing.JTable;
 import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
 
-import system_wrapper.SimClock;
 import system_wrapper.SystemWrapper;
 import track_model.TrackBlock;
 import track_model.TrackCrossing;
@@ -32,7 +31,6 @@ import java.awt.BorderLayout;
 import javax.swing.border.EmptyBorder;
 
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.FlowLayout;
 
 import javax.swing.JComboBox;
@@ -43,7 +41,6 @@ import javax.swing.JTextField;
 import java.awt.CardLayout;
 
 public class CTCGUI extends JFrame{
-	private static final long serialVersionUID = 1L;
 	private JTable trainTable;
 	private JTable trackTable;
 	private DefaultTableModel trainTableModel;

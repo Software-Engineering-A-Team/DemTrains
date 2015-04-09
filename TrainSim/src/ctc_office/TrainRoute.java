@@ -8,7 +8,8 @@ public class TrainRoute {
 	public double speed;
 	public int startingBlock;
 	public List<Integer> route;
-	public TrainRoute(int sBlock, List<Integer> routePath, double trainSpeed, double trainAuthority){
+	public TrainRoute(String lName, int sBlock, List<Integer> routePath, double trainSpeed, double trainAuthority){
+		lineName = lName;
 		authority = trainAuthority;
 		speed = trainSpeed;
 		startingBlock = sBlock;

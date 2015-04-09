@@ -1,28 +1,11 @@
 package system_wrapper;
 
-import track_controller.TrackControllerGUI;
 import track_controller.WaysideController;
 import train_model.TrainModel;
 
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
-import javax.swing.JButton;
-import javax.swing.JTextField;
-
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-
-import javax.swing.JLabel;
-
-import java.awt.Font;
-
-import javax.swing.JToggleButton;
-import javax.swing.JRadioButton;
-import javax.swing.JProgressBar;
-import javax.swing.JSlider;
-import javax.swing.JCheckBox;
-import javax.swing.ButtonGroup;
 import javax.swing.JTabbedPane;
 
 import java.awt.BorderLayout;
@@ -31,7 +14,12 @@ import javax.swing.JPanel;
 
 public class SystemGui extends JFrame {
 
-  public static void main(String[] args) {
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8917096951256318886L;
+
+public static void main(String[] args) {
     EventQueue.invokeLater(new Runnable() {
       public void run() {
         try {

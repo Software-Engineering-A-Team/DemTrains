@@ -9,6 +9,7 @@ import java.util.Set;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
 
+import track_controller.WaysideController;
 import track_model.TrackSwitch;
 
 public class TrainRouter {
@@ -18,12 +19,14 @@ public class TrainRouter {
 	private final String lineName;
 	private HashMap<Short, TrainRoute> trainRoutes;
 	private ArrayList<Train> trains;
+	private final HashMap<Integer, WaysideController> blockToControllerMap;
 
-	public TrainRouter(DirectedMultigraph<Integer, DefaultEdge> l, ArrayList<DefaultBlock> bData, HashMap<String, StationBlock> stations, String lName) {
+	public TrainRouter(DirectedMultigraph<Integer, DefaultEdge> l, ArrayList<DefaultBlock> bData, HashMap<String, StationBlock> stations, HashMap<Integer, WaysideController> controllerMap, String lName) {
 		layout = l;
 		blockData = bData;
 		allStations = stations;
 		lineName = lName;
+		blockToControllerMap = controllerMap;
 	}
 
 	/**
@@ -56,14 +59,29 @@ public class TrainRouter {
 				minPath = p;
 			}
 		}
+		if (minPath == null) {
+			trainRoutes.put(train.trainId, null);
+			return null;
+		}
 		
 		// create the TrainRoute Object
-		int trainSpeed = blockData.get(train.currentBlock).speedLimit;
+		double trainSpeed = blockData.get(train.currentBlock).speedLimit;
 		if (train.maxSpeed < trainSpeed) {
-			
+			trainSpeed = train.maxSpeed;
 		}
-		TrainRoute r = new TrainRoute(train.currentBlock, minPath, )
-		return null;
+		double authority = train.authority;
+		if (authority > min) {
+			authority = min;
+		}
+
+		TrainRoute route =  new TrainRoute(lineName, train.currentBlock, minPath, trainSpeed, authority);
+		TrainRoute waysideRoute = blockToControllerMap.get(currentBlock).addRoute(route);
+		if (waysideRoute == null) {
+			waysideRoute = route;
+		}
+		
+		trainRoutes.put(train.trainId, waysideRoute);
+		return waysideRoute;
 	}
 	
 	
@@ -140,7 +158,7 @@ public class TrainRouter {
 	}
 
 	/**
-	 * sets an alternate route for the train -- used by the TrackController when a route is not approved
+	 * sets an alternate route for the train used when the TrackController doesn't approve a route
 	 */
 	public void setAlternateRoute(short trainId, TrainRoute r) {
 		trainRoutes.put(trainId, r);
@@ -178,7 +196,7 @@ public class TrainRouter {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Updates a trains destination block and travel time
 	 */
