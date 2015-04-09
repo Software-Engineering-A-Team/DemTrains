@@ -73,10 +73,17 @@ public class WaysideController {
 	 * to a given wayside controller 
 	 */	
 	public TrainRoute addRoute(TrainRoute r) {
-		this.route = r;
-		this.plc.changeRoute(r);
-		boolean routeStatus = this.plc.checkRoute();
-		if(routeStatus) return null;
-		else return this.route;
+		System.out.println("Adding route with blocks: ");
+		for(int i : r.route) {
+			System.out.println(i);
+		}
+		if(r != null) {
+			this.route = r;
+			this.plc.changeRoute(r);
+			boolean routeStatus = this.plc.checkRoute();
+			if(routeStatus) return null;
+			else return this.route;
+		}
+		else return r;
 	}
 }
