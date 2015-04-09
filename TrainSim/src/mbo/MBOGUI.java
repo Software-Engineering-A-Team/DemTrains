@@ -1,8 +1,8 @@
 package mbo;
 
-public class MBOGUI {
+import javax.swing.JFrame;
 
-	MovingBlockOverlay mbo = new MovingBlockOverlay();
+public class MBOGUI extends JFrame{
 	
 	//if button presses mbo.getTrainSchedule
 	public void setTrainSchedule(){

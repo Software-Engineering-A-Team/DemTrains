@@ -3,9 +3,8 @@ import java.lang.Math;
 
 public class Calculator1 extends AuthorityCalculator {	
 	
-	public double calculateAuthorityDistance(double trainPosition) {
-		double x = 1;
-		return x;  //just messing with stuff to get a better understanding
+	public double calculateAuthorityDistance(double currLocation, double nextTrainLocation) {		
+		return nextTrainLocation - currLocation;  
 	}
 	public double calculateSpeed(double prevLocation, double currLocation, double time) {
 		return (currLocation-prevLocation)/time; //return speed

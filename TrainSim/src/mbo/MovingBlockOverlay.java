@@ -13,6 +13,7 @@ public class MovingBlockOverlay {
 	HashMap<String,Double> trainLocationTrackGMap;
 	SRSTrainCurrSpeed trainCurrSpeed;
 	SRSTrainStopDist trainStopDist;
+	SRSDistFromNextTrain trainAuth;
 	//SystemWrapper sysWrapper;
 	SimClock systemClock;
 	//CTCDriver ctcDriver;   //this still need to be here?
@@ -27,6 +28,7 @@ public class MovingBlockOverlay {
 		trainLocationTrackGMap = new HashMap<String,Double>();
 		trainCurrSpeed = new SRSTrainCurrSpeed();
 		trainStopDist = new SRSTrainStopDist();	
+		trainAuth = new SRSDistFromNextTrain();
 		//sysWrapper = new SystemWrapper();
 		gui = new MBOGUI();
 	}
@@ -52,7 +54,8 @@ public class MovingBlockOverlay {
 		gui.setCrewSchedule();  //needs to be added to the Train Model
 	}
 	
-	public void getSafeMovingBlock(short trainID, double currLocation, double weight){		
+	public void getSafeMovingBlock(short trainID, double currLocation, double weight){
+		//location is in yards
 		double prevLocation = 0;
 		if(SystemWrapper.trainModels.get(trainID).trainName.charAt(0) == 'r'){
 			prevLocation = trainLocationTrackRMap.get(trainID);
@@ -65,6 +68,8 @@ public class MovingBlockOverlay {
 		
 		Double speed;
 		Double stopDist;
+		Double nextTrainDist;
+		double nextTrainLocation;
 		speed = trainCurrSpeed.calcTrainSpeed(prevLocation, currLocation, SystemWrapper.simClock.getDeltaMs());
 		//if the speed is null we stop all trains
 		if(speed == null){
@@ -78,6 +83,22 @@ public class MovingBlockOverlay {
 		stopDist = trainStopDist.calcStopDist(speed, weight, grade);
 		//if the stopDistance is null we stop all trains
 		if(stopDist == null){
+			for(int i=0; i<SystemWrapper.trainModels.size(); i++){
+				if(SystemWrapper.trainModels.get(i) != null) {
+					SystemWrapper.trainModels.get(i).setCommSpeed(0);
+				}
+			}
+		}
+		//***This is temporary...need to get the train thats actually in front of curr train
+		if(SystemWrapper.trainModels.get(trainID+1)==null) {
+			nextTrainLocation = stopDist*2;
+		}
+		else {
+			nextTrainLocation = SystemWrapper.trainModels.get(trainID+1).position;
+		}
+		nextTrainDist = trainAuth.calcSafeAuth(currLocation, nextTrainLocation);
+		//if the distance to the next train cannot be found we must stop all trains
+		if(nextTrainDist == null){
 			for(int i=0; i<SystemWrapper.trainModels.size(); i++){
 				if(SystemWrapper.trainModels.get(i) != null) {
 					SystemWrapper.trainModels.get(i).setCommSpeed(0);
