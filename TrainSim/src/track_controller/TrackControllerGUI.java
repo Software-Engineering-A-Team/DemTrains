@@ -54,12 +54,19 @@ public class TrackControllerGUI extends JFrame {
 	private String crossingStatus = "No information available.";
 	private boolean sysMode = false;
 	private boolean noSwitchCtrl = false;
+	private JComboBox<String> weatherPicker;
+	private JComboBox<Integer> blockPicker;
+	private JComboBox<String> linePicker;
+	private static WaysideSystem ws;
+	private DefaultTableModel model;
+	private JLabel lblCompilationSuccessful;
+	
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
 	  track_model.TrackModel t = new track_model.TrackModel();
-	  WaysideSystem ws = new WaysideSystem(t);
+	  ws = new WaysideSystem(t);
 	  List<Integer> route = new ArrayList<Integer>();
 	  route.add(14);
 	  route.add(13);
@@ -127,7 +134,7 @@ public class TrackControllerGUI extends JFrame {
 		lblBlock.setBounds(10, 65, 56, 14);
 		inputPanel.add(lblBlock);
 		
-		final JComboBox<Integer> blockPicker = new JComboBox<Integer>();
+		blockPicker = new JComboBox<Integer>();
 		blockPicker.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
@@ -142,7 +149,7 @@ public class TrackControllerGUI extends JFrame {
 		blockPicker.setBounds(51, 65, 65, 20);
 		inputPanel.add(blockPicker);
 		
-		final JComboBox<String> linePicker = new JComboBox<String>();
+		linePicker = new JComboBox<String>();
 		linePicker.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				currentLine = linePicker.getSelectedItem().toString();
@@ -207,7 +214,7 @@ public class TrackControllerGUI extends JFrame {
 		lblMiles.setBounds(302, 65, 46, 14);
 		inputPanel.add(lblMiles);
 		
-		JComboBox<String> weatherPicker = new JComboBox<String>();
+		weatherPicker = new JComboBox<String>();
 		weatherPicker.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				currentBlock.weather = weatherPicker.getSelectedItem().toString();
@@ -336,7 +343,7 @@ public class TrackControllerGUI extends JFrame {
 		btnChooseFile.setBounds(197, 11, 89, 23);
 		inputPanel.add(btnChooseFile);
 
-		JLabel lblCompilationSuccessful = new JLabel("No file selected.");
+		lblCompilationSuccessful = new JLabel("No file selected.");
 		lblCompilationSuccessful.setForeground(Color.BLACK);
 		lblCompilationSuccessful.setBounds(399, 15, 120, 14);
 		inputPanel.add(lblCompilationSuccessful);
@@ -368,7 +375,7 @@ public class TrackControllerGUI extends JFrame {
 		tabbedPane.addTab("Outputs", null, outputPanel, null);
 		outputPanel.setLayout(null);	
 		
-		DefaultTableModel model = new DefaultTableModel(new Object[][] {
+		model = new DefaultTableModel(new Object[][] {
 			      { "Line", currentLine }, { "Block", currentBlock.number }, { "Occupancy", currentBlock.occupancy},
 			      { "Weather", weatherPicker.getSelectedItem().toString() }, { "Speed limit (mph)", currentBlock.speedLimit }, { "Commanded speed (mph)", currentBlock.commandedSpeed },
 			      { "Commanded authority (yards)", currentBlock.commandedAuthority }, { "Broken status", null }, { "Light status", currentBlock.lights }, {"Closed status", null},

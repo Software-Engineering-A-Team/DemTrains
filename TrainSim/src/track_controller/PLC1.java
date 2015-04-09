@@ -33,11 +33,8 @@ public class PLC1 implements PLCInterface {
 		if(this.routes.peek() != null){
 			switchCtrlSuccess = true;
 			//compute nextBlock val
-			System.out.println(this.routes.peek().route.size());
 			int indNextBlock = routes.peek().route.indexOf(12)+1;
-			System.out.println(indNextBlock);
 			int nextBlock = routes.peek().route.get(indNextBlock);
-			System.out.println(nextBlock);
 			//int prevBlock = r.route.get(r.route.indexOf(12)-1);
 			
 			
@@ -140,7 +137,6 @@ public class PLC1 implements PLCInterface {
 	 * Runs all functions of PLC Program
 	 */
 	public void run(){
-		System.out.println("Running PLC1");
 		for (int i = 1; i<17; i++) {
 			TrackBlock b = controlledBlocks.get(i);
 			b.heater = ctrlHeater(b);
@@ -148,8 +144,14 @@ public class PLC1 implements PLCInterface {
 		}
 		
 		TrackSwitch s = (TrackSwitch) controlledBlocks.get(12);
-		System.out.println("Current state is : " + s.state);
+		boolean prevState = s.state;
+		int ind;
+		if(prevState) ind = 0;
+		else ind = 1;
+		System.out.println("Switch on block 12 moved from "+s.out[ind]); 
 		s.state = ctrlSwitch();
-		System.out.println("Switch state changed to "+ s.state);
+		if(s.state) ind = 0;
+		else ind = 1;
+		System.out.print(" to " +s.out[ind]+"\n");
 	}
 }
