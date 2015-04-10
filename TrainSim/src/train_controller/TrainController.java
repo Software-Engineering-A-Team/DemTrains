@@ -6,24 +6,29 @@ import system_wrapper.SpeedAuthCmd;
 // 
 public class TrainController {
   private final VitalTrainControl vitalPrimary = new VitalTrainControlPrimary();
+  private final VitalTrainControl vitalSecondary = new VitalTrainControlPrimary();
   
   // Non-vital variables
-  private SpeedAuthCmd speedAuthCmd;
   private boolean airConditioningOn = false;
   private boolean leftDoorOpen = false;
   private boolean rightDoorOpen = false;
-  private boolean manualMode = false;
   private boolean lightsOn = false;
+  private int id;
   
   // Vital variables. Copies appear in each vital controller.
-  private boolean emergencyBrake;
-  private boolean serviceBrake;
-  private double currentSpeedMph;
-  private double targetSpeedMph;
-  private double speedLimitMph;
-  private double powerKw;
-  private double safeStoppingDistanceMi;
-  private int id;
+  private boolean manualMode = false;
+  private SpeedAuthCmd speedAuthCmd = new SpeedAuthCmd(0, 0);
+  private boolean emergencyBrake = false;
+  private boolean serviceBrake = false;
+  private double currentSpeedMph = 0;
+  private double targetSpeedMph = 0;
+  private double speedLimitMph = 60;
+  private double powerKw = 0;
+  private double safeStoppingDistanceMi = 10;
+  private double authorityMi;
+
+  // If vital controllers give different results, there has been an error.
+  private boolean vitalError = false;
   
   public TrainController() {
     
@@ -81,29 +86,52 @@ public class TrainController {
     this.manualMode = manualMode;
   }
   
+  // Send all vital input data to vital controllers.
   private void setVitalControlInputs() {
     vitalPrimary.manualMode = manualMode;
     vitalPrimary.targetSpeedMph = targetSpeedMph;
     vitalPrimary.currentSpeedMph = currentSpeedMph;
     vitalPrimary.targetSpeedMph = targetSpeedMph;
     vitalPrimary.speedLimitMph = speedLimitMph;
-    //vitalPrimary.authorityMi = speedAuthCmd.suggestedAuthMiles;
+    vitalPrimary.authorityMi = authorityMi;
     vitalPrimary.safeStoppingDistanceMi = safeStoppingDistanceMi;
+    vitalPrimary.speedAuthCmd = speedAuthCmd;
+
+    vitalSecondary.manualMode = manualMode;
+    vitalSecondary.targetSpeedMph = targetSpeedMph;
+    vitalSecondary.currentSpeedMph = currentSpeedMph;
+    vitalSecondary.targetSpeedMph = targetSpeedMph;
+    vitalSecondary.speedLimitMph = speedLimitMph;
+    vitalSecondary.authorityMi = authorityMi;
+    vitalSecondary.safeStoppingDistanceMi = safeStoppingDistanceMi;
+    vitalSecondary.speedAuthCmd = speedAuthCmd;
   }
   
   private void getVitalControlOutputs() {
-    emergencyBrake = vitalPrimary.emergencyBrake;
-    serviceBrake = vitalPrimary.serviceBrake;
-    targetSpeedMph = vitalPrimary.targetSpeedMph;
+    if (vitalPrimary.emergencyBrake != vitalSecondary.emergencyBrake
+        || vitalPrimary.serviceBrake != vitalSecondary.serviceBrake
+        || vitalPrimary.powerKw != vitalSecondary.powerKw
+        || vitalPrimary.authorityMi != vitalSecondary.authorityMi
+        || vitalPrimary.powerKw != vitalSecondary.powerKw) {
+      vitalError = true;
+      emergencyBrake = true;
+      powerKw = 0;
+    }
+    else {
+      emergencyBrake = vitalPrimary.emergencyBrake;
+      serviceBrake = vitalPrimary.serviceBrake;
+      targetSpeedMph = vitalPrimary.targetSpeedMph;
+      authorityMi = vitalPrimary.authorityMi;
+      powerKw = vitalPrimary.powerKw;
+    }
   }
   
   // Called by TrainModel to 
   public double calcPower() {   
     setVitalControlInputs();
     
-    vitalPrimary.determineSafeSpeed();
-    
-    powerKw = vitalPrimary.calcPower() / 1000.0;
+    vitalPrimary.update();
+    vitalSecondary.update();
     
     getVitalControlOutputs();
     
