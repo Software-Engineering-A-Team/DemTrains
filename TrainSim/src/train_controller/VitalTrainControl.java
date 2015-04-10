@@ -7,16 +7,16 @@ import system_wrapper.SpeedAuthCmd;
 // to detect vital errors.
 abstract class VitalTrainControl {
   // Attributes which TrainController manipulates
-  public double speedLimitMph;
-  public double currentSpeedMph;
-  public double targetSpeedMph;
-  public boolean emergencyBrake;
-  public boolean serviceBrake;
-  public double authorityMi;
-  public double safeStoppingDistanceMi;
-  public boolean manualMode;
-  public SpeedAuthCmd speedAuthCmd;
-  public double powerKw;
+  public double speedLimitMph = 0;
+  public double currentSpeedMph = 0;
+  public double targetSpeedMph = 0;
+  public boolean emergencyBrake = false;
+  public boolean serviceBrake = false;
+  public double authorityMi = 0;
+  public double safeStoppingDistanceMi = 0;
+  public boolean manualMode = false;
+  public SpeedAuthCmd speedAuthCmd = new SpeedAuthCmd(0, 0);
+  public double powerKw = 0;
   
   // Constants
   protected final double maxPowerKw = 120;

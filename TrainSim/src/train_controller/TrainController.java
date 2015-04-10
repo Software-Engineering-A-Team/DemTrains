@@ -18,10 +18,10 @@ public class TrainController {
   // Vital variables. Copies appear in each vital controller.
   private boolean manualMode = false;
   private SpeedAuthCmd speedAuthCmd = new SpeedAuthCmd(0, 0);
-  private boolean emergencyBrake = false;
-  private boolean serviceBrake = false;
   private double currentSpeedMph = 0;
   private double targetSpeedMph = 0;
+  private boolean emergencyBrake = false;
+  private boolean serviceBrake = false;
   private double speedLimitMph = 60;
   private double powerKw = 0;
   private double safeStoppingDistanceMi = 10;
