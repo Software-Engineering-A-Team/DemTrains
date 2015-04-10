@@ -44,7 +44,7 @@ public class TrainModel {
 	boolean leftDoorStatus = false;		// false = closed, true = open
 	boolean rightDoorStatus = false;	// false = closed, true = open
 	
-	boolean lightStatus = false;	// false = on, true = off
+	boolean lightStatus = false;	// false = off, true = on
 	
 	boolean engineFailure = false;	// true if failed
 	boolean brakeFailure = false;	// true if failed
