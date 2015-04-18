@@ -1,10 +1,16 @@
 package mbo;
 
+import java.text.ParseException;
+import java.util.Date;
 import java.util.HashMap;
 
 
 
+
+
 import javax.swing.table.DefaultTableModel;
+
+
 
 //import ctc_office.CTCDriver;
 import system_wrapper.*;
@@ -14,16 +20,18 @@ public class MovingBlockOverlay {
 
 	HashMap<String,Double> trainLocationTrackRMap;
 	HashMap<String,Double> trainLocationTrackGMap;
+	DefaultTableModel trainScheduleTable;
+	static DefaultTableModel crewScheduleTable;
 	DefaultTableModel trainSafeAuthorityRTable;
 	DefaultTableModel trainSafeAuthorityGTable;
 	SRSTrainCurrSpeed trainCurrSpeed;
 	SRSTrainStopDist trainStopDist;
 	SRSDistFromNextTrain trainAuth;
 	SRSTrainCommSpeed trainCommSpeed;
+	track_model.TrackModel trackModel;
 	Scheduler scheduler;
 	//SystemWrapper sysWrapper;
 	SimClock systemClock;
-	String trainSchedule;
 	//CTCDriver ctcDriver;   //this still need to be here?
 	//TrainModel trainModel; //this still need to be here?
 	
@@ -34,20 +42,42 @@ public class MovingBlockOverlay {
 	public MovingBlockOverlay(){
 		trainLocationTrackRMap = new HashMap<String,Double>();
 		trainLocationTrackGMap = new HashMap<String,Double>();
+		trainScheduleTable = new DefaultTableModel();
+			trainScheduleTable.addColumn("Train ID");
+			trainScheduleTable.addColumn("Weekday");
+			trainScheduleTable.addColumn("Station");
+			trainScheduleTable.addColumn("Departure Time");
+		crewScheduleTable = new DefaultTableModel();
+			crewScheduleTable.addColumn("Crew Member");
+			crewScheduleTable.addColumn("Train ID");
+			crewScheduleTable.addColumn("Weekday");
+			crewScheduleTable.addColumn("Start Time");
+			crewScheduleTable.addColumn("Break Time");
+			crewScheduleTable.addColumn("End Time");
 		trainSafeAuthorityRTable = new DefaultTableModel();
 			trainSafeAuthorityRTable.addColumn("Train ID");
 			trainSafeAuthorityRTable.addColumn("Safe Authority");
+			trainSafeAuthorityRTable.addColumn("Passengers");
 		trainSafeAuthorityGTable = new DefaultTableModel();
 			trainSafeAuthorityGTable.addColumn("Train ID");
 			trainSafeAuthorityGTable.addColumn("Safe Authority");
+			trainSafeAuthorityGTable.addColumn("Passengers");
+		String[] stuff = {"r0","200"};
+		String[] stuff2 = {"r1","300"};
+		String[] stuff3 = {"r0","400"};
+		trainSafeAuthorityRTable.insertRow(0,stuff);
+		trainSafeAuthorityRTable.insertRow(1,stuff2);
+		trainSafeAuthorityRTable.removeRow(0);
+		trainSafeAuthorityRTable.insertRow(0, stuff3);  //it will overwrite this location
+		
 		trainCurrSpeed = new SRSTrainCurrSpeed();
 		trainStopDist = new SRSTrainStopDist();	
 		trainAuth = new SRSDistFromNextTrain();
+		trackModel = new track_model.TrackModel();
 		trainCommSpeed = new SRSTrainCommSpeed();
 		scheduler = new Scheduler();
-		trainSchedule = "";
 		//sysWrapper = new SystemWrapper();
-		gui = new MBOGUI();
+		//gui = new MBOGUI();
 	}
 	/*public void setCTC(CTCDriver ctc){
 		ctcDriver = ctc;
@@ -60,15 +90,17 @@ public class MovingBlockOverlay {
 		SystemWrapper.ctcOffice.setActualTrainLocations("trackB", trainLocationTrackGMap);
 	}
 	
-	public void getTrainSchedule(int startTime, int[] throughputArray){
+	public void getTrainSchedule(String startTime, int[] throughputArray) throws ParseException {
 		//need track model
 		//initialize the trackMaps with the starting locations all being zero
-		//setMBOTrainSchedule() for CTC
-		scheduler.createTrainSchedule(startTime, throughputArray);
-		trainSchedule = "Station, 8:00";
+		scheduler.createRTrainSchedule(startTime, throughputArray);
+		scheduler.createGTrainSchedule(startTime, throughputArray);
+		//SystemWrapper.ctcOffice.setMBOSchedule("red",scheduler.createRTrainSchedule(startTime, throughputArray));
+		//SystemWrapper.ctcOffice.setMBOSchedule("green",scheduler.createGTrainSchedule(startTime, throughputArray));
+		
 	}
 	
-	public void getCrewSchedule(int startTime, int[] throughputArray){
+	public void getCrewSchedule(String startTime, int[] throughputArray){
 		//need train schedule
 		scheduler.createCrewSchedule();
 	}
