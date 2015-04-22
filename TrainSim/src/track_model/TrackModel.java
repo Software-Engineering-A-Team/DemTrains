@@ -33,26 +33,6 @@ public class TrackModel {
 	}
 	
 	/**
-     * Retrieves the TrackLayout object corresponding to the passed track line name.
-     * If TrackLayout object does not exist yet, it is created and the new instance is returned.
-     * @param lineName The name of the track line.
-     * @return The TrackLayout corresponding to the passed track line name.
-     */ 
-    public TrackLayout getLine(String lineName) {
-        if (trackLayouts.containsKey(lineName)) {
-            System.out.printf("Track line with name %s already exists. Returning instance.\n", lineName);
-            return trackLayouts.get(lineName);
-        } else {
-            System.out.printf("Creating a new track line with name %s.\n", lineName);
-            TrackLayout newLine = new TrackLayout();
-            newLine.blocks.add(yard);
-            newLine.layout.addVertex(0);
-            trackLayouts.put(lineName, newLine);
-            return newLine;
-        }
-    }
-	
-	/**
 	 * Creates a TrackBlock object using the attributes given.
 	 * @param attributes The attributes describing the TrackBlock object read in from track data file.
 	 * @return A complete TrackBlock object.

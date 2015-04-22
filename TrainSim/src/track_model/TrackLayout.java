@@ -1,9 +1,11 @@
 package track_model;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Queue;
 
 import org.jgrapht.graph.DirectedMultigraph;
 import org.jgrapht.graph.DefaultEdge;
@@ -15,6 +17,7 @@ public class TrackLayout {
 	public List<TrackBlock> blocks;
 	public Map<Integer, Integer> switchToBlocks;
 	public Map<String, Integer> trains; // maps from train ID to block ID
+	private Map<String, Queue<Integer>> trainHistory;
 	
 	/**
 	 * Creates a new instance of the TrackLayout class.
@@ -25,6 +28,7 @@ public class TrackLayout {
 		blocks = new ArrayList<TrackBlock>();
 		switchToBlocks = new HashMap<Integer, Integer>();
 		trains = new HashMap<String, Integer>();
+		trainHistory = new HashMap<String, Queue<Integer>>();
 	}
 	
 	/**
@@ -34,7 +38,25 @@ public class TrackLayout {
 	 * @return The TrackBlock on which the train with unique identifier trainID is located.
 	 */	
 	public TrackBlock getCurrentBlock(String trainName, double totalDistance, TrackBlock previousBlock) {
-		
+		// if this is a new train, we need to initialize a new queue history for it
+		if (!trainHistory.containsKey(trainName)) {
+			Queue<Integer> history = new LinkedList<Integer>();
+			trainHistory.put(trainName, history);
+		}
+		// find the first block that a train will spawn on in this given TrackLayout
+		int firstBlockNumberFromYard = (int)layout.outgoingEdgesOf(0).toArray()[0];
+		TrackBlock firstBlockFromYard = blocks.get(firstBlockNumberFromYard);
+		// special case for when the train has just spawned on the first block
+		if (previousBlock == null) {
+			trainHistory.get(trainName).offer(firstBlockFromYard.number);
+			firstBlockFromYard.occupancy = true;
+			return firstBlockFromYard;
+		}
+		if (previousBlock.number == firstBlockNumberFromYard) {
+			
+		}
+		// set occupancy of track block
+		// if track block is already occupied, compare previous distance and set direction
 		return null;
 	}
     

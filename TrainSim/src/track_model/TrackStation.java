@@ -7,6 +7,7 @@ public class TrackStation extends TrackBlock {
 	
 	public String stationName;
 	public String beacon;
+	public int passengersWaiting;
 	
 	/**
 	 * Creates a new instance of the TrackStation subclass.
@@ -16,6 +17,7 @@ public class TrackStation extends TrackBlock {
 		super(descriptor);
 		this.stationName = descriptor.get("stationName");
 		this.beacon = null;
+		this.passengersWaiting = generatePassengers();
 	}
 	
 	/**
