@@ -28,6 +28,7 @@ import java.awt.Component;
 import javax.swing.Box;
 
 import system_wrapper.SimClock;
+import system_wrapper.SpeedAuthCmd;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -55,6 +56,7 @@ public class TrainControllerGui extends JFrame {
   private JTextField textFieldStationName;
   private JTextField textFieldSafeStoppingDistance;
   private JTextField textFieldAuthority;
+  private JTextField textFieldCmdSpeed;
   private JSlider sliderTargetSpeed;
   private JRadioButton rdbtnManual;
   private JRadioButton rdbtnAutomatic;
@@ -67,6 +69,7 @@ public class TrainControllerGui extends JFrame {
   private JCheckBox chckbxRightDoorsOpen;
   private JComboBox comboBoxSelectedTrain;
   private ArrayList<TrainController> trainControllers;
+  ArrayList<TestTrainModel> testTrainModels;
   private int trainIndex;
   public TrainController trainController;
   private NumberFormat formatter = new DecimalFormat("#0.00");
@@ -82,12 +85,18 @@ public class TrainControllerGui extends JFrame {
       public void run() {
         try {
           ArrayList<TrainController> trainControllers = new ArrayList<TrainController>();
+          ArrayList<TestTrainModel> testTrainModels = new ArrayList<TestTrainModel>();
+          
           for (int i = 0; i < 10; i++) {
-            trainControllers.add(new TrainController(i));
+            TrainController trainController = new TrainController(i);
+            TestTrainModel trainModel = new TestTrainModel(trainController);
+            
+            trainControllers.add(trainController);
+            testTrainModels.add(trainModel);
           }
           
           
-          TrainControllerGui window = new TrainControllerGui(trainControllers, true);
+          TrainControllerGui window = new TrainControllerGui(trainControllers, testTrainModels);
           
           
           window.setVisible(true);
@@ -146,6 +155,25 @@ public class TrainControllerGui extends JFrame {
     if (standalone) {
       controllerTimer.start();
     }
+  }
+  
+  public TrainControllerGui(ArrayList<TrainController> trainControllers, ArrayList<TestTrainModel> testTrainModels) {
+    this.standalone = true;
+    this.trainControllers = trainControllers;
+    this.testTrainModels = testTrainModels;
+    
+    if (trainControllers.size() == 0) {
+      trainController = new TrainController();
+    }
+    else {
+      trainIndex = 0;
+      trainController = trainControllers.get(trainIndex); 
+    }
+    initialize();
+    this.updateDisplayData();
+    displayTimer.start();
+    
+    testModelTimer.start();
   }
 
   /**
@@ -256,7 +284,6 @@ public class TrainControllerGui extends JFrame {
     if (standalone) {
       textFieldCurrentSpeed.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
-          //System.out.println("current speed = " + textFieldCurrentSpeed.getText());
           trainController.setCurrentSpeed(Double.parseDouble(textFieldCurrentSpeed.getText()));
         }
       });
@@ -266,11 +293,11 @@ public class TrainControllerGui extends JFrame {
     textFieldCurrentSpeed.setColumns(10);
     
     chckbxRightDoorsOpen = new JCheckBox("Right doors open");
-    chckbxRightDoorsOpen.setBounds(12, 221, 149, 23);
+    chckbxRightDoorsOpen.setBounds(12, 263, 149, 23);
     this.getContentPane().add(chckbxRightDoorsOpen);
     
     chckbxLeftDoorsOpen = new JCheckBox("Left doors open");
-    chckbxLeftDoorsOpen.setBounds(12, 248, 149, 23);
+    chckbxLeftDoorsOpen.setBounds(12, 290, 149, 23);
     this.getContentPane().add(chckbxLeftDoorsOpen);
     
     chckbxServiceBrake = new JCheckBox("Service Brake");
@@ -295,9 +322,11 @@ public class TrainControllerGui extends JFrame {
       public void actionPerformed(ActionEvent e) {
         AbstractButton button = (AbstractButton) e.getSource();
         if (button.getModel().isSelected()) {
+          System.out.println("Ebrake engaged");
           trainController.setEmergencyBrake(true);
         }
         else {
+          System.out.println("Ebrake disengaged");
           trainController.setEmergencyBrake(false);
         }
       }
@@ -306,49 +335,49 @@ public class TrainControllerGui extends JFrame {
     this.getContentPane().add(chckbxEmergencyBrake);
     
     chckbxLightsOn = new JCheckBox("Lights On");
-    chckbxLightsOn.setBounds(266, 221, 129, 23);
+    chckbxLightsOn.setBounds(266, 263, 129, 23);
     this.getContentPane().add(chckbxLightsOn);
     
     chckbxAirConditioning = new JCheckBox("Air Conditioning");
-    chckbxAirConditioning.setBounds(266, 248, 144, 23);
+    chckbxAirConditioning.setBounds(266, 290, 144, 23);
     this.getContentPane().add(chckbxAirConditioning);
     
     JLabel lblBeacon = new JLabel("Beacon");
-    lblBeacon.setBounds(12, 328, 70, 15);
+    lblBeacon.setBounds(12, 416, 70, 15);
     this.getContentPane().add(lblBeacon);
     
     JLabel lblDistanceFromStation = new JLabel("Distance from station (miles)");
-    lblDistanceFromStation.setBounds(12, 355, 204, 15);
+    lblDistanceFromStation.setBounds(12, 443, 204, 15);
     this.getContentPane().add(lblDistanceFromStation);
     
     textFieldDistanceFromStation = new JTextField();
     textFieldDistanceFromStation.setEditable(false);
-    textFieldDistanceFromStation.setBounds(238, 353, 70, 19);
+    textFieldDistanceFromStation.setBounds(238, 441, 70, 19);
     this.getContentPane().add(textFieldDistanceFromStation);
     textFieldDistanceFromStation.setColumns(10);
     
     JLabel lblStationName = new JLabel("Station Name");
-    lblStationName.setBounds(12, 382, 96, 15);
+    lblStationName.setBounds(12, 470, 96, 15);
     this.getContentPane().add(lblStationName);
     
     textFieldStationName = new JTextField();
     textFieldStationName.setEditable(false);
-    textFieldStationName.setBounds(186, 382, 122, 19);
+    textFieldStationName.setBounds(186, 470, 122, 19);
     this.getContentPane().add(textFieldStationName);
     textFieldStationName.setColumns(10);
     
     chckbxStopRequired = new JCheckBox("Stop Required");
     chckbxStopRequired.setEnabled(false);
-    chckbxStopRequired.setBounds(12, 405, 129, 23);
+    chckbxStopRequired.setBounds(12, 493, 129, 23);
     this.getContentPane().add(chckbxStopRequired);
     
     JLabel lblSafeStoppingDistance = new JLabel("Safe Stopping Distance (miles)");
-    lblSafeStoppingDistance.setBounds(12, 286, 229, 15);
+    lblSafeStoppingDistance.setBounds(12, 328, 229, 15);
     this.getContentPane().add(lblSafeStoppingDistance);
     
     textFieldSafeStoppingDistance = new JTextField();
     textFieldSafeStoppingDistance.setEditable(false);
-    textFieldSafeStoppingDistance.setBounds(238, 284, 70, 19);
+    textFieldSafeStoppingDistance.setBounds(238, 326, 70, 19);
     this.getContentPane().add(textFieldSafeStoppingDistance);
     textFieldSafeStoppingDistance.setColumns(10);
     
@@ -362,7 +391,7 @@ public class TrainControllerGui extends JFrame {
     textFieldAuthority.setColumns(10);
     
     JLabel lblSelectedTrain = new JLabel("Selected Train");
-    lblSelectedTrain.setBounds(339, 328, 109, 15);
+    lblSelectedTrain.setBounds(373, 416, 109, 15);
     getContentPane().add(lblSelectedTrain);
     
     comboBoxSelectedTrain = new JComboBox<Integer>();
@@ -399,8 +428,28 @@ public class TrainControllerGui extends JFrame {
       public void popupMenuCanceled(PopupMenuEvent e) {}
     };
     comboBoxSelectedTrain.addPopupMenuListener(selectedTrainPopupListener);
-    comboBoxSelectedTrain.setBounds(339, 350, 109, 24);
+    comboBoxSelectedTrain.setBounds(373, 438, 109, 24);
     getContentPane().add(comboBoxSelectedTrain);
+    
+    JLabel lblCommandedSpeedmph = new JLabel("Commanded Speed (mph)");
+    lblCommandedSpeedmph.setBounds(225, 221, 192, 15);
+    getContentPane().add(lblCommandedSpeedmph);
+    
+    textFieldCmdSpeed = new JTextField();
+    textFieldCmdSpeed.setBounds(412, 219, 70, 19);
+    textFieldCmdSpeed.setEditable(standalone);
+    textFieldCmdSpeed.setText(formatter.format(trainController.getSpeedAuthCmd().suggestedSpeedMph));
+    if (standalone) {
+      textFieldCmdSpeed.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          SpeedAuthCmd cmd = new SpeedAuthCmd(trainController.getSpeedAuthCmd().suggestedSpeedMph, trainController.getSpeedAuthCmd().suggestedAuthMiles);
+          cmd.suggestedSpeedMph = Double.parseDouble(textFieldCmdSpeed.getText());
+          trainController.setSpeedAuthCmd(cmd);
+        }
+      });
+    }
+    getContentPane().add(textFieldCmdSpeed);
+    textFieldCmdSpeed.setColumns(10);
   }
   
   public void updateDisplayData() {    
@@ -409,11 +458,10 @@ public class TrainControllerGui extends JFrame {
     textFieldSafeStoppingDistance.setText(formatter.format(trainController.getSafeStoppingDistance()));
     enginePowerTextField.setText(formatter.format(trainController.getPower()));
     textFieldSpeedLimit.setText(formatter.format(trainController.getSpeedLimit()));
+    textFieldAuthority.setText(formatter.format(trainController.getAuthority()));
+    textFieldCurrentSpeed.setText(formatter.format(trainController.getCurrentSpeed()));
     
     
-    if (!standalone) {
-      textFieldCurrentSpeed.setText(formatter.format(trainController.getCurrentSpeed()));
-    }
     
     if (trainController.isManualMode()) {
       trainController.setManualMode(true);
@@ -433,6 +481,11 @@ public class TrainControllerGui extends JFrame {
       this.chckbxLightsOn.setSelected(trainController.isLightOn());
       this.textFieldCurrentSpeed.setText(formatter.format(trainController.getCurrentSpeed()));
     }
+    
+    if (!standalone)
+    {
+      this.textFieldCmdSpeed.setText(formatter.format(trainController.getSpeedAuthCmd().suggestedSpeedMph));
+    }
   }
   
   private Timer displayTimer = new Timer(100, new ActionListener() {
@@ -449,8 +502,20 @@ public class TrainControllerGui extends JFrame {
       SimClock.tick();
       
       for (int i = 0; i < trainControllers.size(); i++) {
-
         trainControllers.get(i).calcPower();
+      }
+    }
+  });
+  
+
+  
+  private Timer testModelTimer = new Timer(SimClock.getDeltaMs(), new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      SimClock.tick();
+      
+      for (int i = 0; i < testTrainModels.size(); i++) {
+        testTrainModels.get(i).update();
       }
     }
   });

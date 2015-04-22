@@ -3,7 +3,9 @@ package train_controller;
 import system_wrapper.SpeedAuthCmd;
 
 // Class whose main function is to control the engine power of a TrainModel.
-// 
+// It uses two vital controllers which control the power and braking given
+// inputs from the TrainModel and the driver. If the vital controllers return
+// different results, a vital error has occurred.
 public class TrainController {
   private final VitalTrainControl vitalPrimary = new VitalTrainControlPrimary();
   private final VitalTrainControl vitalSecondary = new VitalTrainControlPrimary();
@@ -70,11 +72,8 @@ public class TrainController {
   
   // The speed command will only be followed if in automatic mode.
   public void setSpeedAuthCmd(SpeedAuthCmd cmd) {
-    speedAuthCmd = cmd;
-    
-    if (!manualMode) {
-      targetSpeedMph = speedAuthCmd.suggestedSpeedMph;
-    }
+    speedAuthCmd.suggestedAuthMiles = cmd.suggestedAuthMiles;
+    speedAuthCmd.suggestedSpeedMph = cmd.suggestedSpeedMph;
   }
   
   public void setSafeStoppingDistance(double safeStoppingDistanceMi) {
@@ -192,5 +191,9 @@ public class TrainController {
   
   public int getId() {
     return id;
+  }
+  
+  public double getAuthority() {
+    return authorityMi;
   }
 }

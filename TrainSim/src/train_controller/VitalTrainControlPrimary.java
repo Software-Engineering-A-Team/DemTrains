@@ -7,27 +7,32 @@ public class VitalTrainControlPrimary extends VitalTrainControl{
   private double controlVar = 0;
   private double lastSpeedErrorMph = 0;
   
-  
-  public double calcPower() {
-    double speedErrorMph;
-    
-    speedErrorMph = targetSpeedMph - currentSpeedMph;
-    
-    if (!(powerKw == 0 && speedErrorMph < 0.0) && (powerKw < maxPowerKw || speedErrorMph < 0.0)) {
-      controlVar += (SimClock.getDeltaS() / 2.0) * (speedErrorMph + lastSpeedErrorMph);
-    }
-    
-    powerKw = Kp * speedErrorMph + Ki * controlVar;
-    
-    //System.out.println("speedErrorMph = " + speedErrorMph + "   controlVar = " + controlVar);
-    
-    if (powerKw > maxPowerKw) {
-      powerKw = maxPowerKw;
-    }
-    else if (powerKw < 0) {
+  //
+  public double calcPower() {    
+    if (emergencyBrake || serviceBrake)
+    {
       powerKw = 0;
     }
-    
+    else
+    {
+      double speedErrorMph = targetSpeedMph - currentSpeedMph;
+      
+      if (!(powerKw == 0 && speedErrorMph < 0.0) && (powerKw < maxPowerKw || speedErrorMph < 0.0)) {
+        controlVar += (SimClock.getDeltaS() / 2.0) * (speedErrorMph + lastSpeedErrorMph);
+      }
+      
+      powerKw = Kp * speedErrorMph + Ki * controlVar;
+      
+      //System.out.println("speedErrorMph = " + speedErrorMph + "   controlVar = " + controlVar);
+      
+      if (powerKw > maxPowerKw) {
+        powerKw = maxPowerKw;
+      }
+      else if (powerKw < 0) {
+        powerKw = 0;
+      }
+    }
+      
     return powerKw;
   }
 
@@ -46,19 +51,20 @@ public class VitalTrainControlPrimary extends VitalTrainControl{
         serviceBrake = false;
       }
       
-      // Similar scheme as above, but this threshold is the maximum allowed gap between the
-      // the current speed and the speed limit, because we want to keep the train below the
-      // limit by a certain amount.
-      if (!emergencyBrake && (speedLimitMph - currentSpeedMph <= emergencyBrakeThresholdMph)
-          || emergencyBrake && (speedLimitMph - currentSpeedMph >= serviceBrakeThresholdMph + brakeRecoveryThresholdMph)) {
-        emergencyBrake = true;
-      }
-      else {
-        emergencyBrake = false;
-      }
-      
       // Use suggested speed.
       targetSpeedMph = speedAuthCmd.suggestedSpeedMph;
+    }
+
+    
+    // Similar scheme as service brake, but this threshold is the maximum allowed gap between the
+    // the current speed and the speed limit, because we want to keep the train below the
+    // limit by a certain amount.
+    if (!emergencyBrake && (speedLimitMph - currentSpeedMph <= emergencyBrakeThresholdMph)
+        || emergencyBrake && (speedLimitMph - currentSpeedMph >= serviceBrakeThresholdMph + brakeRecoveryThresholdMph)) {
+      emergencyBrake = true;
+    }
+    else {
+      emergencyBrake = false;
     }
   }
 }
