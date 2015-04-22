@@ -29,6 +29,9 @@ import java.util.ArrayList;
 import javax.swing.Timer;
 import javax.swing.JTextPane;
 import javax.swing.JTextArea;
+import javax.swing.JCheckBox;
+import javax.swing.JToggleButton;
+import javax.swing.SwingConstants;
 
 public class TrackControllerGUI extends JFrame {
 
@@ -56,6 +59,7 @@ public class TrackControllerGUI extends JFrame {
 	private JComboBox<String> weatherPicker;
 	private static Timer displayTimer;
 	private JTextArea CTCInfoPane;
+	private static boolean manualOverride = false;
 	
 	/**
 	 * Launch the application.
@@ -118,7 +122,7 @@ public class TrackControllerGUI extends JFrame {
 		
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 738, 382);
+		setBounds(100, 100, 830, 382);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -239,14 +243,16 @@ public class TrackControllerGUI extends JFrame {
 				model = new DefaultTableModel(new Object[][] {
 					      { "Line", currentLine }, { "Block", currentBlock.number }, { "Occupancy", currentBlock.occupancy},
 					      { "Weather", currentBlock.weather}, { "Speed limit (mph)", currentBlock.speedLimit }, { "Cmd speed (mph)", currentBlock.commandedSpeed },
-					      { "Cmd authority (yards)", currentBlock.commandedAuthority }, { "Broken status", null }, { "Light status", currentBlock.lights }, {"Closed status", null},
+					      { "Cmd authority (yards)", currentBlock.commandedAuthority }, { "Failure mode", currentBlock.failure }, { "Light status", currentBlock.lights }, 
 					      { "Heater status", currentBlock.heater }, { "Switch position", switchStatus }, {"Crossing status", crossingStatus}}, 
 					      new Object[] { "Attribute", "Value" });
 				
 				table_1 = new JTable(model);
-				table_1.setRowSelectionAllowed(false);
 				table_1.setFillsViewportHeight(true);
-				table_1.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);				
+				table_1.setRowSelectionAllowed(false);
+				table_1.setSize(310, 269);
+				table_1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);	
+				System.out.println(table_1.getBounds());
 				
 				JScrollPane blockInfoScroll = new JScrollPane(table_1);
 				blockInfoScroll.setBounds(207, 57, 289, 269);
@@ -282,7 +288,7 @@ public class TrackControllerGUI extends JFrame {
 						}
 					}
 				});
-				btnFlipSwitch.setBounds(525, 61, 175, 23);
+				btnFlipSwitch.setBounds(525, 104, 175, 23);
 				contentPane.add(btnFlipSwitch);
 				
 				JButton btnActivateCrossing = new JButton("Toggle Crossing State");
@@ -298,24 +304,27 @@ public class TrackControllerGUI extends JFrame {
 						}
 					}
 				});
-				btnActivateCrossing.setBounds(525, 92, 175, 23);
+				btnActivateCrossing.setBounds(525, 138, 175, 23);
 				contentPane.add(btnActivateCrossing);
 				
 				JLabel lblStandaloneTestInputs = new JLabel("Standalone Mode Test Inputs:");
-				lblStandaloneTestInputs.setBounds(506, 137, 201, 14);
+				lblStandaloneTestInputs.setBounds(506, 172, 201, 14);
 				contentPane.add(lblStandaloneTestInputs);
 				
 				JLabel lblWeather = new JLabel("Weather: ");
-				lblWeather.setBounds(525, 162, 87, 14);
+				lblWeather.setBounds(525, 197, 87, 14);
 				contentPane.add(lblWeather);
 				
 				weatherPicker = new JComboBox<String>();
 				weatherPicker.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						currentBlock.weather = weatherPicker.getSelectedItem().toString();
+						if (weatherPicker.getSelectedItem().toString().equals("Clear")){
+							currentBlock.weather = null;
+						}
+						else currentBlock.weather = weatherPicker.getSelectedItem().toString();
 					}
 				});
-				weatherPicker.setBounds(606, 159, 94, 20);
+				weatherPicker.setBounds(606, 194, 94, 20);
 				contentPane.add(weatherPicker);
 				weatherPicker.addItem("Clear");
 				weatherPicker.addItem("Rain");
@@ -323,47 +332,52 @@ public class TrackControllerGUI extends JFrame {
 				weatherPicker.addItem("Ice");
 				
 				JLabel lblSuggestSpeed = new JLabel("Suggest Speed: ");
-				lblSuggestSpeed.setBounds(525, 187, 107, 14);
+				lblSuggestSpeed.setBounds(525, 225, 107, 14);
 				contentPane.add(lblSuggestSpeed);
 				
 				JLabel lblSuggestAuthority = new JLabel("Suggest Authority:");
-				lblSuggestAuthority.setBounds(525, 210, 107, 14);
+				lblSuggestAuthority.setBounds(525, 250, 107, 14);
 				contentPane.add(lblSuggestAuthority);
 				
 				JLabel lblBlockStatus = new JLabel("Block Status:");
-				lblBlockStatus.setBounds(525, 235, 100, 14);
+				lblBlockStatus.setBounds(525, 275, 100, 14);
 				contentPane.add(lblBlockStatus);
 				
 				blockStatusPicker = new JComboBox<String>();
 				blockStatusPicker.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						if(!blockStatusPicker.getSelectedItem().toString().equals("Open")){
+						if(blockStatusPicker.getSelectedItem().toString().equals("Good")){
+							currentBlock.failure = null;
+						}
+						else {
 							currentBlock.failure = blockStatusPicker.getSelectedItem().toString();
 						}
 					}
 				});
-				blockStatusPicker.setBounds(606, 232, 94, 20);
+				blockStatusPicker.setBounds(606, 272, 94, 20);
 				contentPane.add(blockStatusPicker);
-				blockStatusPicker.addItem("Open");
-				blockStatusPicker.addItem("Closed");
-				blockStatusPicker.addItem("Broken");
+				blockStatusPicker.addItem("Good");
+				blockStatusPicker.addItem("Maintenance");
+				blockStatusPicker.addItem("Broken Track");
+				blockStatusPicker.addItem("Power Failure");
+				blockStatusPicker.addItem("Circuit Failure");
 				
 				speedSug = new JTextField();
-				speedSug.setBounds(633, 184, 34, 20);
+				speedSug.setBounds(633, 222, 34, 20);
 				contentPane.add(speedSug);
 				speedSug.setColumns(10);
 				
 				sugAuth = new JTextField();
 				sugAuth.setColumns(10);
-				sugAuth.setBounds(633, 207, 34, 20);
+				sugAuth.setBounds(633, 247, 34, 20);
 				contentPane.add(sugAuth);
 				
 				JLabel lblMph = new JLabel("mph");
-				lblMph.setBounds(677, 187, 34, 14);
+				lblMph.setBounds(676, 225, 34, 14);
 				contentPane.add(lblMph);
 				
 				JLabel lblMiles = new JLabel("miles");
-				lblMiles.setBounds(676, 210, 46, 14);
+				lblMiles.setBounds(676, 250, 46, 14);
 				contentPane.add(lblMiles);
 				
 				JButton btnToggleOccupancy = new JButton("Toggle Occupancy");
@@ -374,22 +388,44 @@ public class TrackControllerGUI extends JFrame {
 						System.out.println("Block occupied: " + currentBlock.occupancy);
 					}
 				});
-				btnToggleOccupancy.setBounds(509, 267, 191, 23);
+				btnToggleOccupancy.setBounds(509, 303, 191, 23);
 				contentPane.add(btnToggleOccupancy);
-		
+				
+				JToggleButton tglbtnOverride = new JToggleButton("Override");
+				tglbtnOverride.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						manualOverride = !manualOverride;
+						if(manualOverride) {
+							tglbtnOverride.setText("In manual mode");
+						}
+						else {
+							tglbtnOverride.setText("Override");
+						}
+					}
+				});
+				tglbtnOverride.setBounds(525, 65, 175, 23);
+				contentPane.add(tglbtnOverride);
 	}
 	
 	/*
 	 * Update the table data in the GUI
 	 */
 	public void updateData() {
+		//on updates change picker drop downs to whatever the current block has
+		if(currentBlock.weather == null) weatherPicker.setSelectedItem("Clear");
+		else weatherPicker.setSelectedItem(currentBlock.weather);
+		if(currentBlock.failure == null) blockStatusPicker.setSelectedItem("Good");
+		else blockStatusPicker.setSelectedItem(currentBlock.failure);
+		
+		
+		
 		if(currentController != null){
-			wContrl.runPLC(currentController);
+			wContrl.runPLC(currentController, manualOverride);
 			
 			if(currentController.containsSwitch & !currentController.containsCrossing) {
 				switchStatus = "";
 				crossingStatus = "";
-				ArrayList<TrackSwitch> s = currentController.findSwitches();
+				ArrayList<TrackSwitch> s = currentController.findSwitches(currentLine);
 				if(!s.isEmpty()){
 					for (TrackSwitch t: s) {
 						boolean pTB = t.state;
@@ -414,7 +450,7 @@ public class TrackControllerGUI extends JFrame {
 			else if(currentController.containsCrossing & currentController.containsSwitch) {
 				switchStatus = "";
 				TrackCrossing tc = (TrackCrossing) currentController.blockMap.get(19);
-				ArrayList<TrackSwitch> s = currentController.findSwitches();
+				ArrayList<TrackSwitch> s = currentController.findSwitches(currentLine);
 				for (TrackSwitch t: s) {
 					boolean pTB = t.state;
 					int index;
@@ -441,32 +477,37 @@ public class TrackControllerGUI extends JFrame {
 		model.setValueAt(currentBlock.speedLimit, 4, 1);
 		model.setValueAt(currentBlock.commandedSpeed, 5, 1);
 		model.setValueAt(currentBlock.commandedAuthority, 6, 1);
-		model.setValueAt(null, 7, 1);
+		model.setValueAt(currentBlock.failure, 7, 1);
 		model.setValueAt(currentBlock.lights, 8, 1);
 		if(currentBlock.lights){
 			model.setValueAt("red", 8, 1);
 		}
 		else model.setValueAt("green", 8, 1);
-		model.setValueAt(null, 9, 1);
-		model.setValueAt(currentBlock.heater, 10, 1);
-		model.setValueAt(switchStatus, 11, 1);
-		model.setValueAt(crossingStatus, 12, 1);
+		model.setValueAt(currentBlock.heater, 9, 1);
+		model.setValueAt(switchStatus, 10, 1);
+		model.setValueAt(crossingStatus, 11, 1);
 		
-		//TO DO: fix printing forever.
-		/*
-		if(currentController != null){
-			String CTCInfo = new String();
-			for(TrainRoute r : currentController.routes){
-				CTCInfo = CTCInfo + "\n"+ r.lineName + " line ";
-				CTCInfo = CTCInfo + "\n Suggested authority: "+ r.authority;
-				CTCInfo = CTCInfo = CTCInfo + "\n Suggested speed: "+ r.speed;
-				CTCInfo = CTCInfo + "\n Start block:  "+ r.startingBlock;
-				CTCInfo = CTCInfo + "\n Route:  "+ r.route.toString();
+		//display routes added for all controllers
+		for(WaysideController c : wContrl.blockControllerMapGreen.values()){
+			if(c.ctcInfo != null){
+				CTCInfoPane.append(c.ctcInfo);
+				c.ctcInfo = null;
 			}
-			CTCInfoPane.append(CTCInfo);
-		}*/
+		}
+		
+		for( WaysideController c : wContrl.blockControllerMapRed.values()){
+			if(c.ctcInfo != null){
+				CTCInfoPane.append(c.ctcInfo);
+				c.ctcInfo = null;
+			}
+		}
+		
 		
 		table_1.setModel(model);
 		table_1.repaint();
+	}
+	
+	public static boolean inManualMode(){
+		return manualOverride;
 	}
 }

@@ -55,7 +55,7 @@ public class PLC2 implements PLCInterface {
 	 * true green, false red
 	 */
 	public boolean ctrlLights(TrackBlock b) {
-		if(b.occupancy | b.hasFailure()) return true;
+		if(b.occupancy || b.hasFailure()) return true;
 		else return false;
 	}
 	
@@ -91,17 +91,5 @@ public class PLC2 implements PLCInterface {
 			if(b.occupancy) return false;
 		}
 	 return true;
-	}
-	
-
-	/*
-	 * Runs all functions of PLC Program
-	 */
-	public void run(){
-		for (int i = 16; i<24; i++) {
-			TrackBlock b = controlledBlocks.get(i);
-			b.heater = ctrlHeater(b);
-			b.lights = ctrlLights(b);
-		}
 	}
 }

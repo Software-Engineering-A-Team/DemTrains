@@ -282,8 +282,8 @@ public class WaysideSystem {
 	public boolean setBeacon(String beacon, int blockNum) {
 		return true;
 	}
-	
-	public void runPLC(WaysideController w) {
-		w.runPLC();
+
+	public void runPLC(WaysideController w, boolean manual) {
+		w.runPLC(manual);
 	}
 }

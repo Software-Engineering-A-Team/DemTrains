@@ -13,6 +13,7 @@ public class PLC1 implements PLCInterface {
 	public PLC1(HashMap<Integer, TrackBlock> blockList){
 		this.controlledBlocks = blockList;
 	}	
+	
 	/*
 	 * Determines safe state of the railway crossing and returns the state
 	 * true for active, false for inactive
@@ -20,6 +21,7 @@ public class PLC1 implements PLCInterface {
 	public boolean ctrlCrossing(TrainRoute r) {
 		return true;
 	}
+	
 	/*
 	 * Determines safe state of the switch and returns the state
 	 * true for second block in attach array , false for first block in attach array
@@ -57,6 +59,7 @@ public class PLC1 implements PLCInterface {
 		}
 		return relSwitch.state;
 	}
+	
 	/*
 	 * Determines safe state of the track heater and returns the state
 	 * true on, false off
@@ -65,14 +68,16 @@ public class PLC1 implements PLCInterface {
 		if(b.hasAdverseWeather()) return true;
 		else return false;		
 	}
+	
 	/*
 	 * Determines safe state of the lights and returns the state
 	 * true green, false red
 	 */
 	public boolean ctrlLights(TrackBlock b) {
-		if(b.occupancy | b.hasFailure()) return true;
+		if(b.occupancy || b.hasFailure()) return true;
 		else return false;
 	}
+	
 	/*
 	 * Determines safe speed and authority and returns 
 	 * 
@@ -82,6 +87,7 @@ public class PLC1 implements PLCInterface {
 		//else if (authority > safeAuthority) return false;
 		else return true;
 	}
+	
 	/*
 	 * Determines safe closing of block and returns block state
 	 * true for open, false for closed
@@ -103,17 +109,5 @@ public class PLC1 implements PLCInterface {
 			if(b.occupancy) return false;
 		}
 	 return true;
-	}
-	
-	
-	/*
-	 * Runs all functions of PLC Program
-	 */
-	public void run(){
-		for (int i = 1; i<17; i++) {
-			TrackBlock b = controlledBlocks.get(i);
-			b.heater = ctrlHeater(b);
-			b.lights = ctrlLights(b);
-		}
 	}
 }
