@@ -9,25 +9,22 @@ import java.util.PriorityQueue;
 
 public class PLC8 implements PLCInterface {
 	HashMap<Integer, TrackBlock> controlledBlocks;
-	public PriorityQueue<TrainRoute> routes = new PriorityQueue<TrainRoute>();
-	boolean switchCtrlSuccess = false;
-		
-	public PLC8(HashMap<Integer, TrackBlock> blockList, TrainRoute route){
+
+	public PLC8(HashMap<Integer, TrackBlock> blockList){
 		this.controlledBlocks = blockList;
-		if(route!= null) this.routes.add(route);
 	}	
 	
 	/*
 	 * No crossings in this section.
 	 */
-	public boolean ctrlCrossing() {
+	public boolean ctrlCrossing(TrainRoute r) {
 		return false;
 	}
 	
 	/*
 	 * No switches in this section.
 	 */
-	public boolean ctrlSwitch() {
+	public boolean ctrlSwitch(TrainRoute r) {
 		return false;
 	}
 	
@@ -74,30 +71,15 @@ public class PLC8 implements PLCInterface {
 	 * Checks this route for possibility of collisions
 	 * and other errors.
 	 */
-	public boolean checkRoute() {
-		if (this.routes.peek() == null) return false;
-		for (int i : this.routes.peek().route) {
+	public boolean checkRoute(TrainRoute r) {
+		if (r.route == null) return false;
+		for (int i : r.route) {
 			TrackBlock b = controlledBlocks.get(i);
 			if(b.occupancy) return false;
 		}
 	 return true;
 	}
 	
-	/*
-	 * Changes the route.
-	 */
-	public void changeRoute(TrainRoute route) {
-		this.routes.add(route);
-	}
-	
-	public boolean switchCtrl() {
-		if (this.routes.peek() != null) return true;
-		else return false;
-	}
-	
-	public PriorityQueue<TrainRoute> getRoutes(){
-		return this.routes;
-	}
 	
 	/*
 	 * Runs all functions of PLC Program

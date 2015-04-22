@@ -9,12 +9,12 @@ public interface PLCInterface {
 	 * Determines safe state of the railway crossing and returns the state
 	 * true for active, false for inactive
 	 */
-	public boolean ctrlCrossing();
+	public boolean ctrlCrossing(TrainRoute r);
 	/*
 	 * Determines safe state of the switch and returns the state
 	 * true for second block in attach array , false for first block in attach array
 	 */
-	public boolean ctrlSwitch();
+	public boolean ctrlSwitch(TrainRoute r);
 	/*
 	 * Determines safe state of the track heater and returns the state
 	 * true on, false off
@@ -43,11 +43,5 @@ public interface PLCInterface {
 	/*
 	 *Checks that train route passed by CTC is safe.
 	 */
-	public boolean checkRoute();
-	
-	public void changeRoute(TrainRoute r);
-	
-	public boolean switchCtrl();
-	
-	public PriorityQueue<TrainRoute> getRoutes();	
+	public boolean checkRoute(TrainRoute r);	
 }

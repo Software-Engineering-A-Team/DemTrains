@@ -9,35 +9,27 @@ import java.util.PriorityQueue;
 
 public class PLC1 implements PLCInterface {
 	private HashMap<Integer, TrackBlock> controlledBlocks;
-	public PriorityQueue<TrainRoute> routes = new PriorityQueue<TrainRoute>();
-	boolean switchCtrlSuccess = false;
 	
-	
-	public PLC1(HashMap<Integer, TrackBlock> blockList, TrainRoute route){
+	public PLC1(HashMap<Integer, TrackBlock> blockList){
 		this.controlledBlocks = blockList;
-		if(route!= null) this.routes.add(route);
 	}	
 	/*
 	 * Determines safe state of the railway crossing and returns the state
 	 * true for active, false for inactive
 	 */
-	public boolean ctrlCrossing() {
+	public boolean ctrlCrossing(TrainRoute r) {
 		return true;
 	}
 	/*
 	 * Determines safe state of the switch and returns the state
 	 * true for second block in attach array , false for first block in attach array
 	 */
-	public boolean ctrlSwitch() {
+	public boolean ctrlSwitch(TrainRoute r) {
 		TrackSwitch relSwitch = (TrackSwitch) controlledBlocks.get(12);
-		if(this.routes.peek() != null){
-			switchCtrlSuccess = true;
-			//compute nextBlock val
-			int indNextBlock = routes.peek().route.indexOf(12)+1;
-			int nextBlock = routes.peek().route.get(indNextBlock);
-			//int prevBlock = r.route.get(r.route.indexOf(12)-1);
+		if(r.route != null){
+			int nextBlock = r.route.get(0);
 			
-			
+						
 			// if train on 15, 14, or 13 and nothing else within range and next block after 12 in route is 11
 			//set switch connected to block 11
 			if((controlledBlocks.get(15).occupancy | controlledBlocks.get(14).occupancy | controlledBlocks.get(13).occupancy)
@@ -104,32 +96,15 @@ public class PLC1 implements PLCInterface {
 	 * Checks this route for possibility of collisions
 	 * and other errors.
 	 */
-	public boolean checkRoute() {
-		if (this.routes.peek() == null) return false;
-		for (int i : this.routes.peek().route) {
+	public boolean checkRoute(TrainRoute r) {
+		if (r.route == null) return false;
+		for (int i : r.route) {
 			TrackBlock b = controlledBlocks.get(i);
 			if(b.occupancy) return false;
 		}
 	 return true;
 	}
 	
-	/*
-	 * Changes the route.
-	 */
-	public void changeRoute(TrainRoute route) {
-		this.routes.add(route);
-	}
-	
-	public boolean switchCtrl() {
-		if (this.routes.peek() != null & switchCtrlSuccess) { 
-			return true;
-		}
-		else return false;
-	}
-	
-	public PriorityQueue<TrainRoute> getRoutes(){
-		return this.routes;
-	}
 	
 	/*
 	 * Runs all functions of PLC Program
@@ -140,15 +115,5 @@ public class PLC1 implements PLCInterface {
 			b.heater = ctrlHeater(b);
 			b.lights = ctrlLights(b);
 		}
-		
-		TrackSwitch s = (TrackSwitch) controlledBlocks.get(12);
-		boolean prevState = s.state;
-		int ind, ind1;
-		if(prevState) ind = 0;
-		else ind = 1;
-		s.state = ctrlSwitch();
-		if(s.state) ind1 = 0;
-		else ind1 = 1;
-		if (prevState != s.state) System.out.println("Switch on block 12 moved from "+s.out[ind] +" to " +s.out[ind1]);
 	}
 }

@@ -10,7 +10,7 @@ import java.util.HashMap;
 public class WaysideController {
 	public ArrayList<TrackBlock> affectedBlocks = new ArrayList<TrackBlock>();
 	public HashMap<Integer, TrackBlock> blockMap = new HashMap<Integer, TrackBlock>();
-	public TrainRoute route;
+	public ArrayList<TrainRoute> routes = new ArrayList<TrainRoute>();
 	public PLCInterface plc;
 	public int span = 0;
 	
@@ -55,6 +55,9 @@ public class WaysideController {
 		return true;
 	}
 	
+	/*
+	 * Finds all switches controlled by this controller.
+	 */
 	public ArrayList<TrackSwitch> findSwitches(){
 		ArrayList<TrackSwitch> foundSwitches = new ArrayList<TrackSwitch>();
 		for (TrackBlock b : affectedBlocks) {
@@ -78,11 +81,15 @@ public class WaysideController {
 			System.out.println(i);
 		}
 		if(r != null) {
-			this.route = r;
-			this.plc.changeRoute(r);
-			boolean routeStatus = this.plc.checkRoute();
-			if(routeStatus) return null;
-			else return this.route;
+			boolean routeStatus1 = this.plc.checkRoute(r);
+			boolean routeStatus2 = this.plc.checkRoute(r);
+
+			
+			if(routeStatus1 && routeStatus2){
+				this.routes.add(r);
+				return null;
+			}
+			else return r;
 		}
 		else return r;
 	}

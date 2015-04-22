@@ -9,20 +9,18 @@ import java.util.PriorityQueue;
 
 public class PLC2 implements PLCInterface {
 	HashMap<Integer, TrackBlock> controlledBlocks;
-	public PriorityQueue<TrainRoute> routes = new PriorityQueue<TrainRoute>();
-	TrainRoute r;
-	boolean switchCtrlSuccess = false;
+
 		
-	public PLC2(HashMap<Integer, TrackBlock> blockList, TrainRoute route){
+	public PLC2(HashMap<Integer, TrackBlock> blockList){
 		this.controlledBlocks = blockList;
-		if(route!= null) this.routes.add(route);
+
 	}	
 	
 	/*
 	 * Determines safe state of the railway crossing and returns the state
 	 * true for active, false for inactive
 	 */
-	public boolean ctrlCrossing() {
+	public boolean ctrlCrossing(TrainRoute r) {
 		//if any of the affected blocks are occupied crossing is active
 		if(controlledBlocks.get(16).occupancy | controlledBlocks.get(17).occupancy | controlledBlocks.get(18).occupancy
 				| controlledBlocks.get(18).occupancy | controlledBlocks.get(19).occupancy | controlledBlocks.get(20).occupancy 
@@ -39,7 +37,7 @@ public class PLC2 implements PLCInterface {
 	 * Determines safe state of the switch and returns the state
 	 * true for second block in attach array , false for first block in attach array
 	 */
-	public boolean ctrlSwitch() {
+	public boolean ctrlSwitch(TrainRoute r) {
 		return false;
 	}
 	
@@ -86,28 +84,16 @@ public class PLC2 implements PLCInterface {
 	 * Checks this route for possibility of collisions
 	 * and other errors.
 	 */
-	public boolean checkRoute() {
-		if (this.routes.peek() == null) return false;
-		for (int i : this.routes.peek().route) {
+	public boolean checkRoute(TrainRoute r) {
+		if (r.route == null) return false;
+		for (int i : r.route) {
 			TrackBlock b = controlledBlocks.get(i);
 			if(b.occupancy) return false;
 		}
 	 return true;
 	}
 	
-	public void changeRoute(TrainRoute route) {
-		this.routes.add(route);
-	}
-	
-	public boolean switchCtrl() {
-		if (this.r != null) return true;
-		else return false;
-	}
-	
-	public PriorityQueue<TrainRoute> getRoutes(){
-		return this.routes;
-	}
-	
+
 	/*
 	 * Runs all functions of PLC Program
 	 */
@@ -116,15 +102,6 @@ public class PLC2 implements PLCInterface {
 			TrackBlock b = controlledBlocks.get(i);
 			b.heater = ctrlHeater(b);
 			b.lights = ctrlLights(b);
-		}
-		TrackCrossing t = (TrackCrossing)controlledBlocks.get(19);
-		boolean prevState = t.state;
-		t.state = ctrlCrossing();
-		if(prevState != t.state){
-			if(t.state) {
-				System.out.println("Crossing on block 19 is active");
-			}
-			else System.out.println("Crossing on block 19 is inactive.");
 		}
 	}
 }

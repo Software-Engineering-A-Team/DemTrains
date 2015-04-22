@@ -9,34 +9,29 @@ import java.util.PriorityQueue;
 
 public class PLC5 implements PLCInterface {
 	HashMap<Integer, TrackBlock> controlledBlocks;
-	public PriorityQueue<TrainRoute> routes = new PriorityQueue<TrainRoute>();
-	boolean switchCtrlSuccess = false;
 	
-	
-	public PLC5(HashMap<Integer, TrackBlock> blockList, TrainRoute route){
+	public PLC5(HashMap<Integer, TrackBlock> blockList){
 		this.controlledBlocks = blockList;
-		if(route!= null) this.routes.add(route);
 	}	
 	/*
 	 * Determines safe state of the railway crossing and returns the state
 	 * true for active, false for inactive
 	 */
-	public boolean ctrlCrossing() {
+	public boolean ctrlCrossing(TrainRoute r) {
 		return true;
 	}
 	/*
 	 * Determines safe state of the switch and returns the state
 	 * true for second block in attach array , false for first block in attach array
 	 */
-	public boolean ctrlSwitch() {
+	public boolean ctrlSwitch(TrainRoute r) {
 		
 		TrackSwitch relSwitch = (TrackSwitch) controlledBlocks.get(76);
 			
-		if(this.routes.peek() != null){
-			switchCtrlSuccess = true;
+		if(r.route != null){
 			//compute nextBlock val
-			int indNextBlock = routes.peek().route.indexOf(76)+1;
-			int nextBlock = routes.peek().route.get(indNextBlock);			
+			int indNextBlock = r.route.indexOf(76)+1;
+			int nextBlock = r.route.get(indNextBlock);			
 			
 			// if train on 75,74,73 and nothing else within range and next block after 76 in route is 77
 			//set switch connected to block 77
@@ -103,29 +98,13 @@ public class PLC5 implements PLCInterface {
 	 * Checks this route for possibility of collisions
 	 * and other errors.
 	 */
-	public boolean checkRoute() {
-		if (this.routes.peek() == null) return false;
-		for (int i : this.routes.peek().route) {
+	public boolean checkRoute(TrainRoute r) {
+		if (r.route == null) return false;
+		for (int i : r.route) {
 			TrackBlock b = controlledBlocks.get(i);
 			if(b.occupancy) return false;
 		}
 	 return true;
-	}
-	
-	/*
-	 * Changes the route.
-	 */
-	public void changeRoute(TrainRoute route) {
-		this.routes.add(route);
-	}
-	
-	public boolean switchCtrl() {
-		if (this.routes.peek() != null) return true;
-		else return false;
-	}
-	
-	public PriorityQueue<TrainRoute> getRoutes(){
-		return this.routes;
 	}
 	
 	/*
@@ -143,14 +122,5 @@ public class PLC5 implements PLCInterface {
 			b.heater = ctrlHeater(b);
 			b.lights = ctrlLights(b);
 		}
-		TrackSwitch s = (TrackSwitch) controlledBlocks.get(76);
-		boolean prevState = s.state;
-		int ind, ind1;
-		if(prevState) ind = 0;
-		else ind = 1;
-		s.state = ctrlSwitch();
-		if(s.state) ind1 = 0;
-		else ind1 = 1;
-		if (prevState != s.state) System.out.print("Switch on block 76 moved from "+s.out[ind] + " to " +s.out[ind1]);
 	}
 }

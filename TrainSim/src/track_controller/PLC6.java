@@ -9,50 +9,35 @@ import java.util.PriorityQueue;
 
 public class PLC6 implements PLCInterface {
 	HashMap<Integer, TrackBlock> controlledBlocks;
-	public PriorityQueue<TrainRoute> routes = new PriorityQueue<TrainRoute>();
-	boolean switchCtrlSuccess = false;
 	TrackSwitch current;
 	
 	
-	public PLC6(HashMap<Integer, TrackBlock> blockList, TrainRoute route){
+	public PLC6(HashMap<Integer, TrackBlock> blockList){
 		this.controlledBlocks = blockList;
-		if(route!= null) this.routes.add(route);
 		current = (TrackSwitch) controlledBlocks.get(58);
 	}	
 	
-	/*
-	 * Changes the route.
-	 */
-	public void changeRoute(TrainRoute route) {
-		this.routes.add(route);
-	}
-	
-	public boolean switchCtrl() {
-		if (this.routes.peek() != null) return true;
-		else return false;
-	}
-	
+		
 	/*
 	 * Determines safe state of the railway crossing and returns the state
 	 * true for active, false for inactive
 	 */
-	public boolean ctrlCrossing() {
+	public boolean ctrlCrossing(TrainRoute r) {
 		return true;
 	}
 	/*
 	 * Determines safe state of the switch and returns the state
 	 * true for second block in attach array , false for first block in attach array
 	 */
-	public boolean ctrlSwitch() {
+	public boolean ctrlSwitch(TrainRoute r) {
 				
 		TrackSwitch relSwitch = (TrackSwitch) controlledBlocks.get(62);
 		TrackSwitch relSwitch2 = (TrackSwitch) controlledBlocks.get(58);
-		if(this.routes.peek() != null){
-			switchCtrlSuccess = true;
+		if(r.route != null){
 			TrackSwitch current = relSwitch2;
 			//compute nextBlock val
-			int indNextBlock = routes.peek().route.indexOf(76)+1;
-			int nextBlock = routes.peek().route.get(indNextBlock);			
+			int indNextBlock = r.route.indexOf(76)+1;
+			int nextBlock = r.route.get(indNextBlock);			
 			
 			// if train on 55,56,57 and nothing on 59 and next block after 58 in route is 59
 			//set switch connected to block 59
@@ -90,8 +75,8 @@ public class PLC6 implements PLCInterface {
 			//if there is a conflict, keep switch where it is and set speed and authority of conflicting
 			//occupied blocks to 0
 			else {
-				if(this.routes.peek().route.contains(58)) current = relSwitch2;
-				else if (this.routes.peek().route.contains(62)) current = relSwitch;
+				if(r.route.contains(58)) current = relSwitch2;
+				else if (r.route.contains(62)) current = relSwitch;
 				else current = relSwitch2;
 				return current.state;
 			}
@@ -137,18 +122,15 @@ public class PLC6 implements PLCInterface {
 	 * Checks this route for possibility of collisions
 	 * and other errors.
 	 */
-	public boolean checkRoute() {
-		if (this.routes.peek() == null) return false;
-		for (int i : this.routes.peek().route) {
+	public boolean checkRoute(TrainRoute r) {
+		if (r.route == null) return false;
+		for (int i : r.route) {
 			TrackBlock b = controlledBlocks.get(i);
 			if(b.occupancy) return false;
 		}
 	 return true;
 	}
 	
-	public PriorityQueue<TrainRoute> getRoutes(){
-		return this.routes;
-	}
 	
 	/*
 	 * Runs all functions of PLC Program
@@ -165,14 +147,5 @@ public class PLC6 implements PLCInterface {
 			b.heater = ctrlHeater(b);
 			b.lights = ctrlLights(b);
 		}
-				
-		boolean prevState = current.state;
-		int ind, ind1;
-		if(prevState) ind = 0;
-		else ind = 1;
-		current.state = ctrlSwitch();
-		if(current.state) ind1 = 0;
-		else ind1 = 1;
-		if (prevState != current.state) System.out.print("Switch on block "+current.number+" moved from "+current.out[ind] + " to " +current.out[ind1]);
 	}
 }
