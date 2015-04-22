@@ -9,11 +9,12 @@ public class VitalTrainControlPrimary extends VitalTrainControl{
   
   //
   public double calcPower() {    
-    if (emergencyBrake || serviceBrake)
+    if (emergencyBrake)
     {
       powerKw = 0;
+      controlVar = 0;
     }
-    else
+    else if (!serviceBrake && (manualMode || authorityMi > 0.0))
     {
       double speedErrorMph = targetSpeedMph - currentSpeedMph;
       
@@ -23,48 +24,40 @@ public class VitalTrainControlPrimary extends VitalTrainControl{
       
       powerKw = Kp * speedErrorMph + Ki * controlVar;
       
-      //System.out.println("speedErrorMph = " + speedErrorMph + "   controlVar = " + controlVar);
-      
       if (powerKw > maxPowerKw) {
         powerKw = maxPowerKw;
       }
       else if (powerKw < 0) {
         powerKw = 0;
       }
+      
     }
+
+    authorityMi -= currentSpeedMph * SimClock.getDeltaS() / 3600.0;
       
     return powerKw;
   }
 
   public void determineSafeSpeed() {
-    if (!manualMode) {
-      // Service brake should be activated if the current speed is above the target speed by
-      // a predetermined threshold. If it is already activated, it will stay activated until
-      // the difference between the current speed and the target speed is decreased by the
-      // magnitude of the brake recovery threshold. This prevents continuous jerking back and
-      // forth at short intervals.
-      if (!serviceBrake && (currentSpeedMph - targetSpeedMph >= serviceBrakeThresholdMph)
-          || serviceBrake && (currentSpeedMph - targetSpeedMph >= serviceBrakeThresholdMph - brakeRecoveryThresholdMph)) {
-        serviceBrake = true;
-      }
-      else {
-        serviceBrake = false;
-      }
-      
+    if (!manualMode) {      
       // Use suggested speed.
       targetSpeedMph = speedAuthCmd.suggestedSpeedMph;
+      
+      // If we are above the speed limit, pull emergency brake automatically
+      if (currentSpeedMph > speedLimitMph) {
+        emergencyBrake = true;
+      }
+      
+      // If authority has been exceeded, engage service brake
+      if (authorityMi <= 0.0) {
+        serviceBrake = true;
+      }
+      else
+      {
+        serviceBrake = false;
+      }
     }
 
     
-    // Similar scheme as service brake, but this threshold is the maximum allowed gap between the
-    // the current speed and the speed limit, because we want to keep the train below the
-    // limit by a certain amount.
-    if (!emergencyBrake && (speedLimitMph - currentSpeedMph <= emergencyBrakeThresholdMph)
-        || emergencyBrake && (speedLimitMph - currentSpeedMph >= serviceBrakeThresholdMph + brakeRecoveryThresholdMph)) {
-      emergencyBrake = true;
-    }
-    else {
-      emergencyBrake = false;
-    }
   }
 }

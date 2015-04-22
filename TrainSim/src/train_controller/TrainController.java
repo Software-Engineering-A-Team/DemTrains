@@ -27,7 +27,6 @@ public class TrainController {
   private double speedLimitMph = 60;
   private double powerKw = 0;
   private double safeStoppingDistanceMi = 10;
-  private double authorityMi;
 
   // If vital controllers give different results, there has been an error.
   private boolean vitalError = false;
@@ -62,12 +61,16 @@ public class TrainController {
   public void setServiceBrake(boolean serviceBrake) {
     if (manualMode) {
       this.serviceBrake = serviceBrake;
+      vitalPrimary.serviceBrake = serviceBrake;
+      vitalSecondary.serviceBrake = serviceBrake;
     }
   }
   
   // The emergency brake can be pulled by anyone at any time.
   public void setEmergencyBrake(boolean emergencyBrake) {
     this.emergencyBrake = emergencyBrake;
+    vitalPrimary.emergencyBrake = emergencyBrake;
+    vitalSecondary.emergencyBrake = emergencyBrake;
   }
   
   // The speed command will only be followed if in automatic mode.
@@ -85,6 +88,10 @@ public class TrainController {
     this.manualMode = manualMode;
   }
   
+  public void setVitalError(boolean vitalError) {
+    this.vitalError = vitalError;
+  }
+  
   // Send all vital input data to vital controllers.
   private void setVitalControlInputs() {
     vitalPrimary.manualMode = manualMode;
@@ -92,7 +99,7 @@ public class TrainController {
     vitalPrimary.currentSpeedMph = currentSpeedMph;
     vitalPrimary.targetSpeedMph = targetSpeedMph;
     vitalPrimary.speedLimitMph = speedLimitMph;
-    vitalPrimary.authorityMi = authorityMi;
+    vitalPrimary.authorityMi = speedAuthCmd.suggestedAuthMiles;
     vitalPrimary.safeStoppingDistanceMi = safeStoppingDistanceMi;
     vitalPrimary.speedAuthCmd = speedAuthCmd;
 
@@ -101,7 +108,7 @@ public class TrainController {
     vitalSecondary.currentSpeedMph = currentSpeedMph;
     vitalSecondary.targetSpeedMph = targetSpeedMph;
     vitalSecondary.speedLimitMph = speedLimitMph;
-    vitalSecondary.authorityMi = authorityMi;
+    vitalSecondary.authorityMi = speedAuthCmd.suggestedAuthMiles;
     vitalSecondary.safeStoppingDistanceMi = safeStoppingDistanceMi;
     vitalSecondary.speedAuthCmd = speedAuthCmd;
   }
@@ -113,16 +120,13 @@ public class TrainController {
         || vitalPrimary.authorityMi != vitalSecondary.authorityMi
         || vitalPrimary.powerKw != vitalSecondary.powerKw) {
       vitalError = true;
-      emergencyBrake = true;
-      powerKw = 0;
     }
-    else {
-      emergencyBrake = vitalPrimary.emergencyBrake;
-      serviceBrake = vitalPrimary.serviceBrake;
-      targetSpeedMph = vitalPrimary.targetSpeedMph;
-      authorityMi = vitalPrimary.authorityMi;
-      powerKw = vitalPrimary.powerKw;
-    }
+    
+    emergencyBrake = vitalPrimary.emergencyBrake;
+    serviceBrake = vitalPrimary.serviceBrake;
+    targetSpeedMph = vitalPrimary.targetSpeedMph;
+    speedAuthCmd.suggestedAuthMiles = vitalPrimary.authorityMi;
+    powerKw = vitalPrimary.powerKw;
   }
   
   // Called by TrainModel to 
@@ -133,6 +137,12 @@ public class TrainController {
     vitalSecondary.update();
     
     getVitalControlOutputs();
+    
+    if (vitalError)
+    {
+      emergencyBrake = true;
+      powerKw = 0.0;
+    }
     
     return powerKw;
   }
@@ -194,6 +204,10 @@ public class TrainController {
   }
   
   public double getAuthority() {
-    return authorityMi;
+    return speedAuthCmd.suggestedAuthMiles;
+  }
+  
+  public boolean vitalErrorOccurred() {
+    return vitalError;
   }
 }

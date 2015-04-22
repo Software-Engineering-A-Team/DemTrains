@@ -5,12 +5,13 @@ import system_wrapper.SimClock;
 
 // Simple version of TrainModel used only for TrainController standalone mode.
 public class TestTrainModel {
-  public static final double EBRAKE_ACCEL = -0.00169634;                // mi/s^2
-  public static final double SBRAKE_ACCEL = -0.000745645430684791725;   // mi/s^2
-  public static final double ENGINE_ACCEL = 0.000005;
+  public static final double EBRAKE_ACCEL = -6.106824;   // mph per second
+  public static final double SBRAKE_ACCEL = -2.684322;   // mph per second
+  public static final double ENGINE_ACCEL = 2;
   
   public double currentSpeedMph = 0;
   public TrainController trainController;
+  public double lastPowerKw = 0;
   
   public TestTrainModel(TrainController trainController)
   {
@@ -27,19 +28,15 @@ public class TestTrainModel {
     
     if (trainController.isEmergencyBrakeOn())
     {
-      currentSpeedMph += 3600.0 * SimClock.getDeltaS() * EBRAKE_ACCEL;
+      currentSpeedMph += SimClock.getDeltaS() * EBRAKE_ACCEL;
     }
     else if (trainController.isServiceBrakeOn())
     {
-      currentSpeedMph += 3600.0 * SimClock.getDeltaS() * SBRAKE_ACCEL;
+      currentSpeedMph += SimClock.getDeltaS() * SBRAKE_ACCEL;
     }
-    else if (trainController.getTargetSpeed() > trainController.getCurrentSpeed())
+    else
     {
-      currentSpeedMph += SimClock.getDeltaS() * ENGINE_ACCEL;
-    }
-    else if (trainController.getTargetSpeed() < trainController.getCurrentSpeed())
-    {
-      currentSpeedMph -= SimClock.getDeltaS() * ENGINE_ACCEL;
+      currentSpeedMph += SimClock.getDeltaS() * powerKw / 10.0 - currentSpeedMph * .001;
     }
     
 
@@ -51,5 +48,7 @@ public class TestTrainModel {
     {
       currentSpeedMph = 100.0;
     }
+    
+    lastPowerKw = powerKw;
   }
 }

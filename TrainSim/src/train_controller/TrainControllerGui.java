@@ -47,6 +47,7 @@ import javax.swing.JComboBox;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.event.PopupMenuEvent;
 
+// Gui class for interfacing with the TrainController
 public class TrainControllerGui extends JFrame {
   private JTextField enginePowerTextField;
   private JTextField textFieldTargetSpeed;
@@ -67,6 +68,7 @@ public class TrainControllerGui extends JFrame {
   private JCheckBox chckbxLightsOn;
   private JCheckBox chckbxEmergencyBrake;
   private JCheckBox chckbxRightDoorsOpen;
+  private JCheckBox chckbxVitalError;
   private JComboBox comboBoxSelectedTrain;
   private ArrayList<TrainController> trainControllers;
   ArrayList<TestTrainModel> testTrainModels;
@@ -74,7 +76,7 @@ public class TrainControllerGui extends JFrame {
   public TrainController trainController;
   private NumberFormat formatter = new DecimalFormat("#0.00");
   
-  private boolean standalone;
+  private boolean standalone;   // Determines if GUI will be run by itself or with the rest of the subsystems
   
 
   /**
@@ -275,19 +277,22 @@ public class TrainControllerGui extends JFrame {
     
     textFieldSpeedLimit = new JTextField();
     textFieldSpeedLimit.setEditable(standalone);
+    textFieldSpeedLimit.setText(formatter.format(trainController.getSpeedLimit()));
+    if (standalone) {
+      textFieldSpeedLimit.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          trainController.setSpeedLimit(Double.parseDouble(textFieldSpeedLimit.getText()));
+          textFieldSpeedLimit.setText(formatter.format(trainController.getSpeedLimit()));
+          requestFocus();
+        }
+      });
+    }
     textFieldSpeedLimit.setBounds(178, 104, 70, 19);
     this.getContentPane().add(textFieldSpeedLimit);
     textFieldSpeedLimit.setColumns(10);
     
     textFieldCurrentSpeed = new JTextField();
-    textFieldCurrentSpeed.setEditable(standalone);
-    if (standalone) {
-      textFieldCurrentSpeed.addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-          trainController.setCurrentSpeed(Double.parseDouble(textFieldCurrentSpeed.getText()));
-        }
-      });
-    }
+    textFieldCurrentSpeed.setEditable(false);
     textFieldCurrentSpeed.setBounds(177, 190, 70, 19);
     this.getContentPane().add(textFieldCurrentSpeed);
     textFieldCurrentSpeed.setColumns(10);
@@ -322,11 +327,9 @@ public class TrainControllerGui extends JFrame {
       public void actionPerformed(ActionEvent e) {
         AbstractButton button = (AbstractButton) e.getSource();
         if (button.getModel().isSelected()) {
-          System.out.println("Ebrake engaged");
           trainController.setEmergencyBrake(true);
         }
         else {
-          System.out.println("Ebrake disengaged");
           trainController.setEmergencyBrake(false);
         }
       }
@@ -387,6 +390,20 @@ public class TrainControllerGui extends JFrame {
     
     textFieldAuthority = new JTextField();
     textFieldAuthority.setBounds(412, 190, 70, 19);
+    textFieldAuthority.setEditable(standalone);
+    textFieldAuthority.setText(formatter.format(trainController.getAuthority()));
+    if (standalone) {
+      textFieldAuthority.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          SpeedAuthCmd cmd = new SpeedAuthCmd(trainController.getSpeedAuthCmd().suggestedSpeedMph, trainController.getSpeedAuthCmd().suggestedAuthMiles);
+          cmd.suggestedAuthMiles = Double.parseDouble(textFieldAuthority.getText());
+          System.out.println("Setting auth " + cmd.suggestedAuthMiles);
+          trainController.setSpeedAuthCmd(cmd);
+          textFieldAuthority.setText(formatter.format(trainController.getAuthority()));
+          requestFocus();
+        }
+      });
+    }
     this.getContentPane().add(textFieldAuthority);
     textFieldAuthority.setColumns(10);
     
@@ -445,11 +462,28 @@ public class TrainControllerGui extends JFrame {
           SpeedAuthCmd cmd = new SpeedAuthCmd(trainController.getSpeedAuthCmd().suggestedSpeedMph, trainController.getSpeedAuthCmd().suggestedAuthMiles);
           cmd.suggestedSpeedMph = Double.parseDouble(textFieldCmdSpeed.getText());
           trainController.setSpeedAuthCmd(cmd);
+          textFieldCmdSpeed.setText(formatter.format(trainController.getSpeedAuthCmd().suggestedSpeedMph));
+          requestFocus();
         }
       });
     }
     getContentPane().add(textFieldCmdSpeed);
     textFieldCmdSpeed.setColumns(10);
+    
+    chckbxVitalError = new JCheckBox("Vital Error");
+    chckbxVitalError.setBounds(373, 470, 117, 23);
+    chckbxVitalError.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        AbstractButton button = (AbstractButton) e.getSource();
+        if (button.getModel().isSelected()) {
+          trainController.setVitalError(true);
+        }
+        else {
+          trainController.setVitalError(false);
+        }
+      }
+    });
+    getContentPane().add(chckbxVitalError);
   }
   
   public void updateDisplayData() {    
@@ -457,10 +491,32 @@ public class TrainControllerGui extends JFrame {
     
     textFieldSafeStoppingDistance.setText(formatter.format(trainController.getSafeStoppingDistance()));
     enginePowerTextField.setText(formatter.format(trainController.getPower()));
-    textFieldSpeedLimit.setText(formatter.format(trainController.getSpeedLimit()));
-    textFieldAuthority.setText(formatter.format(trainController.getAuthority()));
+    
+    if (!(standalone && textFieldSpeedLimit.isFocusOwner())) {
+      textFieldSpeedLimit.setText(formatter.format(trainController.getSpeedLimit()));
+    }
+    
+    if (!(standalone && textFieldAuthority.isFocusOwner())) {
+      textFieldAuthority.setText(formatter.format(trainController.getAuthority()));
+    }
+    
+    if (!(standalone && textFieldCmdSpeed.isFocusOwner())) {
+      textFieldCmdSpeed.setText(formatter.format(trainController.getSpeedAuthCmd().suggestedSpeedMph));
+    }
+    
     textFieldCurrentSpeed.setText(formatter.format(trainController.getCurrentSpeed()));
     
+    if (trainController.isEmergencyBrakeOn() != chckbxEmergencyBrake.isSelected()) {
+      chckbxEmergencyBrake.setSelected(trainController.isEmergencyBrakeOn());
+    }
+    
+    if (trainController.isServiceBrakeOn() != chckbxServiceBrake.isSelected()) {
+      chckbxServiceBrake.setSelected(trainController.isServiceBrakeOn());
+    }
+    
+    if (trainController.vitalErrorOccurred() != chckbxVitalError.isSelected()) {
+      chckbxVitalError.setSelected(trainController.vitalErrorOccurred());
+    }
     
     
     if (trainController.isManualMode()) {
