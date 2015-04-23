@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
+import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
 
@@ -50,8 +52,13 @@ public class TrainRouter {
 				destinationBlock = i;
 			}
 		}
-		findSimplePaths(currentBlock, destinationBlock, totalWeight, path, allVertices, visitedNodes, allSimplePaths);
+
+		// Get the shortest path between the vertices (fewest hops path)
+		List<DefaultEdge> pa = DijkstraShortestPath.findPathBetween(layout, currentBlock, destinationBlock);
 		
+		
+		
+		findSimplePaths(currentBlock, destinationBlock, totalWeight, path, allVertices, visitedNodes, allSimplePaths);
 		// find the shortest path of all the calculated paths
 		double min = Double.MAX_VALUE;
 		LinkedList<Integer> minPath = null;
@@ -77,8 +84,7 @@ public class TrainRouter {
 		}
 
 		TrainRoute route =  new TrainRoute(lineName, train.currentBlock, minPath, trainSpeed, authority);
-        TrainRoute waysideRoute = null;
-        //TrainRoute waysideRoute = blockToControllerMap.get(currentBlock).addRoute(route);
+        TrainRoute waysideRoute = blockToControllerMap.get(currentBlock).addRoute(route);
 		if (waysideRoute == null) {
 			waysideRoute = route;
 		}
@@ -93,19 +99,23 @@ public class TrainRouter {
 		// get all the edges it connects to
 		Set<DefaultEdge> connectedEdges = layout.edgesOf(currentVertex);
 		// remove all of the edges that have been visited
+		if (destinationVertex.equals(currentVertex)){
+			// Completed the loop
+			allSimplePaths.put(path, totalWeight);
+			return;
+		}
 		for (DefaultEdge e : connectedEdges) {
-			Integer v = layout.getEdgeSource(e);
+			Integer v = layout.getEdgeTarget(e);
+			if (!currentVertex.equals(layout.getEdgeSource(e))) {
+				continue;
+			}
 			if (visitedNodes.contains(v)){
 				continue; //already visited the edge, so skip it
 			}
-			if (destinationVertex.equals(currentVertex)){
-				// Completed the loop
-				allSimplePaths.put(path, totalWeight);
-				return;
-			}
-			BlockInterface b = blockData.get((int)currentVertex);
+			DefaultBlock b = (DefaultBlock)blockData.get((int)currentVertex);          
 			// if it is a switch make sure the next block is a valid move
-			if (b.getClass().equals(TrackSwitch.class)){
+			/*
+			if (b.getClass().equals(SwitchBlock.class)){
 				int [] possibleNextBlocks = ((SwitchBlock) b).getPossibleNextBlocks();
 				for (Integer i : allVertices) {
 					if (i.equals(possibleNextBlocks[0])) {
@@ -116,17 +126,18 @@ public class TrainRouter {
 					}
 				}
 			}
+			*/
 			// If the block is closed, it is not a path
-			if (((DefaultBlock)b).broken) {
+			if (b.broken) {
 				return;
 			}
 			// it is part of a path
-			totalWeight += ((DefaultBlock)b).blockLength;
+			totalWeight += b.blockLength;
 			LinkedList<Integer> pathCopy = (LinkedList<Integer>)path.clone();
 			Set<Integer> visitedNodesCopy = new HashSet<Integer>(visitedNodes.size());
 			visitedNodesCopy.addAll(visitedNodes);
 			visitedNodesCopy.add(v);
-			pathCopy.add(v);
+			pathCopy.add(pathCopy.size(), v);
 			findSimplePaths(v, destinationVertex, totalWeight, pathCopy, allVertices, visitedNodesCopy, allSimplePaths);
 		}
 	}
@@ -191,7 +202,7 @@ public class TrainRouter {
 			// check if the train has entered a new block
 			if (block.occupied == false) {
 				// it has. 
-				t.currentBlock = trainRoutes.get(t.trainId).route.get(1);
+				t.currentBlock = trainRoutes.get(t.trainId).route.get(0);
 				t.distanceTraveledOnBlock = block.blockLength - t.distanceTraveledOnBlock;
 			}
 			// calculate the distance traveled on block
