@@ -69,6 +69,7 @@ public class TrainModelGUI extends JFrame {
 	JLabel lightsLabel;
 	JLabel sBrakeLabel, eBrakeLabel;
 	JLabel engineStatusLabel, brakeStatusLabel, sigPickupLabel;
+	final JComboBox comboBox;
 
 	/**
 	 * Launch the application.
@@ -164,7 +165,7 @@ public class TrainModelGUI extends JFrame {
 		gbc_lblTrainModelSelector.gridy = 1;
 		contentPane.add(lblTrainModelSelector, gbc_lblTrainModelSelector);
 		
-		JComboBox comboBox = new JComboBox();
+		comboBox = new JComboBox();
 		
 		comboBox.addItemListener(new ItemListener() {
 		      @Override
