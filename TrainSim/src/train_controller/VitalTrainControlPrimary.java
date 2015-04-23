@@ -49,12 +49,12 @@ public class VitalTrainControlPrimary extends VitalTrainControl{
       //targetSpeedMph = speedAuthCmd.suggestedSpeedMph;
       
       // If we are above the speed limit or close to the safe stopping distance, pull emergency brake automatically
-      if (currentSpeedMph > speedLimitMph || this.safeStoppingDistanceMi <= 0.1) {
+      if (this.safeStoppingDistanceMi <= 0.1) {
         emergencyBrake = true;
       }
       
       // Turn on service brake if we are close to exceeding authority or stopping distance
-      if (authorityMi <= 0.2 || this.safeStoppingDistanceMi <= 0.2 || currentSpeedMph > targetSpeedMph) {
+      if (currentSpeedMph > speedLimitMph || authorityMi <= 0.2 || this.safeStoppingDistanceMi <= 0.2 || currentSpeedMph > targetSpeedMph) {
         serviceBrake = true;
       }
       else{
