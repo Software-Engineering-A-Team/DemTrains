@@ -69,7 +69,7 @@ public class TrainModel {
 	double powCommand = 0;	// kW
 	double accel = 0;	// ft/s^2
 	double velocity = 0;	// ft/s
-	double force = 0;	// N
+	double force = 0;	// LB
 	double speed = 0;
 	
 	public double commandedSpeed = 0;	// km/h
@@ -315,13 +315,17 @@ public class TrainModel {
 		}
 		
 		// Calculate the acceleration
+		// First calculate the mass (in slugs)
+		double trainMass = this.weight * 0.03108095;
+		
 		if (this.sBrake == false && this.eBrake == false) {
-			newAccel = newForce / this.weight;
+			newAccel = newForce / trainMass;
 		} else if (this.sBrake == true && this.brakeFailure == false) {
-			newAccel = (newForce / this.weight) + SBRAKE_ACCEL;
+			newAccel = (newForce / trainMass) + SBRAKE_ACCEL;
 		} else if (this.eBrake == true) {
-			newAccel = (newForce / this.weight) + EBRAKE_ACCEL;
+			newAccel = (newForce / trainMass) + EBRAKE_ACCEL;
 		}
+		
 		if (this.velocity == 0 && this.accel < 0)
 			newAccel = 0;
 		
