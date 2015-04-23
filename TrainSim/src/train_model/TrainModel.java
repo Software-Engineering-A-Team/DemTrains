@@ -251,6 +251,9 @@ public class TrainModel {
 			this.controller.setCurrentSpeed(this.velocity);
 			
 			this.powCommand = this.controller.calcPower();
+			if (this.powCommand > MAX_POWER)
+				this.powCommand = MAX_POWER;
+			
 			this.sBrake = this.controller.isServiceBrakeOn();
 			this.eBrake = this.controller.isEmergencyBrakeOn();
 			this.leftDoorStatus = this.controller.isLeftDoorOpen();
@@ -298,12 +301,13 @@ public class TrainModel {
 	 */
 	private void updateMotion(double delta) {
 		double newForce = 0, newAccel = 0, newVelocity = 0;
+		double enginePow = powCommand * 1000;
 		
 		// Calculate the force
 		if (this.velocity == 0) {	// if velocity == 0, use max power
-			newForce = powCommand / 0.001;
+			newForce = enginePow / 0.001;
 		} else if (velocity != 0) {
-			newForce = (powCommand / this.velocity);
+			newForce = (enginePow / this.velocity);
 		}
 		if (this.engineFailure == true) {
 			newForce = 0;
@@ -320,7 +324,7 @@ public class TrainModel {
 		if (this.velocity == 0 && this.accel < 0)
 			newAccel = 0;
 		
-		newVelocity += newAccel * delta;
+		newVelocity += newAccel / delta;
 		
 		if (newVelocity < 0)
 			newVelocity = 0;
@@ -336,7 +340,7 @@ public class TrainModel {
 	 * Calculates the position of the train
 	 */
 	private void calcPosition(double delta) {
-		double newPosition = (this.velocity * delta);
+		double newPosition = (this.velocity / delta);
 		this.position += newPosition;
 	}
 	
