@@ -2,19 +2,26 @@ package mbo;
 
 public class Calculator2 extends AuthorityCalculator{
 
-	public double calculateAuthorityDistance(double currLocation, double nextTrainLocation) {
-		double x = 1;
-		return x;  //just messing with stuff to get a better understanding
+	private final double mu = 0.65;
+	private final double g = 78919.1124; //gravity in miles/hour/hour LOL
+	private final double decel = 9663.56478; //service brake decel 1.2m/s/s in miles/hr/hr
+	
+	public double calculateAuthorityDistance(double currLocation, double nextTrainLocation) {		
+		return nextTrainLocation - currLocation;  
 	}
 	public double calculateSpeed(double prevLocation, double currLocation, double time) {
-		double speed;
-		speed = (currLocation-prevLocation)/time;
-		return speed;
+		return (currLocation-prevLocation)/time; //return speed
 	}
-	public double calculateSafeStoppingDistance(double x, double y, double z) {
-		return x;
+	public double calculateSafeStoppingDistance(double speed, double weight, double grade) {
+		//need the grade of the current Block the train is on
+		//use the mass of the train times gravity also including the grade (normal force)
+		//or use weight assuming its mass*gravity
+		
+		//d=v^2/2g(mu - grade); 
+		//return (Math.pow(speed,2))/(2*g*(mu - grade));
+		return (Math.pow(speed,2))/(2*decel);
 	}
-	public double calculateCommandedSpeed(double x) {
-		return x;
+	public double calculateCommandedSpeed(double distance) {		
+		return Math.sqrt(distance*2*decel);
 	}
 }

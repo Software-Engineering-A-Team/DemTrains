@@ -6,22 +6,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import javax.swing.table.DefaultTableModel;
+
 
 public class Scheduler {
 		
 	public Scheduler(){
 		
-		/*String[] stationsTrackR; = {"SHADYSIDE","HERRON AVE","SWISSVILLE","PENN STATION"
-				,"STEEL PLAZA","FIRST AVE","STATION SQUARE","SOUTH HILLS JUNCTION"
-				,"STATION SQUARE","FIRST AVE","STEEL PLAZA","PENN STATION","SWISSVILLE"
-				,"HERRON AVE","SHADYSIDE"};
-		String[] stationsTrackG; = {"GLENBURY","DORMONT","MT LEBANON","POPLAR","CASTLE SHANNON"
-				,"MT LEBANON","DORMONT","GLENBURY","OVERBROOK","INGLEWOOD","CENTRAL","WHITED"
-				,"JOEPRO","EDGEBROOK","PIONEER","JOEPRO","WHITED","SOUTH BANK","CENTRAL"
-				,"INGLEWOOD","OVERBROOK"};
-		double[] timeToStationTrackR; = {3.7, 2.3, 1.5, 1.8, 2.1, 2.1, 1.7, 2.3, 2.3, 1.7, 2.1, 2.1, 1.8, 1.5, 2.3};//if 4 hours use [0] if not use [1] 
-		double[] timeToStationTrackG; = {4.0, 2.8, 2.5, 4.7, 2.5, 4.9, 2.8, 2.7, 2.4, 2.3, 2.3, 3.5, 3.0, 2.7, 2.6, 3.3, 3.0, 2.9, 2.2, 2.3, 2.3}; //here time to yard vs time to first station was made equal for simplicity
-	*/
+	
 	}
 	
 	//create RedLine Track first
@@ -85,7 +77,8 @@ public class Scheduler {
 			}
 			departureTime.setTime(time);
 			tempTime.setTime(time);		
-		}		
+		}
+		//displayTrainSchedule(schedule);
 		return schedule;
 	}
 	
@@ -144,6 +137,8 @@ public class Scheduler {
 			departureTime.setTime(time);
 			tempTime.setTime(time);
 		}
+		//displayTrainSchedule(schedule);		
+		
 		return schedule;
 	}
 	
@@ -240,4 +235,32 @@ public class Scheduler {
 		return schedule;		
 	}
 	
+	/*private void displayTrainSchedule(List<String> schedule) throws ParseException {
+		String[] line = null;
+		String trainID, weekDay;
+		String[] input = new String[4];
+		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
+		Calendar departureTime = Calendar.getInstance();
+		
+		
+		for(int i=0; i<schedule.size(); i++) {
+			line = schedule.get(i).split("[,\\n]+");
+			trainID = line[0];
+			weekDay = line[1];			
+			Date time = dateFormat.parse(line[2]);
+			departureTime.setTime(time);
+			int temp;
+			for(int j=3; j<line.length; j+=2) {
+				temp = (int)Double.parseDouble(line[j+1]);
+				departureTime.add(Calendar.MINUTE,temp );
+				input[0] = trainID;
+				input[1] = weekDay;
+				input[2] = line[j];
+				input[3] = (dateFormat.format(departureTime.getTime()));
+				//System.out.println(MovingBlockOverlay.trainScheduleTable.getRowCount());
+				//MovingBlockOverlay.trainScheduleTable.addRow(input);
+				departureTime.setTime(time);
+			}
+		}
+	}*/
 }

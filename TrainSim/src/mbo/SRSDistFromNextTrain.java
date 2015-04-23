@@ -10,7 +10,9 @@ private List<AuthorityCalculator> calculatorList;
 	public SRSDistFromNextTrain() {		
 		calculatorList = new ArrayList<AuthorityCalculator>();
 		Calculator1 calc1 = new Calculator1();
-		calculatorList.add(0,calc1);	
+		Calculator2 calc2 = new Calculator2();
+		calculatorList.add(0,calc1);
+		calculatorList.add(1,calc2);
 		//********Calculator2 will be added later
 	}
 	
@@ -20,7 +22,7 @@ private List<AuthorityCalculator> calculatorList;
 		currLocation = currLocation * 0.000568182; //converts yards to miles
 		nextTrainLocation = nextTrainLocation * 0.000568182; //converts yards to miles
 		safeAuth1 = calculatorList.get(0).calculateAuthorityDistance(currLocation, nextTrainLocation);
-		safeAuth2 = calculatorList.get(0).calculateAuthorityDistance(currLocation, nextTrainLocation);
+		safeAuth2 = calculatorList.get(1).calculateAuthorityDistance(currLocation, nextTrainLocation);
 
 		if(compare(safeAuth1,safeAuth2)){			
 			return safeAuth1; 

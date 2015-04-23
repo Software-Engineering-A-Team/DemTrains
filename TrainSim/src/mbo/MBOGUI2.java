@@ -1,59 +1,35 @@
 package mbo;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-
 import java.awt.BorderLayout;
-
-import javax.swing.SpringLayout;
-
-import java.awt.FlowLayout;
-
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.Font;
-
-import javax.swing.JComboBox;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-
-import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-
-import javax.swing.border.BevelBorder;
-import javax.swing.border.SoftBevelBorder;
-import javax.swing.border.LineBorder;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.JTable;
-import javax.swing.JList;
-import javax.swing.AbstractListModel;
-import javax.swing.JScrollBar;
-import javax.swing.JTextArea;
-
-import system_wrapper.SystemWrapper;
-import track_model.TrackBlock;
-
-import javax.swing.JTabbedPane;
-
-import net.miginfocom.swing.MigLayout;
-
-import java.awt.Component;
+import java.awt.event.ActionListener;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
-import javax.swing.Box;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.UIManager;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 
-public class MBOGUI extends JFrame{
+import net.miginfocom.swing.MigLayout;
+import system_wrapper.SystemWrapper;
+
+public class MBOGUI2 extends JFrame {
+
+	private JPanel contentPane;
 	private JTextField startTimeTextField;	
 	private JTextField MonRtextField;
 	private JTextField MonGtextField;
@@ -81,15 +57,35 @@ public class MBOGUI extends JFrame{
 	private JTable table;
 	private JTable table_1;
 	
-	/*//if button presses mbo.getTrainSchedule
-	public void setTrainSchedule(){
-		//display to gui
+	static MovingBlockOverlay mbo;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					MBOGUI2 frame = new MBOGUI2();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
-	public void setCrewSchedule(){
-		//display to gui
-	}*/
 	
-	public MBOGUI(){
+	public MBOGUI2(){
+		
+		mbo = new MovingBlockOverlay();
+		
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 1100, 900);
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		contentPane.setLayout(new BorderLayout(0, 0));
+		setContentPane(contentPane);
+		
 		throughputArray = new int[14];
 		//startTime = new Date();
 		//startTime = new int[2];
@@ -333,29 +329,19 @@ public class MBOGUI extends JFrame{
 				//send data to function to create the trian and crew schedule
 				
 				try {
-					SystemWrapper.mbo.getTrainSchedule(startTime, throughputArray);
+					mbo.getTrainSchedule(startTime, throughputArray);
+					mbo.trainScheduleTable.fireTableDataChanged();
 				} catch (ParseException e) {
 					// TODO Auto-generated catch block
+					System.out.println("this failed");
 					e.printStackTrace();
 				}
-				SystemWrapper.mbo.getCrewSchedule(startTime, throughputArray);
+				//SystemWrapper.mbo.getCrewSchedule(startTime, throughputArray);
 			}
 		});
 		btnCreateSchedule.setFont(new Font("Tahoma", Font.BOLD, 18));
 		btnCreateSchedule.setBounds(50, 411, 208, 31);
 		createSchedPanel.add(btnCreateSchedule);
-		
-		JLabel lblNewLabel_1 = new JLabel("Current Mode:");
-		lblNewLabel_1.setFont(new Font("Tahoma", Font.BOLD, 18));
-		lblNewLabel_1.setBounds(68, 503, 142, 20);
-		createSchedPanel.add(lblNewLabel_1);
-		
-		JLabel lblNewLabel_4 = new JLabel("MBO");
-		lblNewLabel_4.setFont(new Font("Tahoma", Font.ITALIC, 18));
-		lblNewLabel_4.setBackground(UIManager.getColor("TextPane.selectionBackground"));
-		lblNewLabel_4.setForeground(Color.BLACK);
-		lblNewLabel_4.setBounds(204, 504, 41, 20);
-		createSchedPanel.add(lblNewLabel_4);
 		
 		JTabbedPane SchedulePane = new JTabbedPane(JTabbedPane.TOP);
 		getContentPane().add(SchedulePane, "cell 1 0 1 3,grow");
@@ -389,8 +375,8 @@ public class MBOGUI extends JFrame{
 		JScrollPane scrollPane = new JScrollPane();
 		trainSchedulePanel.add(scrollPane, "cell 0 1 11 1,grow");
 		
-		table = new JTable(SystemWrapper.mbo.trainScheduleTable);
-		//table = new JTable(MovingBlockOverlay.trainScheduleTable);
+		//table = new JTable(SystemWrapper.mbo.trainScheduleTable);
+		table = new JTable(MovingBlockOverlay.trainScheduleTable);
 		scrollPane.setViewportView(table);
 		
 		JPanel crewSchedulePanel = new JPanel();
@@ -407,8 +393,8 @@ public class MBOGUI extends JFrame{
 		JScrollPane scrollPane_1 = new JScrollPane();
 		crewSchedulePanel.add(scrollPane_1, "cell 0 1 3 1,grow");
 		
-		table_1 = new JTable(SystemWrapper.mbo.crewScheduleTable);
-		//table_1 = new JTable(MovingBlockOverlay.crewScheduleTable);
+		//table_1 = new JTable(SystemWrapper.mbo.crewScheduleTable);
+		table_1 = new JTable(MovingBlockOverlay.crewScheduleTable);
 		scrollPane_1.setViewportView(table_1);
 		
 		JTabbedPane SafeMBOAuthoPane = new JTabbedPane(JTabbedPane.TOP);
@@ -440,4 +426,5 @@ public class MBOGUI extends JFrame{
 		
 				
 	}
+
 }

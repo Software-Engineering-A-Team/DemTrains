@@ -20,8 +20,9 @@ public class MovingBlockOverlay {
 
 	HashMap<String,Double> trainLocationTrackRMap;
 	HashMap<String,Double> trainLocationTrackGMap;
-	DefaultTableModel trainScheduleTable;
 	static DefaultTableModel crewScheduleTable;
+	//DefaultTableModel trainScheduleTable;
+	DefaultTableModel trainScheduleTable;
 	DefaultTableModel trainSafeAuthorityRTable;
 	DefaultTableModel trainSafeAuthorityGTable;
 	SRSTrainCurrSpeed trainCurrSpeed;
@@ -62,13 +63,20 @@ public class MovingBlockOverlay {
 			trainSafeAuthorityGTable.addColumn("Train ID");
 			trainSafeAuthorityGTable.addColumn("Safe Authority");
 			trainSafeAuthorityGTable.addColumn("Passengers");
-		String[] stuff = {"r0","200"};
-		String[] stuff2 = {"r1","300"};
-		String[] stuff3 = {"r0","400"};
+		String[] stuff = {"r0","200","30"};
+		String[] stuff2 = {"r1","300","45"};
+		String[] stuff3 = {"r0","400","37"};
 		trainSafeAuthorityRTable.insertRow(0,stuff);
 		trainSafeAuthorityRTable.insertRow(1,stuff2);
 		trainSafeAuthorityRTable.removeRow(0);
 		trainSafeAuthorityRTable.insertRow(0, stuff3);  //it will overwrite this location
+		
+		String[] stuff4= {"g0","200","23"};
+		String[] stuff5 = {"g1","300","55"};
+		trainSafeAuthorityGTable.insertRow(0,stuff4);
+		trainSafeAuthorityGTable.insertRow(1,stuff5);
+		
+		
 		
 		trainCurrSpeed = new SRSTrainCurrSpeed();
 		trainStopDist = new SRSTrainStopDist();	
@@ -155,6 +163,8 @@ public class MovingBlockOverlay {
 			for(int i=0; i<SystemWrapper.trainModels.size(); i++){
 				if(SystemWrapper.trainModels.get(i) != null) {
 					SystemWrapper.trainModels.get(i).setCommSpeed(0);
+					
+					//trainSafeAuthorityRTable.insert(i,);
 				}
 			}
 		}
@@ -194,11 +204,7 @@ public class MovingBlockOverlay {
 				trainSafeAuthorityGTable.addRow(info);
 			}
 		}
-		
-		// need to calculate distance between train and next train
-		// calculate speed of train based on prev position and curr position and time chance
-		//send speed and weight to each calculator of the SRS and then compare them
-		//as well as the commanded speed				
+						
 		
 	}	
 			
