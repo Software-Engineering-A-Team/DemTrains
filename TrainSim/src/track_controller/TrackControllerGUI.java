@@ -64,6 +64,8 @@ public class TrackControllerGUI extends JFrame {
 	private static Timer displayTimer;
 	private JTextArea CTCInfoPane;
 	private static boolean manualOverride = false;
+	private JToggleButton tglbtnOverride;
+	private JButton	btnActivateCrossing;
 	
 	/**
 	 * Launch the application.
@@ -306,7 +308,7 @@ public class TrackControllerGUI extends JFrame {
 				btnFlipSwitch.setBounds(606, 104, 175, 23);
 				contentPane.add(btnFlipSwitch);
 				
-				JButton btnActivateCrossing = new JButton("Toggle Crossing State");
+				btnActivateCrossing = new JButton("Toggle Crossing State");
 				btnActivateCrossing.setEnabled(false);
 				btnActivateCrossing.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
@@ -411,7 +413,7 @@ public class TrackControllerGUI extends JFrame {
 				btnToggleOccupancy.setBounds(606, 303, 191, 23);
 				contentPane.add(btnToggleOccupancy);
 				
-				JToggleButton tglbtnOverride = new JToggleButton("Override");
+				tglbtnOverride = new JToggleButton("Override");
 				tglbtnOverride.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						manualOverride = !manualOverride;

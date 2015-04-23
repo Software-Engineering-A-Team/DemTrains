@@ -81,11 +81,15 @@ public class PLC9 implements PLCInterface {
 	public boolean checkRoute(TrainRoute r) {
 		if (r.route == null) return false;
 		for (int i : r.route) {
+			if(!controlledBlocks.containsKey(i)){
+				return false;
+			}
 			TrackBlock b = controlledBlocks.get(i);
-			if(b.occupancy) return false;
+			if(b.occupancy && i>10) return false;
 		}
 	 return true;
 	}
+	
 	/*
 	 * Determines if speed should be set to speed limit or 0;
 	 */
