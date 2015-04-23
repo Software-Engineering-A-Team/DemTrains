@@ -77,6 +77,7 @@ public class TrainRouter {
 			allTrainRoutes.add(new TrainRoute(lineName, train.currentBlock, p, trainSpeed, authority, pathDistance));
 		}
 		Collections.sort(allTrainRoutes);
+		blockToControllerMap.get(currentBlock).addRoute(allTrainRoutes.get(0));
 		return allTrainRoutes.get(0);
 	}	
 	
