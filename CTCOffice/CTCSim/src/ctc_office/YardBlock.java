@@ -26,5 +26,9 @@ public class YardBlock extends DefaultBlock {
 		}
 		return null;
 	}
+	
+	public String toString() {
+		return "Block type: Yard";
+	}
 
 }

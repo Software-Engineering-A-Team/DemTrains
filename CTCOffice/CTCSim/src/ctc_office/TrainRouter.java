@@ -152,6 +152,9 @@ public class TrainRouter {
 			TrainRoute r = allRoutesAllTrains.get(t.trainId).get(0);
 			trainRoutes.put(t.trainId, r);
 			CTCWrapper.trackController.addRoute(r);
+			if (t.authority > r.weight) {
+				t.authority = r.weight;
+			}
 		}
 	}
 

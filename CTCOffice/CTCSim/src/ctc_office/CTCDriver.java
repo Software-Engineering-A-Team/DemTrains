@@ -88,9 +88,9 @@ public class CTCDriver {
 	 * Manually spawns a new train with the routing data that was passed into the method at the fastest speed possible.
 	 * Returns false if a train with that name already exists.
 	 */
-	public boolean manuallyDispatchNewTrain(String lineName, String trainName, int destinationBlock, double authority) {
+	public boolean manuallyDispatchNewTrain(String lineName, String trainName, int destinationBlock) {
 			
-		return this.manuallyDispatchNewTrain(lineName, trainName, destinationBlock, Integer.MAX_VALUE, authority);
+		return this.manuallyDispatchNewTrain(lineName, trainName, destinationBlock, Integer.MAX_VALUE, Integer.MAX_VALUE);
 	}
 
 	/*
@@ -110,6 +110,13 @@ public class CTCDriver {
 		return this.manuallyRouteTrain(lineName, trainName, destinationBlock, Integer.MAX_VALUE, authority);
 	}
 
+	/**
+	 * Manually routes a train to its destination as fast as possible.
+	 * Only trains created manually can be manually routed.
+	 */
+	public boolean manuallyRouteTrain(String lineName, String trainName, int destinationBlock){
+		return this.manuallyRouteTrain(lineName, trainName, destinationBlock, Integer.MAX_VALUE, Integer.MAX_VALUE);
+	}
 	/**
 	 * Sends the train routes to the Track Controller
 	 * If a route is not approved, it is updated in the CTC

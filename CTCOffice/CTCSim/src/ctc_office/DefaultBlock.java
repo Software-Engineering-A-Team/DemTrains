@@ -16,7 +16,7 @@ public class DefaultBlock implements BlockInterface{
 	}
 	
 	public String toString() {
-		String s = "";
+		String s = "Block type: Default Block";
 		return s;
 	}
 }

@@ -7,4 +7,8 @@ public class StationBlock extends DefaultBlock {
 		super(num, length, sLimit, occupiedStatus, brokenStatus);
 		stationName = name;
 	}
+	
+	public String toString() {
+		return "<html>Block type: Station<br />Station Name : " + stationName + "<html>";
+	}
 }

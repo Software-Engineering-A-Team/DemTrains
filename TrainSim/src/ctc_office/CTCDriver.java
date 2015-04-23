@@ -200,11 +200,12 @@ public class CTCDriver {
 	/**
 	 * Creates a new track layout given a graph of blocks and a list of blockData
 	 */
+	/*
 	public boolean setTrackLayoutStandalone(String lineName, DirectedMultigraph<Integer, DefaultEdge> layout, List<track_model.TrackBlock> blockData) {
 		lines.put(lineName, new TrackLayout(layout, blockData, controllerMap, lineName));
-		manuallyRoutedTrains.put(lineName, new HashSet<String>());
 		return true;
 	}
+	*/
 
 	/**
 	 * Toggles the position of a switch
