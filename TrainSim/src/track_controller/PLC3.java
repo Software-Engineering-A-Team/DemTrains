@@ -79,9 +79,10 @@ public class PLC3 implements PLCInterface {
 	 * Determines safe speed and authority and returns 
 	 * 
 	 */
-	public boolean ctrlSpeedAuthority(TrackBlock b, double speed, double authority) { 
+	public boolean ctrlSpeedAuthority(TrainRoute r, double speed, double authority) { 
+		TrackBlock b = controlledBlocks.get(r.startingBlock);
 		if (speed > b.speedLimit) return false;
-		//else if (authority > safeAuthority) return false;
+		if (authority > b.length) return false;
 		else return true;
 	}
 	/*
@@ -106,21 +107,26 @@ public class PLC3 implements PLCInterface {
 		}
 	 return true;
 	}
-
 	/*
-	 * Runs all functions of PLC Program
+	 * Determines if speed should be set to speed limit or 0;
 	 */
-	public void run(){
-		for (int i = 23; i<33; i++) {
-			TrackBlock b = controlledBlocks.get(i);
-			b.heater = ctrlHeater(b);
-			b.lights = ctrlLights(b);
+	public boolean checkSpeed(TrainRoute r, double s) {
+		boolean failureAhead = false;
+		boolean possibleCrash = false;
+		for (int i: r.route){
+			TrackBlock b = controlledBlocks.get(r.route.get(i));
+			if (b.hasFailure())failureAhead = true;
+			if ((i-r.route.get(0) < 4) && b.occupancy) possibleCrash = true;
 		}
+		if (possibleCrash || failureAhead) return false;
+		else return true;
+	}
+	/*
+	 * Determines safe authority based on block occupancy
+	 * either 
+	 */
+	public boolean checkAuthority(TrainRoute r, double a, double safeAuth) {
 		
-		for (int i = 147; i<151; i++) {
-			TrackBlock b = controlledBlocks.get(i);
-			b.heater = ctrlHeater(b);
-			b.lights = ctrlLights(b);
-		}
+		return false;
 	}
 }

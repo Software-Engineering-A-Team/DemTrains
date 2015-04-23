@@ -2,6 +2,8 @@ package track_controller;
 import track_model.*;
 import ctc_office.*;
 
+import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
@@ -10,6 +12,7 @@ public class WaysideSystem {
 	public  TrackModel tracks;
 	public  HashMap<Integer, WaysideController> blockControllerMapGreen = new HashMap<Integer, WaysideController>();
 	public  HashMap<Integer, WaysideController> blockControllerMapRed = new HashMap<Integer,WaysideController>();
+	public String ctcBeaconUpdate = "";
 	
 	/*
 	 * Creates track controllers for Green Line
@@ -143,7 +146,9 @@ public class WaysideSystem {
 	 * by set groupings based on track layout.
 	 */
 	private boolean createRedControllers(track_model.TrackLayout t) {
-		return false;
+		
+		
+		return true;
 	}
 	
 	/*
@@ -182,15 +187,29 @@ public class WaysideSystem {
 	 * Updates the PLCProgram for the controller of
 	 * the block number provided
 	 */
-	public boolean updatePLC(String line, int blockNum, String filename) {
+	public boolean updatePLC(String line, int blockNum, String filename) throws NoSuchMethodException, SecurityException, IllegalArgumentException, InvocationTargetException {
 		boolean success = false; 
 		if (line.equals("Green")) {
 			WaysideController temp = blockControllerMapGreen.get(blockNum);
-			success = temp.updatePLC(filename);
+				if(temp != null){
+					try {
+						success = temp.updatePLC(filename);
+					} catch (MalformedURLException | ClassNotFoundException
+							| InstantiationException | IllegalAccessException e) {
+						e.printStackTrace();
+					}
+				}
 		}
 		else if (line.equals("Red")) {
 			WaysideController temp = blockControllerMapRed.get(blockNum);
-			success = temp.updatePLC(filename);
+				if(temp != null){
+					try {
+						success = temp.updatePLC(filename);
+					} catch (MalformedURLException | ClassNotFoundException
+							| InstantiationException | IllegalAccessException e) {
+						e.printStackTrace();
+					}
+				}	
 		}
 		return success;
 	}
@@ -219,6 +238,35 @@ public class WaysideSystem {
 		boolean plc1Result = w.plc.ctrlBlockClosed(b);
 		boolean plc2Result = w.plc.ctrlBlockClosed(b);
 		boolean outcome = (plc1Result & plc2Result);
+		if (outcome) b.failure = "Maintenance";
+		
+		return outcome;
+	}
+	
+	/*
+	 * Removes Maintenance failure mode from a block. 
+	 * Can be called by user or CTC. 
+	 */
+	public boolean setBlockOpen(String line, int blockNum) {
+		TrackBlock b;
+		WaysideController w;
+		if (line.equals("Green")) {
+			b = tracks.trackLayouts.get("Green").blocks.get(blockNum);
+			w = blockControllerMapGreen.get(blockNum);
+		}
+		else if(line.equals("Red")) {
+			b = tracks.trackLayouts.get("Red").blocks.get(blockNum);
+			w = blockControllerMapRed.get(blockNum);
+		}
+		else {
+			System.out.println("No such line exists.");
+			return false;
+		}
+		
+		boolean plc1Result = w.plc.ctrlBlockClosed(b);
+		boolean plc2Result = w.plc.ctrlBlockClosed(b);
+		boolean outcome = (plc1Result & plc2Result);
+		if (outcome) b.failure = "Maintenance";
 		
 		return outcome;
 	}
@@ -241,17 +289,23 @@ public class WaysideSystem {
 			System.out.println("No such line exists.");
 			return false;
 		}
-		b.failure = "Broken block";
+		b.failure = "Broken Track";
 		return true;
 	}
 	
 	/*
 	 * Runs PLC to determine if it is safe
 	 * to place a train on the provided block number. 
-	 * Can be called by user or CTC. 
+	 * Can be called by user, CTC, or TrackModel. 
 	 */
-	public boolean setOccupancy(int blockNum) {
-		return true;
+	public boolean setOccupancy(String line, int blockNum) {
+		TrackBlock b = tracks.trackLayouts.get(line).blocks.get(blockNum);
+		System.out.println(b.failure);
+		if(b.failure == null) {
+			b.occupancy = !b.occupancy;
+			return true;
+		}
+		else return false;
 	}
 
 	
@@ -280,7 +334,21 @@ public class WaysideSystem {
 	 * Called by CTC to set beacon on a given block 
 	 */
 	public boolean setBeacon(String beacon, int blockNum) {
-		return true;
+		//if beacon is for red line
+		if(beacon.charAt(0) == 'r' || beacon.charAt(0) == 'R') {
+			TrackStation tStat = (TrackStation) tracks.trackLayouts.get("Red").blocks.get(blockNum);
+			tStat.beacon = beacon;
+			ctcBeaconUpdate = ctcBeaconUpdate + "\n beacon string : " + beacon + " sent to block " + blockNum + " of red line.";
+		}
+		//else if beacon is for green
+		else if (beacon.charAt(0) == 'g' || beacon.charAt(0) == 'G'){
+			TrackStation tStat = (TrackStation) tracks.trackLayouts.get("Green").blocks.get(blockNum);
+			tStat.beacon = beacon;
+			ctcBeaconUpdate = ctcBeaconUpdate + "\n beacon string : " + beacon + " sent to block " + blockNum + " of green line.";
+		}
+		//some error in beacon passing
+		else ctcBeaconUpdate = ctcBeaconUpdate + "\n unexpected beacon message received from CTC.";
+		return false;
 	}
 
 	public void runPLC(WaysideController w, boolean manual) {

@@ -29,7 +29,7 @@ public interface PLCInterface {
 	 * Determines safe speed and authority and returns 
 	 * 
 	 */
-	public boolean ctrlSpeedAuthority(TrackBlock b, double sugSpeed, double sugAuthority);
+	public boolean ctrlSpeedAuthority(TrainRoute r, double sugSpeed, double sugAuthority);
 	/*
 	 * Determines safe closing of block and returns block state
 	 * true for open, false for closed
@@ -39,4 +39,13 @@ public interface PLCInterface {
 	 *Checks that train route passed by CTC is safe.
 	 */
 	public boolean checkRoute(TrainRoute r);	
+	/*
+	 * Determines if speed should be set to speed limit or 0;
+	 */
+	public boolean checkSpeed(TrainRoute r, double s);
+	/*
+	 * Determines safe authority based on block occupancy
+	 * either 
+	 */
+	public boolean checkAuthority(TrainRoute r, double a, double safeAuth);
 }

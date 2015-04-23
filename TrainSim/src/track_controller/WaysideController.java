@@ -4,6 +4,12 @@ import javax.tools.*;
 import track_model.*;
 import ctc_office.TrainRoute;
 
+import java.io.File;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -13,7 +19,7 @@ public class WaysideController {
 	public ArrayList<TrainRoute> routes = new ArrayList<TrainRoute>();
 	public PLCInterface plc;
 	public int span = 0;
-	public String ctcInfo = null;
+	public String ctcInfo = "";
 	
 	public boolean containsSwitch = false;
 	public boolean containsCrossing = false;
@@ -23,11 +29,22 @@ public class WaysideController {
 	 * Updates the PLC program for the controller
 	 * based on a user input file.
 	 */
-	public boolean updatePLC(String filename) {
+	public boolean updatePLC(String filename) throws MalformedURLException, ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, IllegalArgumentException, InvocationTargetException {
+		int i = filename.indexOf(".java");
+		String searchPath = "file:\\\\\\" + filename.substring(0, i-5) + "\\";
+		System.out.println(searchPath);
+		String className = filename.substring(i-4, i);
+		System.out.println(className);
 		System.setProperty("java.home", "C:\\Program Files\\Java\\jdk1.7.0_40");
 		JavaCompiler comp = ToolProvider.getSystemJavaCompiler();
 		int compRes = comp.run(null, null, null, filename);
 		if (compRes == 0) {
+			//create instance of plc file that was loaded and assign it to this controller
+			URLClassLoader plcLoader = URLClassLoader.newInstance(new URL[] { new URL(searchPath) });
+			Class<?> plcClass = Class.forName(className, true, plcLoader);
+			Constructor<?> plcConst = plcClass.getConstructor();
+			Object plcInstance = plcConst.newInstance(blockMap);
+			this.plc = (PLCInterface) plcInstance;
 			return true;
 		}
 		else {
@@ -53,28 +70,67 @@ public class WaysideController {
 		//find routes where starting block is affected by this controller	
 		for (TrainRoute r : routes){
 			if(affectedBlocks.contains(r.startingBlock)){
+				//when in manual mode only take user input
 				if(!manual){
-					boolean swCtl1 = plc.ctrlSwitch(r);
-					boolean swCtl2 = plc.ctrlSwitch(r);
-					
-					//TO DO: figure out how to determine which switch is affected
-					//set switch to swCtl1 && swCtl2
-					
+					//if this controller contains a possible switch block
+					if(affectedBlocks.contains(9) || affectedBlocks.contains(12) || affectedBlocks.contains(15) || affectedBlocks.contains(29) 
+							|| affectedBlocks.contains(32) || affectedBlocks.contains(38) || affectedBlocks.contains(27) || affectedBlocks.contains(43)
+							|| affectedBlocks.contains(52) || affectedBlocks.contains(58) || affectedBlocks.contains(62) || affectedBlocks.contains(76)
+							|| affectedBlocks.contains(86)){
+							
+							
+						boolean swCtl1 = plc.ctrlSwitch(r);
+						boolean swCtl2 = plc.ctrlSwitch(r);
+						
+						
+						
+						//TO DO: figure out how to determine which switch is affected
+						//set switch to swCtl1 && swCtl2
+					}
 					//handle crossing
+					int crossingBlock = 0;
+					if(affectedBlocks.contains(19) || affectedBlocks.contains(47)){
+						if(blockMap.get(19).infrastructure.contains("crossing")){
+							crossingBlock = 19;
+						}
+						else if(blockMap.get(47).infrastructure.contains("crossing")){
+							crossingBlock = 47;
+						}
+					}
+					
 					boolean xCtrl1 = plc.ctrlCrossing(r);
 					boolean xCtrl2 = plc.ctrlCrossing(r);
 					
-					//TO DO: figure out which block is crossing
-					
+					if(crossingBlock != 0){
+						TrackSwitch tempSwitch = (TrackSwitch) blockMap.get(crossingBlock);
+						tempSwitch.state = (xCtrl1 && xCtrl2);						
+					}
 				}
 				
 				//check speed and authority
-				boolean spAuthCheck1 = plc.ctrlSpeedAuthority(blockMap.get(r.startingBlock), r.speed, r.authority);
-				boolean spAuthCheck2 = plc.ctrlSpeedAuthority(blockMap.get(r.startingBlock), r.speed, r.authority);
+				boolean spAuthCheck1 = plc.ctrlSpeedAuthority(r, r.speed, r.authority);
+				boolean spAuthCheck2 = plc.ctrlSpeedAuthority(r, r.speed, r.authority);
 				
 				//speed and authority were declined
 				//calculate new values
 				if(spAuthCheck1 && spAuthCheck2 == false){
+					boolean spdChk1 = plc.checkSpeed(r, r.speed);
+					boolean spdChk2 = plc.checkSpeed(r, r.speed);
+					
+					//if speed limit is acceptable use that
+					if(spdChk1 && spdChk2) affectedBlocks.get(r.startingBlock).commandedSpeed = affectedBlocks.get(r.startingBlock).speedLimit;
+					//otherwise stop train
+					else affectedBlocks.get(r.startingBlock).commandedSpeed = 0;
+					
+					double safeAuthFinal;
+					double safeAuth1 = calculateSafeAuthority(r);
+					double safeAuth2 = calculateSafeAuthority(r);
+					if(safeAuth1 == safeAuth2) safeAuthFinal = safeAuth1;
+					else if(safeAuth1 < safeAuth2) safeAuthFinal = safeAuth1;
+					else safeAuthFinal = safeAuth2;
+					
+					boolean authChk1 = plc.checkAuthority(r, r.authority, safeAuthFinal);
+					boolean authChk2 = plc.checkAuthority(r, r.authority, safeAuthFinal);
 					
 				}
 				//otherwise pass to track model
@@ -89,6 +145,11 @@ public class WaysideController {
 		}
 	}
 	
+	private double calculateSafeAuthority(TrainRoute r) {
+		//TODO: calculate safe authority
+		return 0;
+	}
+
 	/*
 	 * Allows user to manually add a block
 	 * to the a certain controller.
@@ -118,7 +179,15 @@ public class WaysideController {
 			}
 		}
 		else if(line.equals("Red")){
-			//TO DO: add red line switches
+			for (TrackBlock b : affectedBlocks) {
+				if(b.number == 9) foundSwitches.add((TrackSwitch)blockMap.get(9));
+				if(b.number == 15) foundSwitches.add((TrackSwitch)blockMap.get(15));
+				if(b.number == 27) foundSwitches.add((TrackSwitch)blockMap.get(27));
+				if(b.number == 32) foundSwitches.add((TrackSwitch)blockMap.get(32));
+				if(b.number == 38) foundSwitches.add((TrackSwitch)blockMap.get(38));
+				if(b.number == 43) foundSwitches.add((TrackSwitch)blockMap.get(43));
+				if(b.number == 52) foundSwitches.add((TrackSwitch)blockMap.get(52));
+			}
 		}
 		return foundSwitches;
 	}

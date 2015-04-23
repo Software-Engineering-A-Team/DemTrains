@@ -51,9 +51,10 @@ public class PLC8 implements PLCInterface {
 	 * 
 	 */
 	
-	public boolean ctrlSpeedAuthority(TrackBlock b, double speed, double authority) { 
+	public boolean ctrlSpeedAuthority(TrainRoute r, double speed, double authority) { 
+		TrackBlock b = controlledBlocks.get(r.startingBlock);
 		if (speed > b.speedLimit) return false;
-		//else if (authority > safeAuthority) return false;
+		if (authority > b.length) return false;
 		else return true;
 	}
 	
@@ -78,5 +79,26 @@ public class PLC8 implements PLCInterface {
 			if(b.occupancy) return false;
 		}
 	 return true;
+	}
+	/*
+	 * Determines if speed should be set to speed limit or 0;
+	 */
+	public boolean checkSpeed(TrainRoute r, double s) {
+		boolean failureAhead = false;
+		boolean possibleCrash = false;
+		for (int i: r.route){
+			TrackBlock b = controlledBlocks.get(r.route.get(i));
+			if (b.hasFailure())failureAhead = true;
+			if ((i-r.route.get(0) < 4) && b.occupancy) possibleCrash = true;
+		}
+		if (possibleCrash || failureAhead) return false;
+		else return true;
+	}
+	/*
+	 * Determines safe authority based on block occupancy
+	 * either 
+	 */
+	public boolean checkAuthority(TrainRoute r, double a, double safeAuth) {
+		return false;
 	}
 }
