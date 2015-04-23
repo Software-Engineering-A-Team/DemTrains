@@ -49,7 +49,7 @@ public class TrackControllerGUI extends JFrame {
 	private String switchStatus = "No information available.";
 	private String crossingStatus = "No information available.";
 	private boolean sysMode = false;
-	private boolean noSwitchCtrl = false;
+	
 	private JComboBox<Integer> blockPicker;
 	private JComboBox<String> linePicker;
 	private static WaysideSystem ws;
@@ -149,6 +149,9 @@ public class TrackControllerGUI extends JFrame {
 					currentBlock = wContrl.tracks.trackLayouts.get(currentLine).blocks.get(Integer.parseInt(blockPicker.getSelectedItem().toString()));
 					if(currentLine!=null && currentLine.equals("Green")) {
 						currentController = wContrl.blockControllerMapGreen.get(currentBlock.number);
+					}
+					if(currentLine!=null && currentLine.equals("Red")) {
+						currentController = wContrl.blockControllerMapRed.get(currentBlock.number);
 					}
 				}
 			}
@@ -265,7 +268,7 @@ public class TrackControllerGUI extends JFrame {
 				table_1.setRowSelectionAllowed(false);
 				table_1.setSize(310, 269);
 				table_1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);	
-				
+				table_1.setRowHeight(10, 150);
 				JScrollPane blockInfoScroll = new JScrollPane(table_1);
 				blockInfoScroll.setBounds(207, 57, 365, 269);
 				contentPane.add(blockInfoScroll);
@@ -403,9 +406,7 @@ public class TrackControllerGUI extends JFrame {
 				JButton btnToggleOccupancy = new JButton("Toggle Occupancy");
 				btnToggleOccupancy.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						System.out.println("Block occupied: " + currentBlock.occupancy);
 						wContrl.setOccupancy(currentLine, currentBlock.number);
-						System.out.println("Block occupied: " + currentBlock.occupancy);
 					}
 				});
 				btnToggleOccupancy.setBounds(606, 303, 191, 23);
@@ -445,7 +446,7 @@ public class TrackControllerGUI extends JFrame {
 		
 		if(currentController != null){
 			wContrl.runPLC(currentController, manualOverride);
-			
+		
 			if(currentController.containsSwitch & !currentController.containsCrossing) {
 				switchStatus = "";
 				crossingStatus = "";
@@ -461,37 +462,74 @@ public class TrackControllerGUI extends JFrame {
 					crossingStatus = "No crossings in this section.";
 				}
 			}
-			else if(currentController.containsCrossing & !currentController.containsSwitch) {
-				TrackCrossing t = (TrackCrossing) currentController.blockMap.get(19);
-				switchStatus = "No switches in this section.";
-				if(t.state) {
-					crossingStatus = "Crossing on block " + 19 + " is active.";
+			if(currentLine.equals("Green")){
+				if(currentController.containsCrossing & !currentController.containsSwitch) {
+					TrackCrossing t = (TrackCrossing) currentController.blockMap.get(19);
+					switchStatus = "No switches in this section.";
+					if(t.state) {
+						crossingStatus = "Crossing on block " + 19 + " is active.";
+					}
+					else {
+						crossingStatus = "Crossing on block " + 19 + " is inactive.";
+					}
 				}
-				else {
-					crossingStatus = "Crossing on block " + 19 + " is inactive.";
+				else if(currentController.containsCrossing & currentController.containsSwitch) {
+					switchStatus = "";
+					TrackCrossing tc = (TrackCrossing) currentController.blockMap.get(19);
+					ArrayList<TrackSwitch> s = currentController.findSwitches(currentLine);
+					for (TrackSwitch t: s) {
+						boolean pTB = t.state;
+						int index;
+						if (pTB) index = 0;
+						else index = 1;
+						switchStatus = switchStatus + "Switch on block " +t.number+ " pointing to block " + t.out[index]+ ".\n";
+					}
+					if(tc.state) {
+						crossingStatus = "Crossing on block " + 19 + " is active.";
+					}
+					else {
+						crossingStatus = "Crossing on block " + 19 + " is inactive.";
+					}
+				}
+				else if (!currentController.containsCrossing & !currentController.containsSwitch) {
+					switchStatus = "No switches in this section.";
+					crossingStatus = "No crossings in this section.";
 				}
 			}
-			else if(currentController.containsCrossing & currentController.containsSwitch) {
-				switchStatus = "";
-				TrackCrossing tc = (TrackCrossing) currentController.blockMap.get(19);
-				ArrayList<TrackSwitch> s = currentController.findSwitches(currentLine);
-				for (TrackSwitch t: s) {
-					boolean pTB = t.state;
-					int index;
-					if (pTB) index = 0;
-					else index = 1;
-					switchStatus = switchStatus + "Switch on block " +t.number+ " pointing to block " + t.out[index]+ ".";
+			
+			else if(currentLine.equals("Red")){
+				if(currentController.containsCrossing & !currentController.containsSwitch) {
+					TrackCrossing t = (TrackCrossing) currentController.blockMap.get(47);
+					switchStatus = "No switches in this section.";
+					if(t.state) {
+						crossingStatus = "Crossing on block " + 47 + " is active.";
+					}
+					else {
+						crossingStatus = "Crossing on block " + 47 + " is inactive.";
+					}
 				}
-				if(tc.state) {
-					crossingStatus = "Crossing on block " + 19 + " is active.";
+				else if(currentController.containsCrossing & currentController.containsSwitch) {
+					switchStatus = "";
+					TrackCrossing tc = (TrackCrossing) currentController.blockMap.get(47);
+					ArrayList<TrackSwitch> s = currentController.findSwitches(currentLine);
+					for (TrackSwitch t: s) {
+						boolean pTB = t.state;
+						int index;
+						if (pTB) index = 0;
+						else index = 1;
+						switchStatus = switchStatus + "Switch on block " +t.number+ " pointing to block " + t.out[index]+ ".\n";
+					}
+					if(tc.state) {
+						crossingStatus = "Crossing on block " + 47 + " is active.";
+					}
+					else {
+						crossingStatus = "Crossing on block " + 47 + " is inactive.";
+					}
 				}
-				else {
-					crossingStatus = "Crossing on block " + 19 + " is inactive.";
+				else if (!currentController.containsCrossing & !currentController.containsSwitch) {
+					switchStatus = "No switches in this section.";
+					crossingStatus = "No crossings in this section.";
 				}
-			}
-			else if (!currentController.containsCrossing & !currentController.containsSwitch) {
-				switchStatus = "No switches in this section.";
-				crossingStatus = "No crossings in this section.";
 			}
 		}
 		model.setValueAt(currentLine, 0, 1);

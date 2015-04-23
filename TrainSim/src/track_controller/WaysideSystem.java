@@ -137,7 +137,7 @@ public class WaysideSystem {
 		wc9.addBlocks(tc9);
 		PLC9 plc9 = new PLC9(wc9.blockMap);
 		wc9.plc = plc9;
-		System.out.println("Done creating controllers.");
+		System.out.println("Done green creating controllers.");
 		return true;
 	}
 	
@@ -146,8 +146,32 @@ public class WaysideSystem {
 	 * by set groupings based on track layout.
 	 */
 	private boolean createRedControllers(track_model.TrackLayout t) {
+		ArrayList<TrackBlock> tc1 = new ArrayList<TrackBlock>();
+		WaysideController wc1 = new WaysideController();
+		for (int i=1; i<24; i++) { 
+			tc1.add(t.blocks.get(i));
+			blockControllerMapRed.put(i, wc1);
+		}
+		tc1.add(t.blocks.get(77));
+		blockControllerMapRed.put(77, wc1);
+		wc1.addBlocks(tc1);
+		PLCA plcA = new PLCA(wc1.blockMap);
+		wc1.plc = plcA;
+		wc1.containsSwitch = true;
 		
+		WaysideController wc2 = new WaysideController();
+		ArrayList<TrackBlock> tc2 = new ArrayList<TrackBlock>();
+		for (int i=24; i<77; i++) {
+			tc2.add(t.blocks.get(i));
+			blockControllerMapRed.put(i, wc2);
+		}
+		wc2.addBlocks(tc2);	
+		PLCB plcB = new PLCB(wc2.blockMap);
+		wc2.plc = plcB;
+		wc2.containsSwitch = true;
+		wc2.containsCrossing = true;
 		
+		System.out.println("Done creating red controllers.");
 		return true;
 	}
 	

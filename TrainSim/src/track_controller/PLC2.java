@@ -20,11 +20,11 @@ public class PLC2 implements PLCInterface {
 	 * Determines safe state of the railway crossing and returns the state
 	 * true for active, false for inactive
 	 */
-	public boolean ctrlCrossing(TrainRoute r) {
+	public boolean ctrlCrossing() {
 		//if any of the affected blocks are occupied crossing is active
-		if(controlledBlocks.get(16).occupancy | controlledBlocks.get(17).occupancy | controlledBlocks.get(18).occupancy
-				| controlledBlocks.get(18).occupancy | controlledBlocks.get(19).occupancy | controlledBlocks.get(20).occupancy 
-				|controlledBlocks.get(21).occupancy | controlledBlocks.get(22).occupancy | controlledBlocks.get(23).occupancy) {
+		if(controlledBlocks.get(16).occupancy || controlledBlocks.get(17).occupancy || controlledBlocks.get(18).occupancy
+				|| controlledBlocks.get(18).occupancy || controlledBlocks.get(19).occupancy || controlledBlocks.get(20).occupancy 
+				||controlledBlocks.get(21).occupancy || controlledBlocks.get(22).occupancy) {
 			return true;
 		}
 		//otherwise it's inactive

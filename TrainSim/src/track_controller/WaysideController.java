@@ -30,10 +30,11 @@ public class WaysideController {
 	 * based on a user input file.
 	 */
 	public boolean updatePLC(String filename) throws MalformedURLException, ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, IllegalArgumentException, InvocationTargetException {
-		int i = filename.indexOf(".java");
-		String searchPath = "file:\\\\\\" + filename.substring(0, i-5) + "\\";
+		int i = filename.indexOf("track_controller");
+		int j = filename.indexOf(".java");
+		String searchPath = "file:\\\\\\" + filename.substring(0, i-1) + "/";
 		System.out.println(searchPath);
-		String className = filename.substring(i-4, i);
+		String className = "track_controller/" + filename.substring(j-4, j);
 		System.out.println(className);
 		System.setProperty("java.home", "C:\\Program Files\\Java\\jdk1.7.0_40");
 		JavaCompiler comp = ToolProvider.getSystemJavaCompiler();
@@ -67,6 +68,31 @@ public class WaysideController {
 			b.lights = (lightCtrl1 && lightCtrl2);
 		}
 		
+		//if not in manual do crossings
+		if(!manual){
+			//handle crossing
+			int crossingBlock = 0;
+			if(blockMap.containsKey(19)){
+				if(blockMap.get(19).infrastructure.contains("crossing")){
+					crossingBlock = 19;
+				}
+			}
+			if (blockMap.containsKey(47)){
+				if(blockMap.get(47).infrastructure.contains("crossing")){
+					crossingBlock = 47;
+				}
+			}
+			
+			boolean xCtrl1 = plc.ctrlCrossing();
+			boolean xCtrl2 = plc.ctrlCrossing();
+			
+			if(crossingBlock != 0){
+				TrackCrossing tempCross = (TrackCrossing) blockMap.get(crossingBlock);
+				tempCross.state = (xCtrl1 && xCtrl2);
+			}
+		}
+		
+		
 		//find routes where starting block is affected by this controller	
 		for (TrainRoute r : routes){
 			if(affectedBlocks.contains(r.startingBlock)){
@@ -78,32 +104,26 @@ public class WaysideController {
 							|| affectedBlocks.contains(52) || affectedBlocks.contains(58) || affectedBlocks.contains(62) || affectedBlocks.contains(76)
 							|| affectedBlocks.contains(86)){
 							
-							
+						//find the first switch listed in the route that is really a switch, that is the one being controlled
+						int indFirstSwitch = -1;
+						for (int i : r.route){
+							if((i == 9 && blockMap.get(9).infrastructure.contains("switch")) || (i == 12 && blockMap.get(12).infrastructure.contains("switch")) ||
+									(i == 32 && blockMap.get(32).infrastructure.contains("switch")) || (i == 38 && blockMap.get(38).infrastructure.contains("switch")) ||
+									(i == 27 && blockMap.get(27).infrastructure.contains("switch")) || (i == 43 && blockMap.get(43).infrastructure.contains("switch")) ||
+									(i == 52 && blockMap.get(52).infrastructure.contains("switch")) || (i == 58 && blockMap.get(58).infrastructure.contains("switch")) ||
+									(i == 62 && blockMap.get(62).infrastructure.contains("switch")) || (i == 76 && blockMap.get(76).infrastructure.contains("switch")) ||
+									(i == 86 && blockMap.get(86).infrastructure.contains("switch"))){
+								indFirstSwitch = i;
+								break;
+							}
+						}
+						TrackSwitch tSw = (TrackSwitch) affectedBlocks.get(r.route.get(indFirstSwitch));
 						boolean swCtl1 = plc.ctrlSwitch(r);
 						boolean swCtl2 = plc.ctrlSwitch(r);
 						
-						
-						
-						//TO DO: figure out how to determine which switch is affected
 						//set switch to swCtl1 && swCtl2
-					}
-					//handle crossing
-					int crossingBlock = 0;
-					if(affectedBlocks.contains(19) || affectedBlocks.contains(47)){
-						if(blockMap.get(19).infrastructure.contains("crossing")){
-							crossingBlock = 19;
-						}
-						else if(blockMap.get(47).infrastructure.contains("crossing")){
-							crossingBlock = 47;
-						}
-					}
-					
-					boolean xCtrl1 = plc.ctrlCrossing(r);
-					boolean xCtrl2 = plc.ctrlCrossing(r);
-					
-					if(crossingBlock != 0){
-						TrackSwitch tempSwitch = (TrackSwitch) blockMap.get(crossingBlock);
-						tempSwitch.state = (xCtrl1 && xCtrl2);						
+						tSw.state = swCtl1 && swCtl2;
+						System.out.println("Switch " + tSw.number + "state is " +tSw.state);
 					}
 				}
 				

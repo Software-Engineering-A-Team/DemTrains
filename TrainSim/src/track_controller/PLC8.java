@@ -17,7 +17,7 @@ public class PLC8 implements PLCInterface {
 	/*
 	 * No crossings in this section.
 	 */
-	public boolean ctrlCrossing(TrainRoute r) {
+	public boolean ctrlCrossing() {
 		return false;
 	}
 	

@@ -17,7 +17,7 @@ public class PLC5 implements PLCInterface {
 	 * Determines safe state of the railway crossing and returns the state
 	 * true for active, false for inactive
 	 */
-	public boolean ctrlCrossing(TrainRoute r) {
+	public boolean ctrlCrossing() {
 		return true;
 	}
 	/*
