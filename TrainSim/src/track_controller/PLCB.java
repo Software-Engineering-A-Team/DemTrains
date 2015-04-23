@@ -39,7 +39,9 @@ public class PLCB implements PLCInterface {
 		TrackSwitch relSwitch3 = (TrackSwitch) controlledBlocks.get(38);
 		TrackSwitch relSwitch4 = (TrackSwitch) controlledBlocks.get(43);
 		TrackSwitch relSwitch5 = (TrackSwitch) controlledBlocks.get(52);
-		if(r.route != null){
+		
+		//TODO: Implement this for the 5 switches controlled by this controller :(
+		/*if(r.route != null){
 			TrackSwitch current = relSwitch2;
 			//compute nextBlock val
 			int indNextBlock = r.route.indexOf(76)+1;
@@ -133,7 +135,7 @@ public class PLCB implements PLCInterface {
 				else current = relSwitch;
 				return current.state;
 			}
-		}
+		}*/
 		return false;
 	}
 	

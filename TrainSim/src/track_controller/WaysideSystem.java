@@ -21,7 +21,7 @@ public class WaysideSystem {
 	private boolean createGreenControllers(track_model.TrackLayout t) {
 		ArrayList<TrackBlock> tc1 = new ArrayList<TrackBlock>();
 		WaysideController wc1 = new WaysideController();
-		for (int i=1; i<17; i++) { 
+		for (int i=0; i<17; i++) { 
 			tc1.add(t.blocks.get(i));
 			blockControllerMapGreen.put(i, wc1);
 		}
@@ -148,7 +148,7 @@ public class WaysideSystem {
 	private boolean createRedControllers(track_model.TrackLayout t) {
 		ArrayList<TrackBlock> tc1 = new ArrayList<TrackBlock>();
 		WaysideController wc1 = new WaysideController();
-		for (int i=1; i<24; i++) { 
+		for (int i=0; i<24; i++) { 
 			tc1.add(t.blocks.get(i));
 			blockControllerMapRed.put(i, wc1);
 		}

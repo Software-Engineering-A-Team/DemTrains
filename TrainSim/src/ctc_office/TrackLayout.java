@@ -15,7 +15,7 @@ import train_model.TrainModel;
 
 public class TrackLayout {
 	private final ArrayList<BlockInterface> blockData;
-	private final HashMap<String, StationBlock> allStations = new HashMap<String, StationBlock>();
+	public final HashMap<String, StationBlock> allStations = new HashMap<String, StationBlock>();
 	private final DirectedMultigraph<Integer, DefaultEdge> layout;
 	private final HashMap<Integer, WaysideController> blockToControllerMap;
 	private final Scheduler scheduler = new Scheduler();

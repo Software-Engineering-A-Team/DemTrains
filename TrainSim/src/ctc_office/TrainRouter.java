@@ -112,7 +112,7 @@ public class TrainRouter {
 			if (visitedNodes.contains(v)){
 				continue; //already visited the edge, so skip it
 			}
-			DefaultBlock b = (DefaultBlock)blockData.get((int)currentVertex);          
+			DefaultBlock b = (DefaultBlock)blockData.get((int)currentVertex);
 			// if it is a switch make sure the next block is a valid move
 			/*
 			if (b.getClass().equals(SwitchBlock.class)){
@@ -199,16 +199,35 @@ public class TrainRouter {
 			double elapsedTime = SimClock.getDeltaMs() * 0.001; //in seconds
 			double distanceTraveled = speed*elapsedTime; //yards
 			DefaultBlock block = ((DefaultBlock)blockData.get(t.currentBlock));
+			if (distanceTraveled > t.authority) {
+				distanceTraveled = t.authority;
+				t.currSpeed = 0;
+			}
+			else if (trainRoutes.get(t.trainId).route.size() == 1) {
+				if (t.distanceTraveledOnBlock + distanceTraveled > block.blockLength/2) {
+					distanceTraveled = block.blockLength/2 - t.distanceTraveledOnBlock;
+					t.distanceTraveledOnBlock = block.blockLength/2;
+					t.currSpeed = 0;
+				}
+			}
 			// check if the train has entered a new block
 			if (block.occupied == false) {
-				// it has. 
-				t.currentBlock = trainRoutes.get(t.trainId).route.get(0);
+				// it has.
+				t.currentBlock = trainRoutes.get(t.trainId).route.get(1);
 				t.distanceTraveledOnBlock = block.blockLength - t.distanceTraveledOnBlock;
+				t.currSpeed = ((DefaultBlock) blockData.get(t.currentBlock)).speedLimit;
+				if (t.currSpeed > t.maxSpeed) {
+					t.currSpeed = t.maxSpeed;
+				}
 			}
 			// calculate the distance traveled on block
 			else if ((t.distanceTraveledOnBlock + distanceTraveled) > block.blockLength) {
 				t.distanceTraveledOnBlock = block.blockLength;
 			}
+			t.authority -= distanceTraveled;
+			t.currSpeed = trainRoutes.get(t.trainId).speed;
+			t.distanceTraveledOnBlock += distanceTraveled;
+			
 		}
 	}
 

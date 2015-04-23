@@ -533,7 +533,12 @@ public class TrackControllerGUI extends JFrame {
 		}
 		model.setValueAt(currentLine, 0, 1);
 		model.setValueAt(currentBlock.number, 1, 1);
-		model.setValueAt(currentBlock.occupancy, 2, 1);
+		if(currentBlock.failure!= null){
+			if(currentBlock.failure.equals("Circuit Failure")){
+				model.setValueAt(false, 2, 1);
+			}
+		}
+		else model.setValueAt(currentBlock.occupancy, 2, 1);
 		model.setValueAt(currentBlock.weather, 3, 1);
 		model.setValueAt(currentBlock.infrastructure, 4,1);
 		model.setValueAt(currentBlock.length, 5, 1);
@@ -541,7 +546,12 @@ public class TrackControllerGUI extends JFrame {
 		model.setValueAt(currentBlock.commandedSpeed, 7, 1);
 		model.setValueAt(currentBlock.commandedAuthority, 8, 1);
 		model.setValueAt(currentBlock.failure, 9, 1);
-		if(currentBlock.lights){
+		if(currentBlock.failure != null){
+			if(currentBlock.failure.equals("Power Failure")){
+				model.setValueAt(null, 10, 1);
+			}
+		}
+		else if(currentBlock.lights){
 			model.setValueAt("red", 10, 1);
 		}
 		else model.setValueAt("green", 10, 1);
