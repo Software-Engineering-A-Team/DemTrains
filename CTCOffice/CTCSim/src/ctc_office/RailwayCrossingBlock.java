@@ -14,4 +14,12 @@ public class RailwayCrossingBlock extends DefaultBlock{
 	public void toggleRailwayCrossing() {
 		crossingClosed = !crossingClosed;
 	}
+	
+	public String toString() {
+		String status = "Disengaged";
+		if (crossingClosed) {
+			status = "Engaged";
+		}
+		return "<html>Block type: Railway Crossing<br />Railway Crossing Status: " + status + "</html>";
+	}
 }

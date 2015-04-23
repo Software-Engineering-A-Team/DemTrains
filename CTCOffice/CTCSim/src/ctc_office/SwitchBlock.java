@@ -17,7 +17,7 @@ public class SwitchBlock extends DefaultBlock {
 	 * Changes the switch position
 	 */
 	public void toggleSwitch() {
-		pointingToBlock = pointingToBlock + 1 % 2;
+		pointingToBlock = (pointingToBlock + 1) % 2;
 	}
 	
 	/*
@@ -29,6 +29,10 @@ public class SwitchBlock extends DefaultBlock {
 	
 	public int[] getPossibleNextBlocks() {
 		return possibleNextBlocks;
+	}
+	
+	public String toString() {
+		return "<html>Block type: Switch<br/>Possible Next Blocks: " + possibleNextBlocks[0] + ", " + possibleNextBlocks[1] + "<br/>Switch Points to Block : " + getNextBlock() + "</html>";
 	}
 
 }

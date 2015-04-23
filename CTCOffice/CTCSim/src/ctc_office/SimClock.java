@@ -14,7 +14,7 @@ public class SimClock {
 
   // Initialize with a value to add to the time each clock tick
   public SimClock(int deltaMs) {
-    this.deltaMs = deltaMs;
+    SimClock.deltaMs = deltaMs;
   }
   
   public static long getTotalMs() {
