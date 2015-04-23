@@ -239,8 +239,11 @@ public class TrainModel {
 	 */
 	public void run() {
 		
-		// Handle comms with trainController (if there is one)
+		/*
+		 * Handle communication with other modules if we're in system mode
+		 */
 		if (this.standAlone == false) {
+			// Handle comms with trainController (if there is one)
 			// Set the speed & authority command
 			SpeedAuthCmd cmd = new SpeedAuthCmd(this.commandedSpeed, this.commandedAuthority);
 			this.controller.setSpeedAuthCmd(cmd);
@@ -254,6 +257,10 @@ public class TrainModel {
 			this.rightDoorStatus = this.controller.isRightDoorOpen();
 			this.lightStatus = this.controller.isLightOn();
 			this.airConditioning = this.controller.isAirConditioningOn();
+			
+			// Check if we need a new Track Block
+			TrackBlock oldBlock = this.currBlock;
+			this.currBlock = SystemWrapper.trackModelGUI.trackModel.getCurrentBlock(this.trainName, this.position / 3, oldBlock);
 		}
 		
 		
@@ -262,9 +269,9 @@ public class TrainModel {
 		// Get time difference needed for calculations
 		// divide by 1000 to get value in seconds
 		double delta = (double)SimClock.getDeltaMs() / 1000;	
-
-		// Calculate the current velocity
-		this.calcVelocity(delta);
+		
+		// Update the motion of the train
+		this.updateMotion(delta);
 		
 		
 		// Update weight of the train
@@ -272,10 +279,6 @@ public class TrainModel {
 		
 		// Update position
 		this.calcPosition(delta);
-		
-		// Check if we need a new Track Block
-		TrackBlock oldBlock = this.currBlock;
-		this.currBlock = SystemWrapper.trackModelGUI.trackModel.getCurrentBlock(this.trainName, this.position / 3, oldBlock);
 	}
 	
 	// internal methods for calculations *********************
@@ -287,26 +290,13 @@ public class TrainModel {
 		// Average weight of a person is 185 lbs
 		this.weight = ((crewCount + passengerCount) * 185) + UNLADEN_WEIGHT;
 	}
+
 	
 	/*
-	 * Calculates the current force of the train produced by the engines
-	 */
-	private double calcForce() {
-		return 5.0;
-	}
-	
-	/*
-	 * Calculates the acceleration of the train
-	 */
-	private double calcAccel() {
-		return 5.0;
-	}
-	
-	/*
-	 * Calculates the velocity of the train using the equation
+	 * Calculates the force, acceleration, and velocity of the train using the equation
 	 * v = (P/v) * (1/m) * (1/s)
 	 */
-	private void calcVelocity(double sec) {
+	private void updateMotion(double delta) {
 		double newForce = 0, newAccel = 0, newVelocity = 0;
 		
 		// Calculate the force
@@ -330,7 +320,8 @@ public class TrainModel {
 		if (this.velocity == 0 && this.accel < 0)
 			newAccel = 0;
 		
-		newVelocity += newAccel * (1 / sec);
+		newVelocity += newAccel * delta;
+		
 		if (newVelocity < 0)
 			newVelocity = 0;
 		
@@ -344,8 +335,8 @@ public class TrainModel {
 	/*
 	 * Calculates the position of the train
 	 */
-	private void calcPosition(double sec) {
-		double newPosition = (this.velocity / sec);
+	private void calcPosition(double delta) {
+		double newPosition = (this.velocity * delta);
 		this.position += newPosition;
 	}
 	
