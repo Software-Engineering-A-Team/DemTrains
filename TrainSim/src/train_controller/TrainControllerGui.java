@@ -557,7 +557,12 @@ public class TrainControllerGui extends JFrame {
     }
 
     if (!(standalone && textFieldStationName.isFocusOwner())) {
-      this.textFieldStationName.setText(trainController.getBeaconMessage().stationName);
+      if (trainController.isStopRequired()) {
+        this.textFieldStationName.setText(trainController.getBeaconMessage().stationName);
+      }
+      else {
+        this.textFieldStationName.setText("");
+      }
     }
 
     this.chckbxStopRequired.setSelected(trainController.isStopRequired());
