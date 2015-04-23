@@ -1,6 +1,5 @@
 package track_model;
 
-import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -16,24 +15,17 @@ import javax.swing.JLabel;
 import java.awt.Component;
 
 import javax.swing.Box;
-import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
-import javax.swing.UIManager;
 
-import java.awt.Color;
-import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
 import javax.swing.JTextField;
-import javax.swing.JRadioButton;
 import javax.swing.JButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -57,6 +49,7 @@ public class TrackModelGUI extends JFrame {
 	
 	private JCheckBox occupiedCheckbox;
 	private JCheckBox heaterCheckbox;
+	private JCheckBox switchCheckbox;
 	
 	private JTextField commandedSpeedTextfield;
 	private JTextField commandedAuthorityTextfield;
@@ -154,7 +147,7 @@ public class TrackModelGUI extends JFrame {
 		JPanel simulationPanel = new JPanel();
 		simulationPanel.setOpaque(false);
 		tabbedPane.addTab("Simulate Inputs", null, simulationPanel, null);
-		simulationPanel.setLayout(new MigLayout("", "[][grow]", "[][][][][][][][][]"));
+		simulationPanel.setLayout(new MigLayout("", "[][grow]", "[][][][][][][][][][]"));
 		
 		JLabel lblWeather = new JLabel("Weather");
 		simulationPanel.add(lblWeather, "cell 0 0,alignx trailing");
@@ -200,16 +193,21 @@ public class TrackModelGUI extends JFrame {
 		heaterCheckbox = new JCheckBox("Heater on");
 		simulationPanel.add(heaterCheckbox, "cell 1 6");
 		
+		JLabel lblSwitchState = new JLabel("Switch State");
+		simulationPanel.add(lblSwitchState, "cell 0 7,alignx right");
+		
+		switchCheckbox = new JCheckBox("Switch between blocks");
+		simulationPanel.add(switchCheckbox, "cell 1 7");
+		
 		Component verticalStrut_1 = Box.createVerticalStrut(20);
-		simulationPanel.add(verticalStrut_1, "cell 1 7");
+		simulationPanel.add(verticalStrut_1, "cell 1 8");
 		
 		updateSimulationPane(block);
 		
 		JButton simulateButton = new JButton("Simulate Inputs");
-		simulationPanel.add(simulateButton, "cell 1 8");
+		simulationPanel.add(simulateButton, "cell 1 9");
 		simulateButton.addActionListener(new ActionListener() {
 		    public void actionPerformed(ActionEvent e) {
-		    	JButton source = (JButton)e.getSource();
 		    	TrackBlock block = trackModel.trackLayouts.get(trackLineSelect.getSelectedItem()).blocks.get((Integer)trackBlockSelect.getSelectedItem());
 		    	updateModel(block);
 		    	table.setModel(createTableModel(block, (String)trackLineSelect.getSelectedItem()));
@@ -241,6 +239,10 @@ public class TrackModelGUI extends JFrame {
 		block.commandedAuthority = commandedAuthority;
 		block.lights = lightsSelect.getSelectedItem().equals("Red") ? true : false;
 		block.heater = heaterCheckbox.isSelected();
+		if (block.infrastructure != null && block.infrastructure.equals("switch")) {
+			TrackSwitch trackSwitch = (TrackSwitch)block;
+			trackSwitch.state = switchCheckbox.isSelected();
+		}
 	}
 	
 	private void updateSimulationPane(TrackBlock block) {
@@ -251,6 +253,10 @@ public class TrackModelGUI extends JFrame {
     	commandedAuthorityTextfield.setText(String.valueOf(block.commandedAuthority));
     	lightsSelect.setSelectedItem(block.lights ? "Red" : "Green");
     	heaterCheckbox.setSelected(block.heater);
+    	if (block.infrastructure != null && block.infrastructure.equals("switch")) {
+    		TrackSwitch trackSwitch = (TrackSwitch)block;
+        	switchCheckbox.setSelected(trackSwitch.state);
+    	}
 	}
 	
 	private DefaultTableModel createTableModel(TrackBlock block, String line) {
@@ -292,15 +298,17 @@ public class TrackModelGUI extends JFrame {
 			}
 			outBuilder.append(layout.getEdgeTarget(edge));
 		}
-		model.addRow(new String[] {"Tail Blocks", inBuilder.toString()});
-		model.addRow(new String[] {"Head Blocks", outBuilder.toString()});
+		model.addRow(new String[] {"Blocks 'pointing' to this one", inBuilder.toString()});
+		model.addRow(new String[] {"Blocks this one 'points' to", outBuilder.toString()});
 		if (block.infrastructure != null && block.infrastructure.equals("station")) {
 			TrackStation trackStation = (TrackStation)block;
 			model.addRow(new String[] {"Passengers", String.valueOf(trackStation.passengersWaiting)});
 		}
 		if (block.infrastructure != null && block.infrastructure.equals("switch")) {
 			TrackSwitch trackSwitch = (TrackSwitch)block;
-			model.addRow(new String[] {"Switch Position", String.valueOf(trackSwitch.state ? trackSwitch.out[0] : trackSwitch.out[1])});
+			String switchOne = String.valueOf(trackSwitch.out[0]) + (trackSwitch.state ? "[ ]" : "[X]");
+			String switchTwo = String.valueOf(trackSwitch.out[1]) + (trackSwitch.state ? "[X]" : "[ ]");
+			model.addRow(new String[] {"Switch Position", switchOne + " " + switchTwo});
 		}
 		return model;
 	}
