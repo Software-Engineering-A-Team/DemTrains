@@ -22,8 +22,10 @@ abstract class VitalTrainControl {
   
   // Constants
   protected final double maxPowerKw = 120;
-  protected final double Kp = 10;
-  protected final double Ki = 6;
+  //protected final double Kp = 12;
+  //protected final double Ki = 1;
+  protected final double Kp = 9;
+  protected final double Ki = .95;
   protected final double serviceBrakeThresholdMph = 15.0;
   protected final double emergencyBrakeThresholdMph = 0.05;
   protected final double brakeRecoveryThresholdMph = 0.2;

@@ -444,7 +444,7 @@ public class TrainControllerGui extends JFrame {
         public void actionPerformed(ActionEvent e) {
           SpeedAuthCmd cmd = new SpeedAuthCmd(trainController.getSpeedAuthCmd().suggestedSpeedMph, trainController.getSpeedAuthCmd().suggestedAuthMiles);
           cmd.suggestedAuthMiles = Double.parseDouble(textFieldAuthority.getText());
-          System.out.println("Setting auth " + cmd.suggestedAuthMiles);
+          //System.out.println("Setting auth " + cmd.suggestedAuthMiles);
           trainController.setSpeedAuthCmd(cmd);
           textFieldAuthority.setText(formatter.format(trainController.getAuthority()));
           requestFocus();
