@@ -104,7 +104,7 @@ public class TrainModelGUI extends JFrame {
 		}
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 750, 650);
+		setBounds(100, 100, 800, 700);
 		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -466,6 +466,7 @@ public class TrainModelGUI extends JFrame {
 		});
 		txtSetPower.setText("Enter power(kW)");
 		GridBagConstraints gbc_txtSetPower = new GridBagConstraints();
+		gbc_txtSetPower.fill = GridBagConstraints.HORIZONTAL;
 		gbc_txtSetPower.insets = new Insets(0, 0, 5, 0);
 		gbc_txtSetPower.gridx = 4;
 		gbc_txtSetPower.gridy = 14;
@@ -579,6 +580,14 @@ public class TrainModelGUI extends JFrame {
 		contentPane.add(engineStatusLabel, gbc_engineStatusLabel);
 		
 		JButton btnToggleLeftDoors = new JButton("Toggle Left Doors");
+		btnToggleLeftDoors.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (currTrain.leftDoorStatus == true)
+					currTrain.leftDoorStatus = false;
+				else
+					currTrain.leftDoorStatus = true;
+			}
+		});
 		GridBagConstraints gbc_btnToggleLeftDoors = new GridBagConstraints();
 		gbc_btnToggleLeftDoors.insets = new Insets(0, 0, 5, 0);
 		gbc_btnToggleLeftDoors.gridx = 4;
@@ -600,6 +609,14 @@ public class TrainModelGUI extends JFrame {
 		contentPane.add(brakeStatusLabel, gbc_brakeStatusLabel);
 		
 		JButton btnToggleRightDoors = new JButton("Toggle Right Doors");
+		btnToggleRightDoors.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (currTrain.rightDoorStatus == true)
+					currTrain.rightDoorStatus = false;
+				else
+					currTrain.rightDoorStatus = true;
+			}
+		});
 		GridBagConstraints gbc_btnToggleRightDoors = new GridBagConstraints();
 		gbc_btnToggleRightDoors.insets = new Insets(0, 0, 5, 0);
 		gbc_btnToggleRightDoors.gridx = 4;
@@ -619,6 +636,21 @@ public class TrainModelGUI extends JFrame {
 		gbc_sigPickupLabel.gridx = 1;
 		gbc_sigPickupLabel.gridy = 20;
 		contentPane.add(sigPickupLabel, gbc_sigPickupLabel);
+		
+		JButton btnToggleLights = new JButton("Toggle Lights");
+		btnToggleLights.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (currTrain.lightStatus == true)
+					currTrain.lightStatus = false;
+				else
+					currTrain.lightStatus = true;
+			}
+		});
+		GridBagConstraints gbc_btnToggleLights = new GridBagConstraints();
+		gbc_btnToggleLights.insets = new Insets(0, 0, 5, 0);
+		gbc_btnToggleLights.gridx = 4;
+		gbc_btnToggleLights.gridy = 20;
+		contentPane.add(btnToggleLights, gbc_btnToggleLights);
 		
 		// Refreshes the tables and layout
 		final Timer displayTimer = new Timer(100, new ActionListener() {

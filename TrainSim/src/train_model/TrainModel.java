@@ -64,6 +64,7 @@ public class TrainModel {
 	boolean eBrake = false;	// false = off, true = on
 	
 	boolean airConditioning = false; // false = off, true = on
+	double temperature = 65.0;	// degrees F
 	
 	double powCommand = 0;	// kW
 	double accel = 0;	// ft/s^2
