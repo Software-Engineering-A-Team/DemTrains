@@ -14,7 +14,7 @@ public interface PLCInterface {
 	 * Determines safe state of the switch and returns the state
 	 * true for second block in attach array , false for first block in attach array
 	 */
-	public boolean ctrlSwitch();
+	public boolean ctrlSwitch(TrainRoute r);
 	/*
 	 * Determines safe state of the track heater and returns the state
 	 * true on, false off
@@ -29,25 +29,23 @@ public interface PLCInterface {
 	 * Determines safe speed and authority and returns 
 	 * 
 	 */
-	public boolean ctrlSpeedAuthority(TrackBlock b, double speed, double authority);
+	public boolean ctrlSpeedAuthority(TrainRoute r, double sugSpeed, double sugAuthority);
 	/*
 	 * Determines safe closing of block and returns block state
 	 * true for open, false for closed
 	 */
 	public boolean ctrlBlockClosed(TrackBlock b);
 	/*
-	 * Runs all necessary plc to determine safe function for the
-	 * entire area covered by the controller.
-	 */
-	public void run();
-	/*
 	 *Checks that train route passed by CTC is safe.
 	 */
-	public boolean checkRoute();
-	
-	public void changeRoute(TrainRoute r);
-	
-	public boolean switchCtrl();
-	
-	public PriorityQueue<TrainRoute> getRoutes();	
+	public boolean checkRoute(TrainRoute r);	
+	/*
+	 * Determines if speed should be set to speed limit or 0;
+	 */
+	public boolean checkSpeed(TrainRoute r, double s);
+	/*
+	 * Determines safe authority based on block occupancy
+	 * either 
+	 */
+	public boolean checkAuthority(TrainRoute r, double a, double safeAuth);
 }

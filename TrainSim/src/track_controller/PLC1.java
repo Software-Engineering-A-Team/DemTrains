@@ -9,49 +9,44 @@ import java.util.PriorityQueue;
 
 public class PLC1 implements PLCInterface {
 	private HashMap<Integer, TrackBlock> controlledBlocks;
-	public PriorityQueue<TrainRoute> routes = new PriorityQueue<TrainRoute>();
-	boolean switchCtrlSuccess = false;
 	
-	
-	public PLC1(HashMap<Integer, TrackBlock> blockList, TrainRoute route){
+	public PLC1(HashMap<Integer, TrackBlock> blockList){
 		this.controlledBlocks = blockList;
-		if(route!= null) this.routes.add(route);
 	}	
+	
 	/*
 	 * Determines safe state of the railway crossing and returns the state
 	 * true for active, false for inactive
 	 */
 	public boolean ctrlCrossing() {
-		return true;
+		return false;
 	}
+	
 	/*
 	 * Determines safe state of the switch and returns the state
 	 * true for second block in attach array , false for first block in attach array
 	 */
-	public boolean ctrlSwitch() {
+	public boolean ctrlSwitch(TrainRoute r) {
 		TrackSwitch relSwitch = (TrackSwitch) controlledBlocks.get(12);
-		if(this.routes.peek() != null){
-			switchCtrlSuccess = true;
-			//compute nextBlock val
-			int indNextBlock = routes.peek().route.indexOf(12)+1;
-			int nextBlock = routes.peek().route.get(indNextBlock);
-			//int prevBlock = r.route.get(r.route.indexOf(12)-1);
+		if(r.route != null){
+			int indNextBlock = r.route.indexOf(12);
+			int nextBlock = r.route.get(indNextBlock);
 			
-			
+						
 			// if train on 15, 14, or 13 and nothing else within range and next block after 12 in route is 11
 			//set switch connected to block 11
-			if((controlledBlocks.get(15).occupancy | controlledBlocks.get(14).occupancy | controlledBlocks.get(13).occupancy)
-				& (!controlledBlocks.get(12).occupancy | !controlledBlocks.get(11).occupancy| !controlledBlocks.get(10).occupancy 
-				  | !controlledBlocks.get(1).occupancy | !controlledBlocks.get(2).occupancy | !controlledBlocks.get(3).occupancy) &
+			if((controlledBlocks.get(15).occupancy || controlledBlocks.get(14).occupancy || controlledBlocks.get(13).occupancy)
+				&& (!controlledBlocks.get(12).occupancy || !controlledBlocks.get(11).occupancy|| !controlledBlocks.get(10).occupancy 
+				  || !controlledBlocks.get(1).occupancy || !controlledBlocks.get(2).occupancy || !controlledBlocks.get(3).occupancy) &&
 				  nextBlock == 11){
 				relSwitch = (TrackSwitch) controlledBlocks.get(12);
 				relSwitch.state = false;
 			}
 			//if train on 1, 2, or 3 and nothing else within range and next block after 12 is 13
 			//set switch connected to block 1
-			else if ((controlledBlocks.get(1).occupancy | controlledBlocks.get(2).occupancy | controlledBlocks.get(3).occupancy)
-					& (!controlledBlocks.get(12).occupancy | !controlledBlocks.get(11).occupancy| !controlledBlocks.get(10).occupancy 
-							  | !controlledBlocks.get(15).occupancy | !controlledBlocks.get(14).occupancy | !controlledBlocks.get(13).occupancy) &
+			else if ((controlledBlocks.get(1).occupancy || controlledBlocks.get(2).occupancy || controlledBlocks.get(3).occupancy)
+					&& (!controlledBlocks.get(12).occupancy || !controlledBlocks.get(11).occupancy|| !controlledBlocks.get(10).occupancy 
+							  || !controlledBlocks.get(15).occupancy || !controlledBlocks.get(14).occupancy || !controlledBlocks.get(13).occupancy) &&
 							  nextBlock == 13) {
 				relSwitch = (TrackSwitch) controlledBlocks.get(12);
 				relSwitch.state = true;
@@ -65,6 +60,7 @@ public class PLC1 implements PLCInterface {
 		}
 		return relSwitch.state;
 	}
+	
 	/*
 	 * Determines safe state of the track heater and returns the state
 	 * true on, false off
@@ -73,23 +69,33 @@ public class PLC1 implements PLCInterface {
 		if(b.hasAdverseWeather()) return true;
 		else return false;		
 	}
+	
 	/*
 	 * Determines safe state of the lights and returns the state
 	 * true green, false red
 	 */
 	public boolean ctrlLights(TrackBlock b) {
-		if(b.occupancy | b.hasFailure()) return true;
+		if(b.occupancy || b.hasFailure()) return true;
 		else return false;
 	}
+	
 	/*
 	 * Determines safe speed and authority and returns 
 	 * 
 	 */
-	public boolean ctrlSpeedAuthority(TrackBlock b, double speed, double authority) { 
+	public boolean ctrlSpeedAuthority(TrainRoute r, double speed, double authority) { 
+		TrackBlock b = controlledBlocks.get(r.startingBlock);
+		double minSafeAuth = authority;
 		if (speed > b.speedLimit) return false;
-		//else if (authority > safeAuthority) return false;
+		for(int i : r.route){
+			TrackBlock temp = controlledBlocks.get(i);
+			minSafeAuth = minSafeAuth + temp.length;
+			if(temp.occupancy) break;
+		}
+		if (authority < minSafeAuth) return false;
 		else return true;
 	}
+	
 	/*
 	 * Determines safe closing of block and returns block state
 	 * true for open, false for closed
@@ -104,51 +110,56 @@ public class PLC1 implements PLCInterface {
 	 * Checks this route for possibility of collisions
 	 * and other errors.
 	 */
-	public boolean checkRoute() {
-		if (this.routes.peek() == null) return false;
-		for (int i : this.routes.peek().route) {
+	public boolean checkRoute(TrainRoute r) {
+		if (r.route == null) return false;
+		for (int i : r.route) {
+			if(!controlledBlocks.containsKey(i)){
+				return false;
+			}
 			TrackBlock b = controlledBlocks.get(i);
-			if(b.occupancy) return false;
+			if(b.occupancy && i>10) return false;
 		}
 	 return true;
 	}
 	
 	/*
-	 * Changes the route.
+	 * Determines if speed should be set to speed limit or 0;
 	 */
-	public void changeRoute(TrainRoute route) {
-		this.routes.add(route);
-	}
-	
-	public boolean switchCtrl() {
-		if (this.routes.peek() != null & switchCtrlSuccess) { 
-			return true;
+	public boolean checkSpeed(TrainRoute r, double s) {
+		boolean failureAhead = false;
+		boolean possibleCrash = false;
+		for (int i: r.route){
+			TrackBlock b = controlledBlocks.get(r.route.get(i));
+			if (b.hasFailure())failureAhead = true;
+			if ((i-r.route.get(0) < 4) && b.occupancy) possibleCrash = true;
 		}
-		else return false;
-	}
-	
-	public PriorityQueue<TrainRoute> getRoutes(){
-		return this.routes;
+		if (possibleCrash || failureAhead) return false;
+		else return true;
 	}
 	
 	/*
-	 * Runs all functions of PLC Program
+	 * Determines safe authority based on block occupancy
+	 * either 
 	 */
-	public void run(){
-		for (int i = 1; i<17; i++) {
-			TrackBlock b = controlledBlocks.get(i);
-			b.heater = ctrlHeater(b);
-			b.lights = ctrlLights(b);
+	public boolean checkAuthority(TrainRoute r, double a, double safeAuth) {
+		boolean failureAhead = false;
+		boolean possibleCrash = false;
+		for (int i: r.route){
+			TrackBlock b = controlledBlocks.get(r.route.get(i));
+			if (b.hasFailure())failureAhead = true;
+			if ((i-r.route.get(0) < 4) && b.occupancy) possibleCrash = true;
 		}
-		
-		TrackSwitch s = (TrackSwitch) controlledBlocks.get(12);
-		boolean prevState = s.state;
-		int ind, ind1;
-		if(prevState) ind = 0;
-		else ind = 1;
-		s.state = ctrlSwitch();
-		if(s.state) ind1 = 0;
-		else ind1 = 1;
-		if (prevState != s.state) System.out.println("Switch on block 12 moved from "+s.out[ind] +" to " +s.out[ind1]);
+		if(failureAhead || possibleCrash) return false;
+		else { 
+			double minSafeAuth = a;
+			for(int i : r.route){
+				TrackBlock temp = controlledBlocks.get(i);
+				minSafeAuth = minSafeAuth + temp.length;
+				if(temp.occupancy) break;
+			}
+			
+			if (minSafeAuth < r.authority) return true;
+			else return false;
+		}
 	}
 }

@@ -8,12 +8,15 @@ public class VitalTrainControlPrimary extends VitalTrainControl{
   private double lastSpeedErrorMph = 0;
   
   //
-  public double calcPower() {    
-    if (emergencyBrake || serviceBrake)
+  public double calcPower() {
+    double distanceTravelledMi = currentSpeedMph * SimClock.getDeltaS() / 3600.0;
+    
+    if (emergencyBrake)
     {
       powerKw = 0;
+      controlVar = 0;
     }
-    else
+    else if (manualMode || authorityMi > 0.0)
     {
       double speedErrorMph = targetSpeedMph - currentSpeedMph;
       
@@ -23,48 +26,53 @@ public class VitalTrainControlPrimary extends VitalTrainControl{
       
       powerKw = Kp * speedErrorMph + Ki * controlVar;
       
-      //System.out.println("speedErrorMph = " + speedErrorMph + "   controlVar = " + controlVar);
-      
       if (powerKw > maxPowerKw) {
         powerKw = maxPowerKw;
       }
       else if (powerKw < 0) {
         powerKw = 0;
       }
+      
     }
+
+    authorityMi -= distanceTravelledMi;
+    safeStoppingDistanceMi -= distanceTravelledMi;
+    
+    distanceFromStationMi -= distanceTravelledMi;
       
     return powerKw;
   }
 
-  public void determineSafeSpeed() {
-    if (!manualMode) {
-      // Service brake should be activated if the current speed is above the target speed by
-      // a predetermined threshold. If it is already activated, it will stay activated until
-      // the difference between the current speed and the target speed is decreased by the
-      // magnitude of the brake recovery threshold. This prevents continuous jerking back and
-      // forth at short intervals.
-      if (!serviceBrake && (currentSpeedMph - targetSpeedMph >= serviceBrakeThresholdMph)
-          || serviceBrake && (currentSpeedMph - targetSpeedMph >= serviceBrakeThresholdMph - brakeRecoveryThresholdMph)) {
+  public void manageSafeSpeedAndBraking() {
+    if (!manualMode) {      
+      // Use suggested speed.
+      //targetSpeedMph = speedAuthCmd.suggestedSpeedMph;
+      
+      // If we are above the speed limit or close to the safe stopping distance, pull emergency brake automatically
+      if (this.safeStoppingDistanceMi <= 0.1) {
+        emergencyBrake = true;
+      }
+      
+      // Turn on service brake if we are close to exceeding authority or stopping distance
+      if (currentSpeedMph > speedLimitMph || authorityMi <= 0.2 || this.safeStoppingDistanceMi <= 0.2 || currentSpeedMph > targetSpeedMph) {
         serviceBrake = true;
       }
-      else {
+      else{
         serviceBrake = false;
       }
       
-      // Use suggested speed.
-      targetSpeedMph = speedAuthCmd.suggestedSpeedMph;
+      if (stopRequired && this.distanceFromStationMi <= 0.2) {
+        serviceBrake = true;
+        
+        if (this.currentSpeedMph == 0.0) {
+          targetSpeedMph = 0.0;
+          powerKw = 0.0;
+          controlVar = 0.0;
+          stopRequired = false;
+        }
+      }
     }
 
     
-    // Similar scheme as service brake, but this threshold is the maximum allowed gap between the
-    // the current speed and the speed limit, because we want to keep the train below the
-    // limit by a certain amount.
-    if (!emergencyBrake && (speedLimitMph - currentSpeedMph <= emergencyBrakeThresholdMph)
-        || emergencyBrake && (speedLimitMph - currentSpeedMph >= serviceBrakeThresholdMph + brakeRecoveryThresholdMph)) {
-      emergencyBrake = true;
-    }
-    else {
-      emergencyBrake = false;
-    }
   }
 }

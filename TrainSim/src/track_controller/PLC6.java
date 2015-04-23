@@ -9,29 +9,15 @@ import java.util.PriorityQueue;
 
 public class PLC6 implements PLCInterface {
 	HashMap<Integer, TrackBlock> controlledBlocks;
-	public PriorityQueue<TrainRoute> routes = new PriorityQueue<TrainRoute>();
-	boolean switchCtrlSuccess = false;
 	TrackSwitch current;
 	
 	
-	public PLC6(HashMap<Integer, TrackBlock> blockList, TrainRoute route){
+	public PLC6(HashMap<Integer, TrackBlock> blockList){
 		this.controlledBlocks = blockList;
-		if(route!= null) this.routes.add(route);
 		current = (TrackSwitch) controlledBlocks.get(58);
 	}	
 	
-	/*
-	 * Changes the route.
-	 */
-	public void changeRoute(TrainRoute route) {
-		this.routes.add(route);
-	}
-	
-	public boolean switchCtrl() {
-		if (this.routes.peek() != null) return true;
-		else return false;
-	}
-	
+		
 	/*
 	 * Determines safe state of the railway crossing and returns the state
 	 * true for active, false for inactive
@@ -43,16 +29,15 @@ public class PLC6 implements PLCInterface {
 	 * Determines safe state of the switch and returns the state
 	 * true for second block in attach array , false for first block in attach array
 	 */
-	public boolean ctrlSwitch() {
+	public boolean ctrlSwitch(TrainRoute r) {
 				
 		TrackSwitch relSwitch = (TrackSwitch) controlledBlocks.get(62);
 		TrackSwitch relSwitch2 = (TrackSwitch) controlledBlocks.get(58);
-		if(this.routes.peek() != null){
-			switchCtrlSuccess = true;
+		if(r.route != null){
 			TrackSwitch current = relSwitch2;
 			//compute nextBlock val
-			int indNextBlock = routes.peek().route.indexOf(76)+1;
-			int nextBlock = routes.peek().route.get(indNextBlock);			
+			int indNextBlock = r.route.indexOf(76)+1;
+			int nextBlock = r.route.get(indNextBlock);			
 			
 			// if train on 55,56,57 and nothing on 59 and next block after 58 in route is 59
 			//set switch connected to block 59
@@ -90,8 +75,8 @@ public class PLC6 implements PLCInterface {
 			//if there is a conflict, keep switch where it is and set speed and authority of conflicting
 			//occupied blocks to 0
 			else {
-				if(this.routes.peek().route.contains(58)) current = relSwitch2;
-				else if (this.routes.peek().route.contains(62)) current = relSwitch;
+				if(r.route.contains(58)) current = relSwitch2;
+				else if (r.route.contains(62)) current = relSwitch;
 				else current = relSwitch2;
 				return current.state;
 			}
@@ -111,16 +96,23 @@ public class PLC6 implements PLCInterface {
 	 * true green, false red
 	 */
 	public boolean ctrlLights(TrackBlock b) {
-		if(b.occupancy | b.hasFailure()) return true;
+		if(b.occupancy || b.hasFailure()) return true;
 		else return false;
 	}
 	/*
 	 * Determines safe speed and authority and returns 
 	 * 
 	 */
-	public boolean ctrlSpeedAuthority(TrackBlock b, double speed, double authority) { 
+	public boolean ctrlSpeedAuthority(TrainRoute r, double speed, double authority) { 
+		TrackBlock b = controlledBlocks.get(r.startingBlock);
+		double minSafeAuth = authority;
 		if (speed > b.speedLimit) return false;
-		//else if (authority > safeAuthority) return false;
+		for(int i : r.route){
+			TrackBlock temp = controlledBlocks.get(i);
+			minSafeAuth = minSafeAuth + temp.length;
+			if(temp.occupancy) break;
+		}
+		if (authority < minSafeAuth) return false;
 		else return true;
 	}
 	/*
@@ -137,42 +129,55 @@ public class PLC6 implements PLCInterface {
 	 * Checks this route for possibility of collisions
 	 * and other errors.
 	 */
-	public boolean checkRoute() {
-		if (this.routes.peek() == null) return false;
-		for (int i : this.routes.peek().route) {
+	public boolean checkRoute(TrainRoute r) {
+		if (r.route == null) return false;
+		for (int i : r.route) {
+			if(!controlledBlocks.containsKey(i)){
+				return false;
+			}
 			TrackBlock b = controlledBlocks.get(i);
-			if(b.occupancy) return false;
+			if(b.occupancy && i>10) return false;
 		}
 	 return true;
 	}
 	
-	public PriorityQueue<TrainRoute> getRoutes(){
-		return this.routes;
-	}
-	
 	/*
-	 * Runs all functions of PLC Program
+	 * Determines if speed should be set to speed limit or 0;
 	 */
-	public void run(){
-		for (int i = 54; i<69; i++) {
-			TrackBlock b = controlledBlocks.get(i);
-			b.heater = ctrlHeater(b);
-			b.lights = ctrlLights(b);
+	public boolean checkSpeed(TrainRoute r, double s) {
+		boolean failureAhead = false;
+		boolean possibleCrash = false;
+		for (int i: r.route){
+			TrackBlock b = controlledBlocks.get(r.route.get(i));
+			if (b.hasFailure())failureAhead = true;
+			if ((i-r.route.get(0) < 4) && b.occupancy) possibleCrash = true;
 		}
-		
-		for (int i = 151; i<153; i++) {
-			TrackBlock b = controlledBlocks.get(i);
-			b.heater = ctrlHeater(b);
-			b.lights = ctrlLights(b);
+		if (possibleCrash || failureAhead) return false;
+		else return true;
+	}
+	/*
+	 * Determines safe authority based on block occupancy
+	 * either 
+	 */
+	public boolean checkAuthority(TrainRoute r, double a, double safeAuth) {
+		boolean failureAhead = false;
+		boolean possibleCrash = false;
+		for (int i: r.route){
+			TrackBlock b = controlledBlocks.get(r.route.get(i));
+			if (b.hasFailure())failureAhead = true;
+			if ((i-r.route.get(0) < 4) && b.occupancy) possibleCrash = true;
 		}
-				
-		boolean prevState = current.state;
-		int ind, ind1;
-		if(prevState) ind = 0;
-		else ind = 1;
-		current.state = ctrlSwitch();
-		if(current.state) ind1 = 0;
-		else ind1 = 1;
-		if (prevState != current.state) System.out.print("Switch on block "+current.number+" moved from "+current.out[ind] + " to " +current.out[ind1]);
+		if(failureAhead || possibleCrash) return false;
+		else { 
+			double minSafeAuth = a;
+			for(int i : r.route){
+				TrackBlock temp = controlledBlocks.get(i);
+				minSafeAuth = minSafeAuth + temp.length;
+				if(temp.occupancy) break;
+			}
+			
+			if (minSafeAuth < r.authority) return true;
+			else return false;
+		}
 	}
 }

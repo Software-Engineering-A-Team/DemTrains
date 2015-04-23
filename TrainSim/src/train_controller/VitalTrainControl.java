@@ -17,19 +17,23 @@ abstract class VitalTrainControl {
   public boolean manualMode = false;
   public SpeedAuthCmd speedAuthCmd = new SpeedAuthCmd(0, 0);
   public double powerKw = 0;
+  public double distanceFromStationMi = 0;
+  public boolean stopRequired = false;
   
   // Constants
   protected final double maxPowerKw = 120;
-  protected final double Kp = 0.5;
-  protected final double Ki = 0.0000005;
+  //protected final double Kp = 12;
+  //protected final double Ki = 1;
+  protected final double Kp = 9;
+  protected final double Ki = .95;
   protected final double serviceBrakeThresholdMph = 15.0;
   protected final double emergencyBrakeThresholdMph = 0.05;
   protected final double brakeRecoveryThresholdMph = 0.2;
   
   public abstract double calcPower();
-  public abstract void determineSafeSpeed();
+  public abstract void manageSafeSpeedAndBraking();
   public void update() {
-    determineSafeSpeed();
+    manageSafeSpeedAndBraking();
     calcPower();
   }
 }

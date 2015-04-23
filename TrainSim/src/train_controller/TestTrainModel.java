@@ -5,12 +5,15 @@ import system_wrapper.SimClock;
 
 // Simple version of TrainModel used only for TrainController standalone mode.
 public class TestTrainModel {
-  public static final double EBRAKE_ACCEL = -0.00169634;                // mi/s^2
-  public static final double SBRAKE_ACCEL = -0.000745645430684791725;   // mi/s^2
-  public static final double ENGINE_ACCEL = 0.000005;
+  public static final double EBRAKE_ACCEL = -6.106824;   // mph per second
+  public static final double SBRAKE_ACCEL = -2.684322;   // mph per second
+  public static final double TRAIN_MASS_KG = 40900;        // kg
+  public static final double MPS_PER_MPH =  0.44704;    // m/s per mph
+  public static final double FRICTION_COEFF = 0.1;
   
   public double currentSpeedMph = 0;
   public TrainController trainController;
+  public double lastPowerKw = 0;
   
   public TestTrainModel(TrainController trainController)
   {
@@ -27,29 +30,51 @@ public class TestTrainModel {
     
     if (trainController.isEmergencyBrakeOn())
     {
-      currentSpeedMph += 3600.0 * SimClock.getDeltaS() * EBRAKE_ACCEL;
+      currentSpeedMph += SimClock.getDeltaS() * EBRAKE_ACCEL;
     }
     else if (trainController.isServiceBrakeOn())
     {
-      currentSpeedMph += 3600.0 * SimClock.getDeltaS() * SBRAKE_ACCEL;
+      currentSpeedMph += SimClock.getDeltaS() * SBRAKE_ACCEL;
     }
-    else if (trainController.getTargetSpeed() > trainController.getCurrentSpeed())
+    else
     {
-      currentSpeedMph += SimClock.getDeltaS() * ENGINE_ACCEL;
-    }
-    else if (trainController.getTargetSpeed() < trainController.getCurrentSpeed())
-    {
-      currentSpeedMph -= SimClock.getDeltaS() * ENGINE_ACCEL;
+      double forceN;
+      double accelMps2;
+      double deltaSpeedMps;
+      double deltaSpeedMph;
+      
+
+      forceN = powerKw / 0.001;
+      
+      /*
+      if (currentSpeedMph == 0) {
+        forceN = powerW / 0.001;
+      }
+      else {
+        double speedMps;
+        
+        speedMps = MPS_PER_MPH * currentSpeedMph;
+        forceN = powerW / speedMps;
+      }
+      */
+      
+      accelMps2 = (forceN / TRAIN_MASS_KG) - (FRICTION_COEFF * 9.80);
+      
+      deltaSpeedMps = accelMps2 * SimClock.getDeltaS();
+      
+      deltaSpeedMph = deltaSpeedMps / MPS_PER_MPH;
+      
+      currentSpeedMph += deltaSpeedMph;
+      
+      //System.out.println("accelMps2 = " + accelMps2);
+      
+      //currentSpeedMph += SimClock.getDeltaS() * powerKw / 10.0 - currentSpeedMph * .001;
     }
     
 
     if (currentSpeedMph < 0.0)
     {
       currentSpeedMph = 0.0;
-    }
-    else if (currentSpeedMph > 100.0)
-    {
-      currentSpeedMph = 100.0;
     }
   }
 }

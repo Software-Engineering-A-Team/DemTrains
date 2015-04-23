@@ -9,12 +9,9 @@ import java.util.PriorityQueue;
 
 public class PLC9 implements PLCInterface {
 	HashMap<Integer, TrackBlock> controlledBlocks;
-	public PriorityQueue<TrainRoute> routes = new PriorityQueue<TrainRoute>();
-	boolean switchCtrlSuccess = false;
 		
-	public PLC9(HashMap<Integer, TrackBlock> blockList, TrainRoute route){
+	public PLC9(HashMap<Integer, TrackBlock> blockList){
 		this.controlledBlocks = blockList;
-		if(route!= null) this.routes.add(route);
 	}	
 	
 	/*
@@ -27,7 +24,7 @@ public class PLC9 implements PLCInterface {
 	/*
 	 * No switches in this section.
 	 */
-	public boolean ctrlSwitch() {
+	public boolean ctrlSwitch(TrainRoute r) {
 		return false;
 	}
 	
@@ -45,7 +42,7 @@ public class PLC9 implements PLCInterface {
 	 * true green, false red
 	 */
 	public boolean ctrlLights(TrackBlock b) {
-		if(b.occupancy | b.hasFailure()) return true;
+		if(b.occupancy || b.hasFailure()) return true;
 		else return false;
 	}
 	
@@ -54,9 +51,16 @@ public class PLC9 implements PLCInterface {
 	 * 
 	 */
 	
-	public boolean ctrlSpeedAuthority(TrackBlock b, double speed, double authority) { 
+	public boolean ctrlSpeedAuthority(TrainRoute r, double speed, double authority) { 
+		TrackBlock b = controlledBlocks.get(r.startingBlock);
+		double minSafeAuth = authority;
 		if (speed > b.speedLimit) return false;
-		//else if (authority > safeAuthority) return false;
+		for(int i : r.route){
+			TrackBlock temp = controlledBlocks.get(i);
+			minSafeAuth = minSafeAuth + temp.length;
+			if(temp.occupancy) break;
+		}
+		if (authority < minSafeAuth) return false;
 		else return true;
 	}
 	
@@ -74,40 +78,55 @@ public class PLC9 implements PLCInterface {
 	 * Checks this route for possibility of collisions
 	 * and other errors.
 	 */
-	public boolean checkRoute() {
-		if (this.routes.peek() == null) return false;
-		for (int i : this.routes.peek().route) {
+	public boolean checkRoute(TrainRoute r) {
+		if (r.route == null) return false;
+		for (int i : r.route) {
+			if(!controlledBlocks.containsKey(i)){
+				return false;
+			}
 			TrackBlock b = controlledBlocks.get(i);
-			if(b.occupancy) return false;
+			if(b.occupancy && i>10) return false;
 		}
 	 return true;
 	}
 	
-	
 	/*
-	 * Changes the route.
+	 * Determines if speed should be set to speed limit or 0;
 	 */
-	public void changeRoute(TrainRoute route) {
-		this.routes.add(route);
+	public boolean checkSpeed(TrainRoute r, double s) {
+		boolean failureAhead = false;
+		boolean possibleCrash = false;
+		for (int i: r.route){
+			TrackBlock b = controlledBlocks.get(r.route.get(i));
+			if (b.hasFailure())failureAhead = true;
+			if ((i-r.route.get(0) < 4) && b.occupancy) possibleCrash = true;
+		}
+		if (possibleCrash || failureAhead) return false;
+		else return true;
 	}
-	
-	public boolean switchCtrl() {
-		if (this.routes.peek() != null) return true;
-		else return false;
-	}
-	
-	public PriorityQueue<TrainRoute> getRoutes(){
-		return this.routes;
-	}
-	
 	/*
-	 * Runs all functions of PLC Program
+	 * Determines safe authority based on block occupancy
+	 * either 
 	 */
-	public void run(){
-		for (int i = 104; i<148; i++) {
-			TrackBlock b = controlledBlocks.get(i);
-			b.heater = ctrlHeater(b);
-			b.lights = ctrlLights(b);
+	public boolean checkAuthority(TrainRoute r, double a, double safeAuth) {
+		boolean failureAhead = false;
+		boolean possibleCrash = false;
+		for (int i: r.route){
+			TrackBlock b = controlledBlocks.get(r.route.get(i));
+			if (b.hasFailure())failureAhead = true;
+			if ((i-r.route.get(0) < 4) && b.occupancy) possibleCrash = true;
+		}
+		if(failureAhead || possibleCrash) return false;
+		else { 
+			double minSafeAuth = a;
+			for(int i : r.route){
+				TrackBlock temp = controlledBlocks.get(i);
+				minSafeAuth = minSafeAuth + temp.length;
+				if(temp.occupancy) break;
+			}
+			
+			if (minSafeAuth < r.authority) return true;
+			else return false;
 		}
 	}
 }

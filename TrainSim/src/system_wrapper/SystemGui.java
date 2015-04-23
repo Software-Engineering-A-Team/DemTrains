@@ -1,15 +1,11 @@
 package system_wrapper;
 
-import track_controller.WaysideController;
+import track_controller.*;
 import train_model.TrainModel;
-
 import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
-
 import java.awt.BorderLayout;
-
 import javax.swing.JPanel;
 
 public class SystemGui extends JFrame {
@@ -39,11 +35,12 @@ public static void main(String[] args) {
             	SystemWrapper.ctcOffice.runCTC();
 
             	// Run TrackController
+            	boolean manual =  (((TrackControllerGUI) SystemWrapper.trackControllerGui).inManualMode());
             	for (WaysideController wcGreen : SystemWrapper.waysideSys.blockControllerMapGreen.values()) {
-                	SystemWrapper.waysideSys.runPLC(wcGreen);
+                	SystemWrapper.waysideSys.runPLC(wcGreen, manual);
             	}
             	for (WaysideController wcRed : SystemWrapper.waysideSys.blockControllerMapRed.values()) {
-                	SystemWrapper.waysideSys.runPLC(wcRed);
+                	SystemWrapper.waysideSys.runPLC(wcRed, manual);
             	}
             	
             	// Run all Train Models
@@ -56,7 +53,7 @@ public static void main(String[] args) {
     
             	// Sleep for the appropriate amount of time
             	long elapsedTime = System.nanoTime() - time;
-            	long desiredElapsedTime = (long) Math.ceil(SystemWrapper.perceivedTimeMultiplier * 1000000000);
+            	long desiredElapsedTime = (long) Math.ceil(10000000.0 / SystemWrapper.perceivedTimeMultiplier);
             	long timeDifferenceMS = (desiredElapsedTime - elapsedTime) / 1000000;
             	try {
             	  if (timeDifferenceMS > 0) {

@@ -1,9 +1,13 @@
 package system_wrapper;
 
-class BeaconMessage{
+public class BeaconMessage {
   public String stationName;
-  public float distanceFromStation;
+  public double distanceFromStation;
   public int trainID;
-  boolean rightSide;
-  boolean leftSide;
+  public boolean rightSide;
+  public boolean leftSide;
+  
+  public BeaconMessage() {
+    stationName = new String();
+  }
 }

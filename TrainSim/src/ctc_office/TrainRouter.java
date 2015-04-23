@@ -1,13 +1,18 @@
 package ctc_office;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
+import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
+
+
 
 import system_wrapper.SimClock;
 import system_wrapper.SystemWrapper;
@@ -50,42 +55,31 @@ public class TrainRouter {
 				destinationBlock = i;
 			}
 		}
+		
 		findSimplePaths(currentBlock, destinationBlock, totalWeight, path, allVertices, visitedNodes, allSimplePaths);
-		
-		// find the shortest path of all the calculated paths
-		double min = Double.MAX_VALUE;
-		LinkedList<Integer> minPath = null;
+		// Create a route object for all of the paths
+		LinkedList<TrainRoute> allTrainRoutes = new LinkedList<TrainRoute>();
 		for (LinkedList<Integer> p : allSimplePaths.keySet()) {
-			if (allSimplePaths.get(p) < min) {
-				min = allSimplePaths.get(p);
-				minPath = p;
+			Double pathDistance = allSimplePaths.get(p);
+			p.add(0, currentBlock);
+			pathDistance += ((DefaultBlock)blockData.get(currentBlock)).blockLength;
+			pathDistance += ((DefaultBlock)blockData.get(p.get(p.size()-1))).blockLength/2;
+			// create the TrainRoute Object
+			double trainSpeed = ((DefaultBlock)blockData.get(train.currentBlock)).speedLimit;
+			if (train.maxSpeed < trainSpeed) {
+				trainSpeed = train.maxSpeed;
 			}
-		}
-		if (minPath == null) {
-			trainRoutes.put(train.trainId, null);
-			return null;
-		}
-		
-		// create the TrainRoute Object
-		double trainSpeed = ((DefaultBlock)blockData.get(train.currentBlock)).speedLimit;
-		if (train.maxSpeed < trainSpeed) {
-			trainSpeed = train.maxSpeed;
-		}
-		double authority = train.authority;
-		if (authority > min) {
-			authority = min;
-		}
+			double authority = train.authority;
+			if (authority > pathDistance) {
+				authority = pathDistance;
+			}
 
-		TrainRoute route =  new TrainRoute(lineName, train.currentBlock, minPath, trainSpeed, authority);
-        TrainRoute waysideRoute = null;
-        //TrainRoute waysideRoute = blockToControllerMap.get(currentBlock).addRoute(route);
-		if (waysideRoute == null) {
-			waysideRoute = route;
+			allTrainRoutes.add(new TrainRoute(lineName, train.currentBlock, p, trainSpeed, authority, pathDistance));
 		}
-		
-		trainRoutes.put(train.trainId, waysideRoute);
-		return waysideRoute;
-	}
+		Collections.sort(allTrainRoutes);
+		blockToControllerMap.get(currentBlock).addRoute(allTrainRoutes.get(0));
+		return allTrainRoutes.get(0);
+	}	
 	
 	
 	@SuppressWarnings("unchecked")
@@ -93,19 +87,23 @@ public class TrainRouter {
 		// get all the edges it connects to
 		Set<DefaultEdge> connectedEdges = layout.edgesOf(currentVertex);
 		// remove all of the edges that have been visited
+		if (destinationVertex.equals(currentVertex)){
+			// Completed the loop
+			allSimplePaths.put(path, totalWeight);
+			return;
+		}
 		for (DefaultEdge e : connectedEdges) {
-			Integer v = layout.getEdgeSource(e);
+			Integer v = layout.getEdgeTarget(e);
+			if (!currentVertex.equals(layout.getEdgeSource(e))) {
+				continue;
+			}
 			if (visitedNodes.contains(v)){
 				continue; //already visited the edge, so skip it
 			}
-			if (destinationVertex.equals(currentVertex)){
-				// Completed the loop
-				allSimplePaths.put(path, totalWeight);
-				return;
-			}
-			BlockInterface b = blockData.get((int)currentVertex);
+			DefaultBlock b = (DefaultBlock)blockData.get((int)currentVertex);
 			// if it is a switch make sure the next block is a valid move
-			if (b.getClass().equals(TrackSwitch.class)){
+			/*
+			if (b.getClass().equals(SwitchBlock.class)){
 				int [] possibleNextBlocks = ((SwitchBlock) b).getPossibleNextBlocks();
 				for (Integer i : allVertices) {
 					if (i.equals(possibleNextBlocks[0])) {
@@ -116,17 +114,18 @@ public class TrainRouter {
 					}
 				}
 			}
+			*/
 			// If the block is closed, it is not a path
-			if (((DefaultBlock)b).broken) {
+			if (b.broken) {
 				return;
 			}
 			// it is part of a path
-			totalWeight += ((DefaultBlock)b).blockLength;
+			totalWeight += b.blockLength;
 			LinkedList<Integer> pathCopy = (LinkedList<Integer>)path.clone();
 			Set<Integer> visitedNodesCopy = new HashSet<Integer>(visitedNodes.size());
 			visitedNodesCopy.addAll(visitedNodes);
 			visitedNodesCopy.add(v);
-			pathCopy.add(v);
+			pathCopy.add(pathCopy.size(), v);
 			findSimplePaths(v, destinationVertex, totalWeight, pathCopy, allVertices, visitedNodesCopy, allSimplePaths);
 		}
 	}
@@ -188,16 +187,35 @@ public class TrainRouter {
 			double elapsedTime = SimClock.getDeltaMs() * 0.001; //in seconds
 			double distanceTraveled = speed*elapsedTime; //yards
 			DefaultBlock block = ((DefaultBlock)blockData.get(t.currentBlock));
+			if (distanceTraveled > t.authority) {
+				distanceTraveled = t.authority;
+				t.currSpeed = 0;
+			}
+			else if (trainRoutes.get(t.trainId).route.size() == 1) {
+				if (t.distanceTraveledOnBlock + distanceTraveled > block.blockLength/2) {
+					distanceTraveled = block.blockLength/2 - t.distanceTraveledOnBlock;
+					t.distanceTraveledOnBlock = block.blockLength/2;
+					t.currSpeed = 0;
+				}
+			}
 			// check if the train has entered a new block
 			if (block.occupied == false) {
-				// it has. 
+				// it has.
 				t.currentBlock = trainRoutes.get(t.trainId).route.get(1);
 				t.distanceTraveledOnBlock = block.blockLength - t.distanceTraveledOnBlock;
+				t.currSpeed = ((DefaultBlock) blockData.get(t.currentBlock)).speedLimit;
+				if (t.currSpeed > t.maxSpeed) {
+					t.currSpeed = t.maxSpeed;
+				}
 			}
 			// calculate the distance traveled on block
 			else if ((t.distanceTraveledOnBlock + distanceTraveled) > block.blockLength) {
 				t.distanceTraveledOnBlock = block.blockLength;
 			}
+			t.authority -= distanceTraveled;
+			t.currSpeed = trainRoutes.get(t.trainId).speed;
+			t.distanceTraveledOnBlock += distanceTraveled;
+			
 		}
 	}
 

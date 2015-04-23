@@ -1,6 +1,7 @@
 package train_controller;
 
 import system_wrapper.SpeedAuthCmd;
+import system_wrapper.BeaconMessage;
 
 // Class whose main function is to control the engine power of a TrainModel.
 // It uses two vital controllers which control the power and braking given
@@ -27,13 +28,13 @@ public class TrainController {
   private double speedLimitMph = 60;
   private double powerKw = 0;
   private double safeStoppingDistanceMi = 10;
-  private double authorityMi;
+  private BeaconMessage beaconMessage = new BeaconMessage();
+  private boolean stopRequired = false;
 
   // If vital controllers give different results, there has been an error.
   private boolean vitalError = false;
   
   public TrainController() {
-    
   }
   
   public TrainController(int id) {
@@ -62,18 +63,26 @@ public class TrainController {
   public void setServiceBrake(boolean serviceBrake) {
     if (manualMode) {
       this.serviceBrake = serviceBrake;
+      vitalPrimary.serviceBrake = serviceBrake;
+      vitalSecondary.serviceBrake = serviceBrake;
     }
   }
   
   // The emergency brake can be pulled by anyone at any time.
   public void setEmergencyBrake(boolean emergencyBrake) {
     this.emergencyBrake = emergencyBrake;
+    vitalPrimary.emergencyBrake = emergencyBrake;
+    vitalSecondary.emergencyBrake = emergencyBrake;
   }
   
   // The speed command will only be followed if in automatic mode.
   public void setSpeedAuthCmd(SpeedAuthCmd cmd) {
     speedAuthCmd.suggestedAuthMiles = cmd.suggestedAuthMiles;
     speedAuthCmd.suggestedSpeedMph = cmd.suggestedSpeedMph;
+    
+    if (!manualMode) {
+      targetSpeedMph = cmd.suggestedSpeedMph;
+    }
   }
   
   public void setSafeStoppingDistance(double safeStoppingDistanceMi) {
@@ -83,6 +92,44 @@ public class TrainController {
   // Used by the driver to switch between manual and automatic control.
   public void setManualMode(boolean manualMode) {
     this.manualMode = manualMode;
+
+    if (!manualMode) {
+      targetSpeedMph = speedAuthCmd.suggestedSpeedMph;
+    }
+  }
+  
+  public void setVitalError(boolean vitalError) {
+    this.vitalError = vitalError;
+  }
+  
+  public void setLights(boolean lightsOn) {
+    this.lightsOn = lightsOn;
+  }
+  
+  public void setRightDoor(boolean rightDoorOpen) {
+    this.rightDoorOpen = rightDoorOpen;
+  }
+  
+  public void setLeftDoor(boolean leftDoorOpen) {
+    this.leftDoorOpen = leftDoorOpen;
+  }
+  
+  public void setAirConditioning(boolean airConditioningOn) {
+    this.airConditioningOn = airConditioningOn;
+  }
+  
+  public void setStopRequired(boolean stopRequired) {
+    this.stopRequired = stopRequired;
+  }
+  
+  public void setBeaconMessage(BeaconMessage beaconMessage) {
+    if (beaconMessage.trainID == id) {
+      this.beaconMessage.distanceFromStation = beaconMessage.distanceFromStation;
+      this.beaconMessage.stationName = new String(beaconMessage.stationName);
+      this.beaconMessage.leftSide = beaconMessage.leftSide;
+      this.beaconMessage.rightSide = beaconMessage.rightSide;
+      stopRequired = true;
+    }
   }
   
   // Send all vital input data to vital controllers.
@@ -92,18 +139,22 @@ public class TrainController {
     vitalPrimary.currentSpeedMph = currentSpeedMph;
     vitalPrimary.targetSpeedMph = targetSpeedMph;
     vitalPrimary.speedLimitMph = speedLimitMph;
-    vitalPrimary.authorityMi = authorityMi;
+    vitalPrimary.authorityMi = speedAuthCmd.suggestedAuthMiles;
     vitalPrimary.safeStoppingDistanceMi = safeStoppingDistanceMi;
     vitalPrimary.speedAuthCmd = speedAuthCmd;
+    vitalPrimary.stopRequired = stopRequired;
+    vitalPrimary.distanceFromStationMi = beaconMessage.distanceFromStation;
 
     vitalSecondary.manualMode = manualMode;
     vitalSecondary.targetSpeedMph = targetSpeedMph;
     vitalSecondary.currentSpeedMph = currentSpeedMph;
     vitalSecondary.targetSpeedMph = targetSpeedMph;
     vitalSecondary.speedLimitMph = speedLimitMph;
-    vitalSecondary.authorityMi = authorityMi;
+    vitalSecondary.authorityMi = speedAuthCmd.suggestedAuthMiles;
     vitalSecondary.safeStoppingDistanceMi = safeStoppingDistanceMi;
     vitalSecondary.speedAuthCmd = speedAuthCmd;
+    vitalSecondary.stopRequired = stopRequired;
+    vitalSecondary.distanceFromStationMi = beaconMessage.distanceFromStation;
   }
   
   private void getVitalControlOutputs() {
@@ -111,18 +162,21 @@ public class TrainController {
         || vitalPrimary.serviceBrake != vitalSecondary.serviceBrake
         || vitalPrimary.powerKw != vitalSecondary.powerKw
         || vitalPrimary.authorityMi != vitalSecondary.authorityMi
-        || vitalPrimary.powerKw != vitalSecondary.powerKw) {
+        || vitalPrimary.powerKw != vitalSecondary.powerKw
+        || vitalPrimary.safeStoppingDistanceMi != vitalSecondary.safeStoppingDistanceMi
+        || vitalPrimary.stopRequired != vitalSecondary.stopRequired
+        || vitalPrimary.distanceFromStationMi != vitalSecondary.distanceFromStationMi) {
       vitalError = true;
-      emergencyBrake = true;
-      powerKw = 0;
     }
-    else {
-      emergencyBrake = vitalPrimary.emergencyBrake;
-      serviceBrake = vitalPrimary.serviceBrake;
-      targetSpeedMph = vitalPrimary.targetSpeedMph;
-      authorityMi = vitalPrimary.authorityMi;
-      powerKw = vitalPrimary.powerKw;
-    }
+    
+    emergencyBrake = vitalPrimary.emergencyBrake;
+    serviceBrake = vitalPrimary.serviceBrake;
+    targetSpeedMph = vitalPrimary.targetSpeedMph;
+    speedAuthCmd.suggestedAuthMiles = vitalPrimary.authorityMi;
+    powerKw = vitalPrimary.powerKw;
+    safeStoppingDistanceMi = vitalPrimary.safeStoppingDistanceMi;
+    stopRequired = vitalPrimary.stopRequired;
+    beaconMessage.distanceFromStation = vitalPrimary.distanceFromStationMi;
   }
   
   // Called by TrainModel to 
@@ -133,6 +187,12 @@ public class TrainController {
     vitalSecondary.update();
     
     getVitalControlOutputs();
+    
+    if (vitalError)
+    {
+      emergencyBrake = true;
+      powerKw = 0.0;
+    }
     
     return powerKw;
   }
@@ -194,6 +254,18 @@ public class TrainController {
   }
   
   public double getAuthority() {
-    return authorityMi;
+    return speedAuthCmd.suggestedAuthMiles;
+  }
+  
+  public boolean vitalErrorOccurred() {
+    return vitalError;
+  }
+  
+  public boolean isStopRequired() {
+    return stopRequired;
+  }
+  
+  public BeaconMessage getBeaconMessage() {
+    return beaconMessage;
   }
 }

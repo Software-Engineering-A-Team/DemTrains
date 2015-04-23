@@ -10,7 +10,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JFileChooser;
-import javax.swing.JTabbedPane;
 import javax.swing.JLabel;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
@@ -18,55 +17,65 @@ import javax.swing.JButton;
 
 import java.awt.Color;
 
-import javax.swing.JSlider;
-import javax.swing.JRadioButton;
 import javax.swing.JTable;
-import javax.swing.ButtonGroup;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-import javax.swing.filechooser.*;
-
-import java.awt.GridLayout;
-
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JScrollPane;
+import javax.swing.JComponent;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.PriorityQueue;
 
+import javax.swing.Timer;
+import javax.swing.JTextPane;
+import javax.swing.JTextArea;
+import javax.swing.JCheckBox;
+import javax.swing.JToggleButton;
+import javax.swing.SwingConstants;
 
 public class TrackControllerGUI extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField PLCFileName;
-	private JTextField sugSpeed;
-	private JTextField sugAuthority;
 	public static WaysideSystem wContrl;
 	public static boolean plcUploadSuccess;
 	private TrackBlock currentBlock;
 	private String currentLine;
 	private WaysideController currentController;
-	private JTable table;
 	private String switchStatus = "No information available.";
 	private String crossingStatus = "No information available.";
 	private boolean sysMode = false;
-	private boolean noSwitchCtrl = false;
-	private JComboBox<String> weatherPicker;
+	
 	private JComboBox<Integer> blockPicker;
 	private JComboBox<String> linePicker;
 	private static WaysideSystem ws;
 	private DefaultTableModel model;
 	private JLabel lblCompilationSuccessful;
+	private JTextField speedSug;
+	private JTextField sugAuth;
+	private JButton btnFlipSwitch;
+	private JTable table_1;
+	private JComboBox<String> blockStatusPicker;
+	private JComboBox<String> weatherPicker;
+	private static Timer displayTimer;
+	private JTextArea CTCInfoPane;
+	private static boolean manualOverride = false;
+	private JToggleButton tglbtnOverride;
+	private JButton	btnActivateCrossing;
 	
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+	  //create a track model
 	  track_model.TrackModel t = new track_model.TrackModel();
+	  //load the wayside system with track model
 	  ws = new WaysideSystem(t);
+	  //create fake train route
 	  List<Integer> route = new ArrayList<Integer>();
 	  route.add(14);
 	  route.add(13);
@@ -85,13 +94,20 @@ public class TrackControllerGUI extends JFrame {
 	  route.add(12);
 	  route.add(13);
 	  TrainRoute r = new TrainRoute("Green", 14, route, 22.0, 1910);
+	  TrainRoute r1 = new TrainRoute("Red", 14, route, 25.0, 3500);
 	  WaysideController routed = ws.blockControllerMapGreen.get(1);
+	  
+	  //function called by CTC to add routes, give sug speed, and authority
 	  routed.addRoute(r);
+	  routed.addRoute(r1);
+	  ws.setBeacon("g12testbeaconstring/", 31);
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
 					TrackControllerGUI frame = new TrackControllerGUI(ws, false);
 					frame.setVisible(true);
+					frame.updateData();
+					displayTimer.start();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -110,29 +126,29 @@ public class TrackControllerGUI extends JFrame {
 	}
 	
 	public void initialize() {
+		
+		displayTimer = new Timer(100, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0){
+				updateData();
+			}
+		});
+		
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 562, 367);
+		setBounds(100, 100, 830, 382);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
-		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.BOTTOM);
-		tabbedPane.setBounds(10, 11, 526, 306);
-		contentPane.add(tabbedPane);
-		
-		JPanel inputPanel = new JPanel();
-		tabbedPane.addTab("Inputs", null, inputPanel, null);
-		inputPanel.setLayout(null);
-		
 		JLabel lblLine = new JLabel("Line: ");
 		lblLine.setBounds(10, 40, 46, 14);
-		inputPanel.add(lblLine);
+		contentPane.add(lblLine);
 		
 		JLabel lblBlock = new JLabel("Block: ");
 		lblBlock.setBounds(10, 65, 56, 14);
-		inputPanel.add(lblBlock);
+		contentPane.add(lblBlock);
 		
 		blockPicker = new JComboBox<Integer>();
 		blockPicker.addActionListener(new ActionListener() {
@@ -143,11 +159,14 @@ public class TrackControllerGUI extends JFrame {
 					if(currentLine!=null && currentLine.equals("Green")) {
 						currentController = wContrl.blockControllerMapGreen.get(currentBlock.number);
 					}
+					if(currentLine!=null && currentLine.equals("Red")) {
+						currentController = wContrl.blockControllerMapRed.get(currentBlock.number);
+					}
 				}
 			}
 		});
 		blockPicker.setBounds(51, 65, 65, 20);
-		inputPanel.add(blockPicker);
+		contentPane.add(blockPicker);
 		
 		linePicker = new JComboBox<String>();
 		linePicker.addActionListener(new ActionListener() {
@@ -171,162 +190,22 @@ public class TrackControllerGUI extends JFrame {
 			}
 		});
 		linePicker.setBounds(51, 40, 65, 20);
-		inputPanel.add(linePicker);
+		contentPane.add(linePicker);
 		linePicker.addItem("Green");
 		linePicker.addItem("Red");
 		
 		PLCFileName = new JTextField();
 		PLCFileName.setBounds(58, 12, 129, 20);
-		inputPanel.add(PLCFileName);
+		contentPane.add(PLCFileName);
 		PLCFileName.setColumns(10);
 		
 		JLabel lblPlcFile = new JLabel("PLC file:");
 		lblPlcFile.setBounds(10, 15, 89, 14);
-		inputPanel.add(lblPlcFile);
-		
-		JLabel lblSuggestSpeed = new JLabel("Suggest speed:");
-		lblSuggestSpeed.setBounds(126, 40, 120, 14);
-		inputPanel.add(lblSuggestSpeed);
-		
-		JLabel label = new JLabel("Suggest authority:");
-		label.setBounds(126, 65, 129, 14);
-		inputPanel.add(label);
+		contentPane.add(lblPlcFile);
 		
 		JLabel label_1 = new JLabel("");
 		label_1.setBounds(420, 40, 46, 14);
-		inputPanel.add(label_1);
-		
-		sugSpeed = new JTextField();
-		sugSpeed.setBounds(258, 37, 39, 20);
-		inputPanel.add(sugSpeed);
-		sugSpeed.setColumns(10);
-		
-		sugAuthority = new JTextField();
-		sugAuthority.setBounds(257, 62, 40, 20);
-		inputPanel.add(sugAuthority);
-		sugAuthority.setColumns(10);
-		
-		JLabel lblMph = new JLabel("mph");
-		lblMph.setBounds(306, 40, 46, 14);
-		inputPanel.add(lblMph);
-		
-		JLabel lblMiles = new JLabel("miles");
-		lblMiles.setBounds(302, 65, 46, 14);
-		inputPanel.add(lblMiles);
-		
-		weatherPicker = new JComboBox<String>();
-		weatherPicker.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				currentBlock.weather = weatherPicker.getSelectedItem().toString();
-			}
-		});
-		weatherPicker.setBounds(223, 89, 76, 20);
-		inputPanel.add(weatherPicker);
-		weatherPicker.addItem("Clear");
-		weatherPicker.addItem("Rain");
-		weatherPicker.addItem("Snow");
-		weatherPicker.addItem("Ice");
-		
-		JLabel lblWeather = new JLabel("Weather:");
-		lblWeather.setBounds(126, 92, 87, 14);
-		inputPanel.add(lblWeather);
-		
-		JLabel lblOccupancy = new JLabel("Occupancy:");
-		lblOccupancy.setBounds(126, 117, 100, 14);
-		inputPanel.add(lblOccupancy);
-		
-		
-		JRadioButton rdbtnOccupied = new JRadioButton("occupied");
-		rdbtnOccupied.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				currentBlock.occupancy = true;
-			}
-		});
-		rdbtnOccupied.setBounds(223, 113, 89, 23);
-		inputPanel.add(rdbtnOccupied);
-		
-		JRadioButton rdbtnFree = new JRadioButton("free");
-		rdbtnFree.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				currentBlock.occupancy = false;
-			}
-		});
-		rdbtnFree.setSelected(true);
-		rdbtnFree.setBounds(314, 113, 67, 23);
-		inputPanel.add(rdbtnFree);
-		
-		ButtonGroup occupancyBtns = new ButtonGroup();
-		occupancyBtns.add(rdbtnOccupied);
-		occupancyBtns.add(rdbtnFree);
-		
-		
-		JLabel lblBrokenStatus = new JLabel("Broken status: ");
-		lblBrokenStatus.setBounds(126, 147, 100, 14);
-		inputPanel.add(lblBrokenStatus);
-		
-		JRadioButton rdbtnBroken = new JRadioButton("broken");
-		rdbtnBroken.setBounds(223, 143, 67, 23);
-		inputPanel.add(rdbtnBroken);
-		
-		JRadioButton rdbtnOperational = new JRadioButton("operational");
-		rdbtnOperational.setSelected(true);
-		rdbtnOperational.setBounds(314, 143, 120, 23);
-		inputPanel.add(rdbtnOperational);
-		
-		ButtonGroup brokenStatusBtns = new ButtonGroup();
-		brokenStatusBtns.add(rdbtnBroken);
-		brokenStatusBtns.add(rdbtnOperational);
-		
-		JLabel lblLightStatus = new JLabel("Light status:");
-		lblLightStatus.setBounds(126, 173, 100, 14);
-		inputPanel.add(lblLightStatus);
-		
-		JRadioButton rdbtnGreen = new JRadioButton("green");
-		rdbtnGreen.setSelected(true);
-		rdbtnGreen.setBounds(223, 169, 63, 23);
-		inputPanel.add(rdbtnGreen);
-		
-		JRadioButton rdbtnRed = new JRadioButton("red");
-		rdbtnRed.setBounds(314, 169, 109, 23);
-		inputPanel.add(rdbtnRed);
-		
-		ButtonGroup lightStatusBtns = new ButtonGroup();
-		lightStatusBtns.add(rdbtnGreen);
-		lightStatusBtns.add(rdbtnRed);
-		
-		JLabel lblClosedStatus = new JLabel("Closed status:");
-		lblClosedStatus.setBounds(126, 198, 120, 14);
-		inputPanel.add(lblClosedStatus);
-		
-		JRadioButton rdbtnOpen = new JRadioButton("open");
-		rdbtnOpen.setSelected(true);
-		rdbtnOpen.setBounds(223, 194, 63, 23);
-		inputPanel.add(rdbtnOpen);
-		
-		JRadioButton rdbtnClosed = new JRadioButton("closed");
-		rdbtnClosed.setBounds(314, 194, 63, 23);
-		inputPanel.add(rdbtnClosed);
-		
-		ButtonGroup closedStatusBtns = new ButtonGroup();
-		closedStatusBtns.add(rdbtnOpen);
-		closedStatusBtns.add(rdbtnClosed);
-		
-		JLabel lblHeaterStatus = new JLabel("Heater status:");
-		lblHeaterStatus.setBounds(126, 226, 100, 14);
-		inputPanel.add(lblHeaterStatus);
-		
-		JRadioButton rdbtnOff = new JRadioButton("off");
-		rdbtnOff.setSelected(true);
-		rdbtnOff.setBounds(223, 222, 63, 23);
-		inputPanel.add(rdbtnOff);
-		
-		JRadioButton rdbtnOn = new JRadioButton("on");
-		rdbtnOn.setBounds(314, 222, 109, 23);
-		inputPanel.add(rdbtnOn);
-		
-		ButtonGroup heaterStatusBtns = new ButtonGroup();
-		heaterStatusBtns.add(rdbtnOff);
-		heaterStatusBtns.add(rdbtnOn);
+		contentPane.add(label_1);
 		
 		JButton btnChooseFile = new JButton("Browse");
 		btnChooseFile.addActionListener(new ActionListener() {
@@ -339,77 +218,264 @@ public class TrackControllerGUI extends JFrame {
 				}
 			}
 		});
-				
-		btnChooseFile.setBounds(197, 11, 89, 23);
-		inputPanel.add(btnChooseFile);
-
-		lblCompilationSuccessful = new JLabel("No file selected.");
-		lblCompilationSuccessful.setForeground(Color.BLACK);
-		lblCompilationSuccessful.setBounds(399, 15, 120, 14);
-		inputPanel.add(lblCompilationSuccessful);
 		
-		JButton btnUploadPlc = new JButton("Upload PLC");
-		btnUploadPlc.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				String path = PLCFileName.getText().toString();
-				String line = linePicker.getSelectedItem().toString();
-				int block = Integer.parseInt(blockPicker.getSelectedItem().toString());
+		btnChooseFile.setBounds(197, 11, 89, 23);
+		contentPane.add(btnChooseFile);
+		
+				lblCompilationSuccessful = new JLabel("No file selected.");
+				lblCompilationSuccessful.setForeground(Color.BLACK);
+				lblCompilationSuccessful.setBounds(399, 15, 120, 14);
+				contentPane.add(lblCompilationSuccessful);
 				
-				plcUploadSuccess = wContrl.updatePLC(line, block, path);
+				JButton btnUploadPlc = new JButton("Upload PLC");
+				btnUploadPlc.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						String path = PLCFileName.getText().toString();
+						String line = linePicker.getSelectedItem().toString();
+						int block = Integer.parseInt(blockPicker.getSelectedItem().toString());
+						
+						try {
+							plcUploadSuccess = wContrl.updatePLC(line, block, path);
+						} catch (NoSuchMethodException | SecurityException
+								| IllegalArgumentException
+								| InvocationTargetException e) {
+							e.printStackTrace();
+						}
+						
+						if (plcUploadSuccess) {
+							lblCompilationSuccessful.setText("Compiled!");
+							lblCompilationSuccessful.setForeground(Color.GREEN);
+						}
+						else {
+							lblCompilationSuccessful.setText("Compilation error.");
+							lblCompilationSuccessful.setForeground(Color.RED);
+						}
+					}
+				});
+				btnUploadPlc.setBounds(292, 11, 100, 23);
+				contentPane.add(btnUploadPlc);
 				
-				if (plcUploadSuccess) {
-					lblCompilationSuccessful.setText("Compiled!");
-					lblCompilationSuccessful.setForeground(Color.GREEN);
-				}
-				else {
-					lblCompilationSuccessful.setText("Not compiled.");
-					lblCompilationSuccessful.setForeground(Color.RED);
+				JScrollPane ctcInfoScroll = new JScrollPane();
+				ctcInfoScroll.setBounds(10, 117, 183, 209);
+				contentPane.add(ctcInfoScroll);
+				
+				CTCInfoPane = new JTextArea();
+				ctcInfoScroll.setViewportView(CTCInfoPane);
+				
+				
+				model = new DefaultTableModel(new Object[][] {
+					      { "Line", currentLine }, { "Block", currentBlock.number }, { "Occupancy", currentBlock.occupancy},
+					      { "Weather", currentBlock.weather},{"Infrastructure", currentBlock.infrastructure},{"Length (yards)", currentBlock.length} ,{ "Speed limit (mph)", currentBlock.speedLimit }, { "Cmd speed (mph)", currentBlock.commandedSpeed },
+					      { "Cmd authority (yards)", currentBlock.commandedAuthority }, { "Failure mode", currentBlock.failure }, { "Light status", currentBlock.lights }, 
+					      { "Heater status", currentBlock.heater }, { "Switch position", switchStatus }, {"Crossing status", crossingStatus}}, 
+					      new Object[] { "Attribute", "Value" });
+				
+				table_1 = new JTable(model);
+				table_1.getColumnModel().getColumn(0).setPreferredWidth(130);
+				table_1.getColumnModel().getColumn(1).setMinWidth(260);
+				table_1.setFillsViewportHeight(true);
+				table_1.setRowSelectionAllowed(false);
+				table_1.setSize(310, 269);
+				table_1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);	
+				JScrollPane blockInfoScroll = new JScrollPane(table_1);
+				blockInfoScroll.setBounds(207, 57, 365, 269);
+				contentPane.add(blockInfoScroll);
+				
+				
+				JLabel lblInformationFromCtc = new JLabel("Information from CTC:");
+				lblInformationFromCtc.setBounds(10, 96, 129, 14);
+				contentPane.add(lblInformationFromCtc);
+				
+				JLabel lblBlockStatusFrom = new JLabel("Block status from Track Model:");
+				lblBlockStatusFrom.setBounds(207, 40, 259, 14);
+				contentPane.add(lblBlockStatusFrom);
+				
+				JLabel lblManualControls = new JLabel("Manual Controls: ");
+				lblManualControls.setBounds(582, 40, 100, 14);
+				contentPane.add(lblManualControls);
+				
+				btnFlipSwitch = new JButton("Move Switch");
+				btnFlipSwitch.setEnabled(false);
+				btnFlipSwitch.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						if(currentBlock.infrastructure != null){
+							if(currentBlock.infrastructure.contains("switch")){
+								TrackSwitch tempSwitch = (TrackSwitch)currentBlock;
+								if (tempSwitch.out.length != 0){
+									tempSwitch.state = !tempSwitch.state;
+									if(tempSwitch.state){
+										System.out.println("points to block " + tempSwitch.out[0]);
+									}
+									else System.out.println("points to block " + tempSwitch.out[1]);
+								}
+							}
+						}
+					}
+				});
+				btnFlipSwitch.setBounds(606, 104, 175, 23);
+				contentPane.add(btnFlipSwitch);
+				
+				btnActivateCrossing = new JButton("Toggle Crossing State");
+				btnActivateCrossing.setEnabled(false);
+				btnActivateCrossing.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						if(currentBlock.infrastructure != null){
+							if (currentBlock.infrastructure.contains("crossing")){
+								TrackCrossing tempCrossing = (TrackCrossing) currentBlock;
+								System.out.println("Crossing is active: " + tempCrossing.state);
+								tempCrossing.state = !tempCrossing.state;
+								System.out.println("Crossing is active: " + tempCrossing.state);
+							}
+						}
+					}
+				});
+				btnActivateCrossing.setBounds(606, 138, 175, 23);
+				contentPane.add(btnActivateCrossing);
+				
+				JLabel lblStandaloneTestInputs = new JLabel("Standalone Mode Test Inputs:");
+				lblStandaloneTestInputs.setBounds(582, 172, 201, 14);
+				contentPane.add(lblStandaloneTestInputs);
+				
+				JLabel lblWeather = new JLabel("Weather: ");
+				lblWeather.setBounds(606, 197, 87, 14);
+				contentPane.add(lblWeather);
+				
+				weatherPicker = new JComboBox<String>();
+				weatherPicker.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						if (weatherPicker.getSelectedItem().toString().equals("Clear")){
+							currentBlock.weather = null;
+						}
+						else currentBlock.weather = weatherPicker.getSelectedItem().toString();
+					}
+				});
+				weatherPicker.setBounds(703, 194, 94, 20);
+				contentPane.add(weatherPicker);
+				weatherPicker.addItem("Clear");
+				weatherPicker.addItem("Rain");
+				weatherPicker.addItem("Snow");
+				weatherPicker.addItem("Ice");
+				
+				JLabel lblSuggestSpeed = new JLabel("Suggest Speed: ");
+				lblSuggestSpeed.setBounds(606, 222, 107, 14);
+				contentPane.add(lblSuggestSpeed);
+				
+				JLabel lblSuggestAuthority = new JLabel("Suggest Authority:");
+				lblSuggestAuthority.setBounds(606, 250, 107, 14);
+				contentPane.add(lblSuggestAuthority);
+				
+				JLabel lblBlockStatus = new JLabel("Block Status:");
+				lblBlockStatus.setBounds(606, 275, 100, 14);
+				contentPane.add(lblBlockStatus);
+				
+				blockStatusPicker = new JComboBox<String>();
+				blockStatusPicker.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						if(blockStatusPicker.getSelectedItem().toString().equals("Good")){
+							currentBlock.failure = null;
+							System.out.println(currentBlock.hasFailure());
+						}
+						else if (blockStatusPicker.getSelectedItem().toString().equals("Maintenance")) {
+							wContrl.setBlockClosed(currentLine, currentBlock.number);
+							System.out.println(currentBlock.hasFailure());
+						}
+						else if (blockStatusPicker.getSelectedItem().toString().equals("Broken Track")) {
+							wContrl.setBlockBroken(currentLine, currentBlock.number);
+							System.out.println(currentBlock.hasFailure());
+						}
+						else {
+							wContrl.setFailureMode(currentLine, currentBlock.number, blockStatusPicker.getSelectedItem().toString());
+							System.out.println(currentBlock.hasFailure());
+						}
+					}
+				});
+				blockStatusPicker.setBounds(703, 272, 94, 20);
+				contentPane.add(blockStatusPicker);
+				blockStatusPicker.addItem("Good");
+				blockStatusPicker.addItem("Maintenance");
+				blockStatusPicker.addItem("Broken Track");
+				blockStatusPicker.addItem("Power Failure");
+				blockStatusPicker.addItem("Circuit Failure");
+				
+				speedSug = new JTextField();
+				speedSug.setBounds(726, 222, 34, 20);
+				contentPane.add(speedSug);
+				speedSug.setColumns(10);
+				
+				sugAuth = new JTextField();
+				sugAuth.setColumns(10);
+				sugAuth.setBounds(726, 247, 34, 20);
+				contentPane.add(sugAuth);
+				
+				JLabel lblMph = new JLabel("mph");
+				lblMph.setBounds(770, 225, 34, 14);
+				contentPane.add(lblMph);
+				
+				JLabel lblMiles = new JLabel("yards");
+				lblMiles.setBounds(770, 250, 46, 14);
+				contentPane.add(lblMiles);
+				
+				JButton btnToggleOccupancy = new JButton("Toggle Occupancy");
+				btnToggleOccupancy.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						wContrl.setOccupancy(currentLine, currentBlock.number);
+					}
+				});
+				btnToggleOccupancy.setBounds(606, 303, 191, 23);
+				contentPane.add(btnToggleOccupancy);
+				
+				tglbtnOverride = new JToggleButton("Override");
+				tglbtnOverride.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						manualOverride = !manualOverride;
+						if(manualOverride) {
+							tglbtnOverride.setText("In manual mode");
+							btnFlipSwitch.setEnabled(true);
+							btnActivateCrossing.setEnabled(true);
+						}
+						else {
+							tglbtnOverride.setText("Override");
+							btnFlipSwitch.setEnabled(false);
+							btnActivateCrossing.setEnabled(false);
+						}
+					}
+				});
+				tglbtnOverride.setBounds(606, 64, 175, 23);
+				contentPane.add(tglbtnOverride);
+	}
+	
+	/*
+	 * Update the table data in the GUI
+	 */
+	public void updateData() {
+		//on updates change picker drop downs to whatever the current block has
+		if(currentBlock.weather == null) weatherPicker.setSelectedItem("Clear");
+		else weatherPicker.setSelectedItem(currentBlock.weather);
+		if(currentBlock.failure == null) blockStatusPicker.setSelectedItem("Good");
+		else blockStatusPicker.setSelectedItem(currentBlock.failure);
+		
+		
+		
+		if(currentController != null){
+			wContrl.runPLC(currentController, manualOverride);
+		
+			if(currentController.containsSwitch & !currentController.containsCrossing) {
+				switchStatus = "";
+				crossingStatus = "";
+				ArrayList<TrackSwitch> s = currentController.findSwitches(currentLine);
+				if(!s.isEmpty()){
+					for (TrackSwitch t: s) {
+						boolean pTB = t.state;
+						int index;
+						if (pTB) index = 0;
+						else index = 1;
+						switchStatus = switchStatus +"Switch on block " + t.number + " pointing to block " +t.out[index]+ ".\n";
+					}
+					crossingStatus = "No crossings in this section.";
 				}
 			}
-		});
-		btnUploadPlc.setBounds(292, 11, 100, 23);
-		inputPanel.add(btnUploadPlc);
-		
-		
-		JPanel outputPanel = new JPanel();
-		tabbedPane.addTab("Outputs", null, outputPanel, null);
-		outputPanel.setLayout(null);	
-		
-		model = new DefaultTableModel(new Object[][] {
-			      { "Line", currentLine }, { "Block", currentBlock.number }, { "Occupancy", currentBlock.occupancy},
-			      { "Weather", weatherPicker.getSelectedItem().toString() }, { "Speed limit (mph)", currentBlock.speedLimit }, { "Commanded speed (mph)", currentBlock.commandedSpeed },
-			      { "Commanded authority (yards)", currentBlock.commandedAuthority }, { "Broken status", null }, { "Light status", currentBlock.lights }, {"Closed status", null},
-			      { "Heater status", currentBlock.heater }, { "Switch position", switchStatus }, {"Crossing status", crossingStatus}}, 
-			      new Object[] { "Attribute", "Value" });
-		
-		table = new JTable(model);
-		table.setBounds(10, 10, 501, 258);
-		outputPanel.add(table);
-		
-		JScrollPane scrollPane = new JScrollPane(table);
-		scrollPane.setBounds(10, 10, 501, 258);
-		outputPanel.add(scrollPane);
-		
-		JButton btnUpdateBlock = new JButton("Update block");
-		btnUpdateBlock.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				wContrl.runPLC(currentController);
-				if(currentController.containsSwitch & !currentController.containsCrossing) {
-					switchStatus = "";
-					crossingStatus = "";
-					ArrayList<TrackSwitch> s = currentController.findSwitches();
-					if(!s.isEmpty()){
-						for (TrackSwitch t: s) {
-							boolean pTB = t.state;
-							int index;
-							if (pTB) index = 0;
-							else index = 1;
-							switchStatus = switchStatus +"Switch on block " + t.number + " pointing to block " +t.out[index]+ ".\n";
-						}
-						crossingStatus = "No crossings in this section.";
-					}
-				}
-				else if(currentController.containsCrossing & !currentController.containsSwitch) {
+			if(currentLine.equals("Green")){
+				if(currentController.containsCrossing & !currentController.containsSwitch) {
 					TrackCrossing t = (TrackCrossing) currentController.blockMap.get(19);
 					switchStatus = "No switches in this section.";
 					if(t.state) {
@@ -422,13 +488,13 @@ public class TrackControllerGUI extends JFrame {
 				else if(currentController.containsCrossing & currentController.containsSwitch) {
 					switchStatus = "";
 					TrackCrossing tc = (TrackCrossing) currentController.blockMap.get(19);
-					ArrayList<TrackSwitch> s = currentController.findSwitches();
+					ArrayList<TrackSwitch> s = currentController.findSwitches(currentLine);
 					for (TrackSwitch t: s) {
 						boolean pTB = t.state;
 						int index;
 						if (pTB) index = 0;
 						else index = 1;
-						switchStatus = switchStatus + "Switch on block " +t.number+ " pointing to block " + t.out[index]+ ".";
+						switchStatus = switchStatus + "Switch on block " +t.number+ " pointing to block " + t.out[index]+ ".\n";
 					}
 					if(tc.state) {
 						crossingStatus = "Crossing on block " + 19 + " is active.";
@@ -441,37 +507,100 @@ public class TrackControllerGUI extends JFrame {
 					switchStatus = "No switches in this section.";
 					crossingStatus = "No crossings in this section.";
 				}
-				model.setValueAt(currentLine, 0, 1);
-				model.setValueAt(currentBlock.number, 1, 1);
-				model.setValueAt(currentBlock.occupancy, 2, 1);
-				model.setValueAt(weatherPicker.getSelectedItem().toString(), 3, 1);
-				model.setValueAt(currentBlock.speedLimit, 4, 1);
-				model.setValueAt(currentBlock.commandedSpeed, 5, 1);
-				model.setValueAt(currentBlock.commandedAuthority, 6, 1);
-				model.setValueAt(null, 7, 1);
-				model.setValueAt(currentBlock.lights, 8, 1);
-				model.setValueAt(null, 9, 1);
-				model.setValueAt(currentBlock.heater, 10, 1);
-				model.setValueAt(switchStatus, 11, 1);
-				model.setValueAt(crossingStatus, 12, 1);
-				table.setModel(model);
-				table.repaint();
-				noSwitchCtrl = !currentController.plc.switchCtrl();
-				if(!noSwitchCtrl){
-					if(currentBlock.occupancy) {
-						int blockInd = currentController.plc.getRoutes().peek().route.indexOf(currentBlock.number);
-						int i = currentController.plc.getRoutes().peek().route.remove(blockInd);
-						if(currentController.plc.getRoutes().peek().route.isEmpty()) {
-							currentController.plc.getRoutes().remove(currentController.plc.getRoutes().peek());
-						}
+			}
+			
+			else if(currentLine.equals("Red")){
+				if(currentController.containsCrossing & !currentController.containsSwitch) {
+					TrackCrossing t = (TrackCrossing) currentController.blockMap.get(47);
+					switchStatus = "No switches in this section.";
+					if(t.state) {
+						crossingStatus = "Crossing on block " + 47 + " is active.";
+					}
+					else {
+						crossingStatus = "Crossing on block " + 47 + " is inactive.";
 					}
 				}
+				else if(currentController.containsCrossing & currentController.containsSwitch) {
+					switchStatus = "";
+					TrackCrossing tc = (TrackCrossing) currentController.blockMap.get(47);
+					ArrayList<TrackSwitch> s = currentController.findSwitches(currentLine);
+					for (TrackSwitch t: s) {
+						boolean pTB = t.state;
+						int index;
+						if (pTB) index = 0;
+						else index = 1;
+						switchStatus = switchStatus + "Switch on block " +t.number+ " pointing to block " + t.out[index]+ ".\n";
+					}
+					if(tc.state) {
+						crossingStatus = "Crossing on block " + 47 + " is active.";
+					}
+					else {
+						crossingStatus = "Crossing on block " + 47 + " is inactive.";
+					}
+				}
+				else if (!currentController.containsCrossing & !currentController.containsSwitch) {
+					switchStatus = "No switches in this section.";
+					crossingStatus = "No crossings in this section.";
+				}
 			}
-		});
-		btnUpdateBlock.setBounds(399, 244, 112, 23);
-		inputPanel.add(btnUpdateBlock);
+		}
+		model.setValueAt(currentLine, 0, 1);
+		model.setValueAt(currentBlock.number, 1, 1);
+		if(currentBlock.failure!= null){
+			if(currentBlock.failure.equals("Circuit Failure")){
+				model.setValueAt(false, 2, 1);
+			}
+		}
+		else model.setValueAt(currentBlock.occupancy, 2, 1);
+		model.setValueAt(currentBlock.weather, 3, 1);
+		model.setValueAt(currentBlock.infrastructure, 4,1);
+		model.setValueAt(currentBlock.length, 5, 1);
+		model.setValueAt(currentBlock.speedLimit, 6, 1);
+		model.setValueAt(currentBlock.commandedSpeed, 7, 1);
+		model.setValueAt(currentBlock.commandedAuthority, 8, 1);
+		model.setValueAt(currentBlock.failure, 9, 1);
+		if(currentBlock.failure != null){
+			if(currentBlock.failure.equals("Power Failure")){
+				model.setValueAt(null, 10, 1);
+			}
+			else if(currentBlock.lights){
+				model.setValueAt("red", 10, 1);
+			}
+			else model.setValueAt("green", 10, 1);
+		}
+		else if(currentBlock.lights){
+			model.setValueAt("red", 10, 1);
+		}
+		else model.setValueAt("green", 10, 1);
+		model.setValueAt(currentBlock.heater, 11, 1);
+		model.setValueAt(switchStatus, 12, 1);
+		model.setValueAt(crossingStatus, 13, 1);
+		
+		//display routes added for all controllers
+		for(WaysideController c : wContrl.blockControllerMapGreen.values()){
+			if(c.ctcInfo != null){
+				CTCInfoPane.append(c.ctcInfo);
+				c.ctcInfo = null;
+			}
+		}
+		
+		for( WaysideController c : wContrl.blockControllerMapRed.values()){
+			if(c.ctcInfo != null){
+				CTCInfoPane.append(c.ctcInfo);
+				c.ctcInfo = null;
+			}
+		}
+		
+		if(wContrl.ctcBeaconUpdate != null){
+			CTCInfoPane.append(wContrl.ctcBeaconUpdate);
+			wContrl.ctcBeaconUpdate = null;
+		}
+		
+		table_1.setModel(model);
+		table_1.repaint();
 	}
 	
-	public void updateData() {	
+	public static boolean inManualMode(){
+		return manualOverride;
 	}
 }
