@@ -234,11 +234,11 @@ public class TrackControllerGUI extends JFrame {
 						}
 						
 						if (plcUploadSuccess) {
-							lblCompilationSuccessful.setText("Compiled!");
+							lblCompilationSuccessful.setText("Loaded!");
 							lblCompilationSuccessful.setForeground(Color.GREEN);
 						}
 						else {
-							lblCompilationSuccessful.setText("Not compiled.");
+							lblCompilationSuccessful.setText("Compilation error.");
 							lblCompilationSuccessful.setForeground(Color.RED);
 						}
 					}
@@ -256,7 +256,7 @@ public class TrackControllerGUI extends JFrame {
 				
 				model = new DefaultTableModel(new Object[][] {
 					      { "Line", currentLine }, { "Block", currentBlock.number }, { "Occupancy", currentBlock.occupancy},
-					      { "Weather", currentBlock.weather}, { "Speed limit (mph)", currentBlock.speedLimit }, { "Cmd speed (mph)", currentBlock.commandedSpeed },
+					      { "Weather", currentBlock.weather},{"Infrastructure", currentBlock.infrastructure},{"Length (yards)", currentBlock.length} ,{ "Speed limit (mph)", currentBlock.speedLimit }, { "Cmd speed (mph)", currentBlock.commandedSpeed },
 					      { "Cmd authority (yards)", currentBlock.commandedAuthority }, { "Failure mode", currentBlock.failure }, { "Light status", currentBlock.lights }, 
 					      { "Heater status", currentBlock.heater }, { "Switch position", switchStatus }, {"Crossing status", crossingStatus}}, 
 					      new Object[] { "Attribute", "Value" });
@@ -268,7 +268,6 @@ public class TrackControllerGUI extends JFrame {
 				table_1.setRowSelectionAllowed(false);
 				table_1.setSize(310, 269);
 				table_1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);	
-				table_1.setRowHeight(10, 150);
 				JScrollPane blockInfoScroll = new JScrollPane(table_1);
 				blockInfoScroll.setBounds(207, 57, 365, 269);
 				contentPane.add(blockInfoScroll);
@@ -536,18 +535,19 @@ public class TrackControllerGUI extends JFrame {
 		model.setValueAt(currentBlock.number, 1, 1);
 		model.setValueAt(currentBlock.occupancy, 2, 1);
 		model.setValueAt(currentBlock.weather, 3, 1);
-		model.setValueAt(currentBlock.speedLimit, 4, 1);
-		model.setValueAt(currentBlock.commandedSpeed, 5, 1);
-		model.setValueAt(currentBlock.commandedAuthority, 6, 1);
-		model.setValueAt(currentBlock.failure, 7, 1);
-		model.setValueAt(currentBlock.lights, 8, 1);
+		model.setValueAt(currentBlock.infrastructure, 4,1);
+		model.setValueAt(currentBlock.length, 5, 1);
+		model.setValueAt(currentBlock.speedLimit, 6, 1);
+		model.setValueAt(currentBlock.commandedSpeed, 7, 1);
+		model.setValueAt(currentBlock.commandedAuthority, 8, 1);
+		model.setValueAt(currentBlock.failure, 9, 1);
 		if(currentBlock.lights){
-			model.setValueAt("red", 8, 1);
+			model.setValueAt("red", 10, 1);
 		}
-		else model.setValueAt("green", 8, 1);
-		model.setValueAt(currentBlock.heater, 9, 1);
-		model.setValueAt(switchStatus, 10, 1);
-		model.setValueAt(crossingStatus, 11, 1);
+		else model.setValueAt("green", 10, 1);
+		model.setValueAt(currentBlock.heater, 11, 1);
+		model.setValueAt(switchStatus, 12, 1);
+		model.setValueAt(crossingStatus, 13, 1);
 		
 		//display routes added for all controllers
 		for(WaysideController c : wContrl.blockControllerMapGreen.values()){

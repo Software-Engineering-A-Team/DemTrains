@@ -85,8 +85,14 @@ public class PLC1 implements PLCInterface {
 	 */
 	public boolean ctrlSpeedAuthority(TrainRoute r, double speed, double authority) { 
 		TrackBlock b = controlledBlocks.get(r.startingBlock);
+		double minSafeAuth = authority;
 		if (speed > b.speedLimit) return false;
-		if (authority > b.length) return false;
+		for(int i : r.route){
+			TrackBlock temp = controlledBlocks.get(i);
+			minSafeAuth = minSafeAuth + temp.length;
+			if(temp.occupancy) break;
+		}
+		if (authority < minSafeAuth) return false;
 		else return true;
 	}
 	
@@ -112,6 +118,7 @@ public class PLC1 implements PLCInterface {
 		}
 	 return true;
 	}
+	
 	/*
 	 * Determines if speed should be set to speed limit or 0;
 	 */
@@ -126,6 +133,7 @@ public class PLC1 implements PLCInterface {
 		if (possibleCrash || failureAhead) return false;
 		else return true;
 	}
+	
 	/*
 	 * Determines safe authority based on block occupancy
 	 * either 
@@ -139,6 +147,16 @@ public class PLC1 implements PLCInterface {
 			if ((i-r.route.get(0) < 4) && b.occupancy) possibleCrash = true;
 		}
 		if(failureAhead || possibleCrash) return false;
-		else return true;
+		else { 
+			double minSafeAuth = a;
+			for(int i : r.route){
+				TrackBlock temp = controlledBlocks.get(i);
+				minSafeAuth = minSafeAuth + temp.length;
+				if(temp.occupancy) break;
+			}
+			
+			if (minSafeAuth < r.authority) return true;
+			else return false;
+		}
 	}
 }

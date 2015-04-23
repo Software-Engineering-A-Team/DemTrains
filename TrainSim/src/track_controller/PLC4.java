@@ -78,8 +78,14 @@ public class PLC4 implements PLCInterface {
 	 */
 	public boolean ctrlSpeedAuthority(TrainRoute r, double speed, double authority) { 
 		TrackBlock b = controlledBlocks.get(r.startingBlock);
+		double minSafeAuth = authority;
 		if (speed > b.speedLimit) return false;
-		if (authority > b.length) return false;
+		for(int i : r.route){
+			TrackBlock temp = controlledBlocks.get(i);
+			minSafeAuth = minSafeAuth + temp.length;
+			if(temp.occupancy) break;
+		}
+		if (authority < minSafeAuth) return false;
 		else return true;
 	}
 	/*
@@ -123,6 +129,24 @@ public class PLC4 implements PLCInterface {
 	 * either 
 	 */
 	public boolean checkAuthority(TrainRoute r, double a, double safeAuth) {
-		return false;
+		boolean failureAhead = false;
+		boolean possibleCrash = false;
+		for (int i: r.route){
+			TrackBlock b = controlledBlocks.get(r.route.get(i));
+			if (b.hasFailure())failureAhead = true;
+			if ((i-r.route.get(0) < 4) && b.occupancy) possibleCrash = true;
+		}
+		if(failureAhead || possibleCrash) return false;
+		else { 
+			double minSafeAuth = a;
+			for(int i : r.route){
+				TrackBlock temp = controlledBlocks.get(i);
+				minSafeAuth = minSafeAuth + temp.length;
+				if(temp.occupancy) break;
+			}
+			
+			if (minSafeAuth < r.authority) return true;
+			else return false;
+		}
 	}
 }
