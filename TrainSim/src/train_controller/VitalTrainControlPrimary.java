@@ -8,7 +8,9 @@ public class VitalTrainControlPrimary extends VitalTrainControl{
   private double lastSpeedErrorMph = 0;
   
   //
-  public double calcPower() {    
+  public double calcPower() {
+    double distanceTravelledMi = currentSpeedMph * SimClock.getDeltaS() / 3600.0;
+    
     if (emergencyBrake)
     {
       powerKw = 0;
@@ -33,28 +35,41 @@ public class VitalTrainControlPrimary extends VitalTrainControl{
       
     }
 
-    authorityMi -= currentSpeedMph * SimClock.getDeltaS() / 3600.0;
+    authorityMi -= distanceTravelledMi;
+    safeStoppingDistanceMi -= distanceTravelledMi;
+    
+    distanceFromStationMi -= distanceTravelledMi;
       
     return powerKw;
   }
 
-  public void determineSafeSpeed() {
+  public void manageSafeSpeedAndBraking() {
     if (!manualMode) {      
       // Use suggested speed.
-      targetSpeedMph = speedAuthCmd.suggestedSpeedMph;
+      //targetSpeedMph = speedAuthCmd.suggestedSpeedMph;
       
-      // If we are above the speed limit, pull emergency brake automatically
-      if (currentSpeedMph > speedLimitMph) {
+      // If we are above the speed limit or close to the safe stopping distance, pull emergency brake automatically
+      if (currentSpeedMph > speedLimitMph || this.safeStoppingDistanceMi <= 0.1) {
         emergencyBrake = true;
       }
       
-      // If authority has been exceeded, engage service brake
-      if (authorityMi <= 0.0) {
+      // Turn on service brake if we are close to exceeding authority or stopping distance
+      if (authorityMi <= 0.2 || this.safeStoppingDistanceMi <= 0.2) {
         serviceBrake = true;
       }
-      else
-      {
+      else{
         serviceBrake = false;
+      }
+      
+      if (stopRequired && this.distanceFromStationMi <= 0.2) {
+        serviceBrake = true;
+        
+        if (this.currentSpeedMph == 0.0) {
+          targetSpeedMph = 0.0;
+          powerKw = 0.0;
+          controlVar = 0.0;
+          stopRequired = false;
+        }
       }
     }
 

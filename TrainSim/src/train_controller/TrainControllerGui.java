@@ -27,6 +27,7 @@ import java.awt.Component;
 
 import javax.swing.Box;
 
+import system_wrapper.BeaconMessage;
 import system_wrapper.SimClock;
 import system_wrapper.SpeedAuthCmd;
 
@@ -58,7 +59,6 @@ public class TrainControllerGui extends JFrame {
   private JTextField textFieldSafeStoppingDistance;
   private JTextField textFieldAuthority;
   private JTextField textFieldCmdSpeed;
-  private JSlider sliderTargetSpeed;
   private JRadioButton rdbtnManual;
   private JRadioButton rdbtnAutomatic;
   private JCheckBox chckbxServiceBrake;
@@ -192,7 +192,7 @@ public class TrainControllerGui extends JFrame {
     this.getContentPane().add(lblTargetSpeed);
     
     JLabel lblCurrentSpeed = new JLabel("Current Speed (mph)");
-    lblCurrentSpeed.setBounds(12, 190, 187, 19);
+    lblCurrentSpeed.setBounds(13, 162, 187, 19);
     this.getContentPane().add(lblCurrentSpeed);
     
     JLabel lblTrainController = new JLabel("Train Controller");
@@ -245,23 +245,16 @@ public class TrainControllerGui extends JFrame {
     modeButtons.add(rdbtnManual);
     modeButtons.add(rdbtnAutomatic);
     
-    sliderTargetSpeed = new JSlider();
-    sliderTargetSpeed.addChangeListener(new ChangeListener() {
-      public void stateChanged(ChangeEvent e) {
-        JSlider source = (JSlider) e.getSource();
-        
-        if (!source.getValueIsAdjusting()) {
-          trainController.setTargetSpeed(source.getValue());
-        }
-      }
-    });
-    sliderTargetSpeed.setBounds(12, 162, 240, 16);
-    sliderTargetSpeed.setValue(0);
-    this.getContentPane().add(sliderTargetSpeed);
-    
     textFieldTargetSpeed = new JTextField();
     textFieldTargetSpeed.setEditable(false);
     textFieldTargetSpeed.setBounds(178, 133, 70, 19);
+    textFieldTargetSpeed.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        trainController.setTargetSpeed(Double.parseDouble(textFieldTargetSpeed.getText()));
+        textFieldTargetSpeed.setText(formatter.format(trainController.getSpeedAuthCmd().suggestedSpeedMph));
+        requestFocus();
+      }
+    });
     this.getContentPane().add(textFieldTargetSpeed);
     textFieldTargetSpeed.setColumns(10);
     
@@ -293,15 +286,27 @@ public class TrainControllerGui extends JFrame {
     
     textFieldCurrentSpeed = new JTextField();
     textFieldCurrentSpeed.setEditable(false);
-    textFieldCurrentSpeed.setBounds(177, 190, 70, 19);
+    textFieldCurrentSpeed.setBounds(178, 162, 70, 19);
     this.getContentPane().add(textFieldCurrentSpeed);
     textFieldCurrentSpeed.setColumns(10);
     
     chckbxRightDoorsOpen = new JCheckBox("Right doors open");
+    chckbxRightDoorsOpen.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        AbstractButton button = (AbstractButton) e.getSource();
+        trainController.setRightDoor(button.getModel().isSelected());
+      }
+    });
     chckbxRightDoorsOpen.setBounds(12, 263, 149, 23);
     this.getContentPane().add(chckbxRightDoorsOpen);
     
     chckbxLeftDoorsOpen = new JCheckBox("Left doors open");
+    chckbxLeftDoorsOpen.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        AbstractButton button = (AbstractButton) e.getSource();
+        trainController.setLeftDoor(button.getModel().isSelected());
+      }
+    });
     chckbxLeftDoorsOpen.setBounds(12, 290, 149, 23);
     this.getContentPane().add(chckbxLeftDoorsOpen);
     
@@ -310,12 +315,7 @@ public class TrainControllerGui extends JFrame {
       public void actionPerformed(ActionEvent e) {
         AbstractButton button = (AbstractButton) e.getSource();
         if (trainController.isManualMode()) {
-          if (button.getModel().isSelected()) {
-            trainController.setServiceBrake(true);
-          }
-          else {
-            trainController.setServiceBrake(false);
-          }
+          trainController.setServiceBrake(button.getModel().isSelected());
         }
       }
     });
@@ -326,22 +326,29 @@ public class TrainControllerGui extends JFrame {
     chckbxEmergencyBrake.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         AbstractButton button = (AbstractButton) e.getSource();
-        if (button.getModel().isSelected()) {
-          trainController.setEmergencyBrake(true);
-        }
-        else {
-          trainController.setEmergencyBrake(false);
-        }
+        trainController.setEmergencyBrake(button.getModel().isSelected());
       }
     });
     chckbxEmergencyBrake.setBounds(266, 162, 151, 23);
     this.getContentPane().add(chckbxEmergencyBrake);
     
     chckbxLightsOn = new JCheckBox("Lights On");
+    chckbxLightsOn.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        AbstractButton button = (AbstractButton) e.getSource();
+        trainController.setLights(button.getModel().isSelected());
+      }
+    });
     chckbxLightsOn.setBounds(266, 263, 129, 23);
     this.getContentPane().add(chckbxLightsOn);
     
     chckbxAirConditioning = new JCheckBox("Air Conditioning");
+    chckbxAirConditioning.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        AbstractButton button = (AbstractButton) e.getSource();
+        trainController.setAirConditioning(button.getModel().isSelected());
+      }
+    });
     chckbxAirConditioning.setBounds(266, 290, 144, 23);
     this.getContentPane().add(chckbxAirConditioning);
     
@@ -354,7 +361,22 @@ public class TrainControllerGui extends JFrame {
     this.getContentPane().add(lblDistanceFromStation);
     
     textFieldDistanceFromStation = new JTextField();
-    textFieldDistanceFromStation.setEditable(false);
+    textFieldDistanceFromStation.setEditable(standalone);
+    if (standalone) {
+      textFieldDistanceFromStation.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          BeaconMessage beaconMessage = trainController.getBeaconMessage();
+          
+          beaconMessage.trainID = trainController.getId();
+          beaconMessage.distanceFromStation = Double.parseDouble(textFieldDistanceFromStation.getText());
+          
+          trainController.setBeaconMessage(beaconMessage);
+          
+          //textFieldDistanceFromStation.setText(formatter.format(trainController.getBeaconMessage()));
+          requestFocus();
+        }
+      });
+    }
     textFieldDistanceFromStation.setBounds(238, 441, 70, 19);
     this.getContentPane().add(textFieldDistanceFromStation);
     textFieldDistanceFromStation.setColumns(10);
@@ -364,32 +386,57 @@ public class TrainControllerGui extends JFrame {
     this.getContentPane().add(lblStationName);
     
     textFieldStationName = new JTextField();
-    textFieldStationName.setEditable(false);
+    textFieldStationName.setEditable(standalone);
     textFieldStationName.setBounds(186, 470, 122, 19);
+    if (standalone) {
+      textFieldStationName.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          trainController.getBeaconMessage().stationName = new String(textFieldStationName.getText());
+          
+          //textFieldDistanceFromStation.setText(formatter.format(trainController.getBeaconMessage()));
+          requestFocus();
+        }
+      });
+    }
     this.getContentPane().add(textFieldStationName);
     textFieldStationName.setColumns(10);
     
     chckbxStopRequired = new JCheckBox("Stop Required");
-    chckbxStopRequired.setEnabled(false);
+    chckbxStopRequired.setEnabled(true);
     chckbxStopRequired.setBounds(12, 493, 129, 23);
+    chckbxStopRequired.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        AbstractButton button = (AbstractButton) e.getSource();
+        trainController.setStopRequired(button.getModel().isSelected());
+      }
+    });
     this.getContentPane().add(chckbxStopRequired);
     
     JLabel lblSafeStoppingDistance = new JLabel("Safe Stopping Distance (miles)");
-    lblSafeStoppingDistance.setBounds(12, 328, 229, 15);
+    lblSafeStoppingDistance.setBounds(12, 351, 229, 15);
     this.getContentPane().add(lblSafeStoppingDistance);
     
     textFieldSafeStoppingDistance = new JTextField();
-    textFieldSafeStoppingDistance.setEditable(false);
-    textFieldSafeStoppingDistance.setBounds(238, 326, 70, 19);
+    textFieldSafeStoppingDistance.setEditable(standalone);
+    textFieldSafeStoppingDistance.setBounds(238, 349, 70, 19);
+    if (standalone) {
+      textFieldSafeStoppingDistance.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          trainController.setSafeStoppingDistance((Double.parseDouble(textFieldSafeStoppingDistance.getText())));
+          textFieldSafeStoppingDistance.setText(formatter.format(trainController.getSafeStoppingDistance()));
+          requestFocus();
+        }
+      });
+    }
     this.getContentPane().add(textFieldSafeStoppingDistance);
     textFieldSafeStoppingDistance.setColumns(10);
     
     JLabel lblAuthority = new JLabel("Authority (miles)");
-    lblAuthority.setBounds(266, 192, 129, 15);
+    lblAuthority.setBounds(266, 208, 129, 15);
     this.getContentPane().add(lblAuthority);
     
     textFieldAuthority = new JTextField();
-    textFieldAuthority.setBounds(412, 190, 70, 19);
+    textFieldAuthority.setBounds(412, 206, 70, 19);
     textFieldAuthority.setEditable(standalone);
     textFieldAuthority.setText(formatter.format(trainController.getAuthority()));
     if (standalone) {
@@ -448,12 +495,12 @@ public class TrainControllerGui extends JFrame {
     comboBoxSelectedTrain.setBounds(373, 438, 109, 24);
     getContentPane().add(comboBoxSelectedTrain);
     
-    JLabel lblCommandedSpeedmph = new JLabel("Commanded Speed (mph)");
-    lblCommandedSpeedmph.setBounds(225, 221, 192, 15);
+    JLabel lblCommandedSpeedmph = new JLabel("Command Speed (mph)");
+    lblCommandedSpeedmph.setBounds(12, 206, 167, 15);
     getContentPane().add(lblCommandedSpeedmph);
     
     textFieldCmdSpeed = new JTextField();
-    textFieldCmdSpeed.setBounds(412, 219, 70, 19);
+    textFieldCmdSpeed.setBounds(178, 206, 70, 19);
     textFieldCmdSpeed.setEditable(standalone);
     textFieldCmdSpeed.setText(formatter.format(trainController.getSpeedAuthCmd().suggestedSpeedMph));
     if (standalone) {
@@ -487,9 +534,10 @@ public class TrainControllerGui extends JFrame {
   }
   
   public void updateDisplayData() {    
-    textFieldTargetSpeed.setText(formatter.format(trainController.getTargetSpeed()));
+    if (!textFieldTargetSpeed.isFocusOwner()) {
+      textFieldTargetSpeed.setText(formatter.format(trainController.getTargetSpeed()));
+    }
     
-    textFieldSafeStoppingDistance.setText(formatter.format(trainController.getSafeStoppingDistance()));
     enginePowerTextField.setText(formatter.format(trainController.getPower()));
     
     if (!(standalone && textFieldSpeedLimit.isFocusOwner())) {
@@ -503,6 +551,16 @@ public class TrainControllerGui extends JFrame {
     if (!(standalone && textFieldCmdSpeed.isFocusOwner())) {
       textFieldCmdSpeed.setText(formatter.format(trainController.getSpeedAuthCmd().suggestedSpeedMph));
     }
+    
+    if (!(standalone && textFieldDistanceFromStation.isFocusOwner())) {
+      textFieldDistanceFromStation.setText(formatter.format(trainController.getBeaconMessage().distanceFromStation));
+    }
+
+    if (!(standalone && textFieldStationName.isFocusOwner())) {
+      this.textFieldStationName.setText(trainController.getBeaconMessage().stationName);
+    }
+
+    this.chckbxStopRequired.setSelected(trainController.isStopRequired());
     
     textFieldCurrentSpeed.setText(formatter.format(trainController.getCurrentSpeed()));
     
@@ -518,29 +576,17 @@ public class TrainControllerGui extends JFrame {
       chckbxVitalError.setSelected(trainController.vitalErrorOccurred());
     }
     
+    this.chckbxAirConditioning.setSelected(trainController.isAirConditioningOn());
+    this.chckbxLeftDoorsOpen.setSelected(trainController.isLeftDoorOpen());
+    this.chckbxRightDoorsOpen.setSelected(trainController.isRightDoorOpen());
+    this.chckbxLightsOn.setSelected(trainController.isLightOn());
+  
+    textFieldTargetSpeed.setEditable(trainController.isManualMode());
+    rdbtnManual.setSelected(trainController.isManualMode());
+    rdbtnAutomatic.setSelected(!trainController.isManualMode());
     
-    if (trainController.isManualMode()) {
-      trainController.setManualMode(true);
-      sliderTargetSpeed.setEnabled(true);
-      rdbtnManual.setSelected(true);
-      rdbtnAutomatic.setSelected(false);
-    }
-    else {
-      trainController.setManualMode(false);
-      sliderTargetSpeed.setEnabled(false);
-      rdbtnManual.setSelected(false);
-      rdbtnAutomatic.setSelected(true);
-      chckbxServiceBrake.setSelected(trainController.isServiceBrakeOn());
-      
-      this.chckbxRightDoorsOpen.setSelected(trainController.isRightDoorOpen());
-      this.chckbxLeftDoorsOpen.setSelected(trainController.isLeftDoorOpen());
-      this.chckbxLightsOn.setSelected(trainController.isLightOn());
-      this.textFieldCurrentSpeed.setText(formatter.format(trainController.getCurrentSpeed()));
-    }
-    
-    if (!standalone)
-    {
-      this.textFieldCmdSpeed.setText(formatter.format(trainController.getSpeedAuthCmd().suggestedSpeedMph));
+    if (!(standalone && textFieldSafeStoppingDistance.isFocusOwner())) {
+      textFieldSafeStoppingDistance.setText(formatter.format(trainController.getSafeStoppingDistance()));
     }
   }
   
