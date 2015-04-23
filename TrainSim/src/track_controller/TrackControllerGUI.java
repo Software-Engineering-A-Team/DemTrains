@@ -71,8 +71,11 @@ public class TrackControllerGUI extends JFrame {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+	  //create a track model
 	  track_model.TrackModel t = new track_model.TrackModel();
+	  //load the wayside system with track model
 	  ws = new WaysideSystem(t);
+	  //create fake train route
 	  List<Integer> route = new ArrayList<Integer>();
 	  route.add(14);
 	  route.add(13);
@@ -91,8 +94,12 @@ public class TrackControllerGUI extends JFrame {
 	  route.add(12);
 	  route.add(13);
 	  TrainRoute r = new TrainRoute("Green", 14, route, 22.0, 1910);
+	  TrainRoute r1 = new TrainRoute("Red", 14, route, 25.0, 3500);
 	  WaysideController routed = ws.blockControllerMapGreen.get(1);
+	  
+	  //function called by CTC to add routes, give sug speed, and authority
 	  routed.addRoute(r);
+	  routed.addRoute(r1);
 	  ws.setBeacon("g12testbeaconstring/", 31);
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -236,7 +243,7 @@ public class TrackControllerGUI extends JFrame {
 						}
 						
 						if (plcUploadSuccess) {
-							lblCompilationSuccessful.setText("Loaded!");
+							lblCompilationSuccessful.setText("Compiled!");
 							lblCompilationSuccessful.setForeground(Color.GREEN);
 						}
 						else {
@@ -366,15 +373,19 @@ public class TrackControllerGUI extends JFrame {
 					public void actionPerformed(ActionEvent e) {
 						if(blockStatusPicker.getSelectedItem().toString().equals("Good")){
 							currentBlock.failure = null;
+							System.out.println(currentBlock.hasFailure());
 						}
 						else if (blockStatusPicker.getSelectedItem().toString().equals("Maintenance")) {
-							wContrl.setBlockClosed(currentLine, currentBlock.number);							 
+							wContrl.setBlockClosed(currentLine, currentBlock.number);
+							System.out.println(currentBlock.hasFailure());
 						}
 						else if (blockStatusPicker.getSelectedItem().toString().equals("Broken Track")) {
 							wContrl.setBlockBroken(currentLine, currentBlock.number);
+							System.out.println(currentBlock.hasFailure());
 						}
 						else {
 							wContrl.setFailureMode(currentLine, currentBlock.number, blockStatusPicker.getSelectedItem().toString());
+							System.out.println(currentBlock.hasFailure());
 						}
 					}
 				});
@@ -400,7 +411,7 @@ public class TrackControllerGUI extends JFrame {
 				lblMph.setBounds(770, 225, 34, 14);
 				contentPane.add(lblMph);
 				
-				JLabel lblMiles = new JLabel("miles");
+				JLabel lblMiles = new JLabel("yards");
 				lblMiles.setBounds(770, 250, 46, 14);
 				contentPane.add(lblMiles);
 				
@@ -552,6 +563,10 @@ public class TrackControllerGUI extends JFrame {
 			if(currentBlock.failure.equals("Power Failure")){
 				model.setValueAt(null, 10, 1);
 			}
+			else if(currentBlock.lights){
+				model.setValueAt("red", 10, 1);
+			}
+			else model.setValueAt("green", 10, 1);
 		}
 		else if(currentBlock.lights){
 			model.setValueAt("red", 10, 1);

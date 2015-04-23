@@ -64,7 +64,7 @@ public class TrainModelGUI extends JFrame {
 	JLabel currAccelLabel;
 	JLabel currPositionLabel;
 	JLabel currVelocityLabel;
-	JLabel crewCountLabel, passCountLabel;
+	JLabel crewCountLabel, passCountLabel, weightLabel;
 	JLabel leftDoorLabel, rightDoorLabel;
 	JLabel lightsLabel;
 	JLabel sBrakeLabel, eBrakeLabel;
@@ -239,7 +239,6 @@ public class TrainModelGUI extends JFrame {
 		
 		currForceLabel = new JLabel("0000");
 		GridBagConstraints gbc_currForceLabel = new GridBagConstraints();
-		gbc_currForceLabel.anchor = GridBagConstraints.EAST;
 		gbc_currForceLabel.insets = new Insets(0, 0, 5, 5);
 		gbc_currForceLabel.gridx = 1;
 		gbc_currForceLabel.gridy = 4;
@@ -401,6 +400,20 @@ public class TrainModelGUI extends JFrame {
 				}
 			}
 		});
+		
+		JLabel lblTrainWeight = new JLabel("Train Weight:");
+		GridBagConstraints gbc_lblTrainWeight = new GridBagConstraints();
+		gbc_lblTrainWeight.insets = new Insets(0, 0, 5, 5);
+		gbc_lblTrainWeight.gridx = 0;
+		gbc_lblTrainWeight.gridy = 11;
+		contentPane.add(lblTrainWeight, gbc_lblTrainWeight);
+		
+		weightLabel = new JLabel("0");
+		GridBagConstraints gbc_weightLabel = new GridBagConstraints();
+		gbc_weightLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_weightLabel.gridx = 1;
+		gbc_weightLabel.gridy = 11;
+		contentPane.add(weightLabel, gbc_weightLabel);
 		GridBagConstraints gbc_btnRestoreSigPickup = new GridBagConstraints();
 		gbc_btnRestoreSigPickup.insets = new Insets(0, 0, 5, 0);
 		gbc_btnRestoreSigPickup.gridx = 4;
@@ -690,6 +703,7 @@ public class TrainModelGUI extends JFrame {
 			currPositionLabel.setText(numFormatter.format(currTrain.position) + "ft");
 			crewCountLabel.setText(currTrain.crewCount+""); 
 			passCountLabel.setText(currTrain.passengerCount+"");
+			weightLabel.setText(currTrain.weight+"lbs");
 			// Set labels for door status
 			if (currTrain.leftDoorStatus)
 				leftDoorLabel.setText("Open");
