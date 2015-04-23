@@ -32,7 +32,7 @@ public class WaysideController {
 	public boolean updatePLC(String filename) throws MalformedURLException, ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, IllegalArgumentException, InvocationTargetException {
 		int i = filename.indexOf("track_controller");
 		int j = filename.indexOf(".java");
-		String searchPath = "file:\\\\\\" + filename.substring(0, i-1) + "/";
+		String searchPath = "file:\\\\\\" + filename.substring(0, i-1) + "\\";
 		System.out.println(searchPath);
 		String className = "track_controller/" + filename.substring(j-4, j);
 		System.out.println(className);
@@ -40,13 +40,15 @@ public class WaysideController {
 		JavaCompiler comp = ToolProvider.getSystemJavaCompiler();
 		int compRes = comp.run(null, null, null, filename);
 		if (compRes == 0) {
+			return true;
 			//create instance of plc file that was loaded and assign it to this controller
-			URLClassLoader plcLoader = URLClassLoader.newInstance(new URL[] { new URL(searchPath) });
+			/*URLClassLoader plcLoader = URLClassLoader.newInstance(new URL[] { new URL(searchPath) });
+			System.out.println(System.getProperty("java.class.path"));
 			Class<?> plcClass = Class.forName(className, true, plcLoader);
 			Constructor<?> plcConst = plcClass.getConstructor();
 			Object plcInstance = plcConst.newInstance(blockMap);
-			this.plc = (PLCInterface) plcInstance;
-			return true;
+			this.plc = (PLCInterface) plcInstance;*/
+			
 		}
 		else {
 			return false;
@@ -72,14 +74,19 @@ public class WaysideController {
 		if(!manual){
 			//handle crossing
 			int crossingBlock = 0;
+			
 			if(blockMap.containsKey(19)){
-				if(blockMap.get(19).infrastructure.contains("crossing")){
-					crossingBlock = 19;
+				if(blockMap.get(19).infrastructure!= null){
+					if(blockMap.get(19).infrastructure.contains("crossing")){
+						crossingBlock = 19;
+					}
 				}
 			}
 			if (blockMap.containsKey(47)){
-				if(blockMap.get(47).infrastructure.contains("crossing")){
-					crossingBlock = 47;
+				if(blockMap.get(47).infrastructure!= null){	
+					if(blockMap.get(47).infrastructure.contains("crossing")){
+						crossingBlock = 47;
+					}
 				}
 			}
 			
@@ -152,6 +159,9 @@ public class WaysideController {
 					boolean authChk1 = plc.checkAuthority(r, r.authority, safeAuthFinal);
 					boolean authChk2 = plc.checkAuthority(r, r.authority, safeAuthFinal);
 					
+					if(authChk1 && authChk2) blockMap.get(r.startingBlock).commandedAuthority = safeAuthFinal;
+					else if (!(authChk1 && authChk2)) blockMap.get(r.startingBlock).commandedAuthority = 0;
+					
 				}
 				//otherwise pass to track model
 				else {
@@ -166,8 +176,25 @@ public class WaysideController {
 	}
 	
 	private double calculateSafeAuthority(TrainRoute r) {
-		//TODO: calculate safe authority
-		return 0;
+		TrackBlock b = blockMap.get(r.startingBlock);
+		double minSafeAuth = r.authority;
+		TrackBlock colBlock = null;
+		for(int i : r.route){
+			TrackBlock temp = blockMap.get(i);
+			minSafeAuth = minSafeAuth + temp.length;
+			if(temp.occupancy){
+				colBlock = temp;
+				break;
+			}
+		}
+		
+		if(colBlock != null){
+			int colBlockInd = r.route.indexOf(colBlock.number);
+			for (int i=3; i>0; i++){
+				minSafeAuth = minSafeAuth - blockMap.get(r.route.get(colBlockInd-i)).length;
+			}
+		}
+		return minSafeAuth;
 	}
 
 	/*
