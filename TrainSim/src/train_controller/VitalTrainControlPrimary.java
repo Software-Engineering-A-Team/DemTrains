@@ -16,7 +16,7 @@ public class VitalTrainControlPrimary extends VitalTrainControl{
       powerKw = 0;
       controlVar = 0;
     }
-    else if (!serviceBrake && (manualMode || authorityMi > 0.0))
+    else if (manualMode || authorityMi > 0.0)
     {
       double speedErrorMph = targetSpeedMph - currentSpeedMph;
       
@@ -54,7 +54,7 @@ public class VitalTrainControlPrimary extends VitalTrainControl{
       }
       
       // Turn on service brake if we are close to exceeding authority or stopping distance
-      if (authorityMi <= 0.2 || this.safeStoppingDistanceMi <= 0.2) {
+      if (authorityMi <= 0.2 || this.safeStoppingDistanceMi <= 0.2 || currentSpeedMph > targetSpeedMph) {
         serviceBrake = true;
       }
       else{
