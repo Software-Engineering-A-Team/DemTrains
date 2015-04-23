@@ -32,13 +32,17 @@ import javax.swing.JComboBox;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 
+import system_wrapper.SimClock;
 import system_wrapper.SystemWrapper;
+import track_controller.WaysideController;
 import track_model.TrackBlock;
 import train_controller.TrainController;
 
 
 public class TrainModelGUI extends JFrame {
 	ArrayList<TrainModel> trainList = null;
+	public static SimClock simClock = null;
+	
 	String sysModeStr = null;
 	boolean guiMode;
 	
@@ -82,13 +86,16 @@ public class TrainModelGUI extends JFrame {
 	public TrainModelGUI(boolean mode) {
 		this.guiMode = mode;
 		// Setup the GUI system variables depending on how it was started
-		if (this.guiMode == true) {
-			this.sysModeStr = "System mode (multiple trains)";
+		if (this.guiMode == true) {	// System mode
+			this.sysModeStr = "System mode";
 			this.trainList = SystemWrapper.trainModels;
-		} else if (this.guiMode == false) {
-			this.sysModeStr = "Standalone mode (single train)";
-			this.trainList = new ArrayList<TrainModel>(1);
-			this.trainList.add(new TrainModel("SingleTrain", (short)1));
+		} else if (this.guiMode == false) {	// Standalone mode
+			this.sysModeStr = "Standalone mode (individual module)";
+			this.trainList = new ArrayList<TrainModel>(10);
+			for (int i = 0; i < 10; i++) {
+				this.trainList.add(new TrainModel("SingleTrain", (short)i));
+			}
+			simClock = new SimClock(10);
 		}
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -547,15 +554,51 @@ public class TrainModelGUI extends JFrame {
 		contentPane.add(sigPickupLabel, gbc_sigPickupLabel);
 		
 		// Refreshes the tables and layout
-				final Timer timer = new Timer(100, new ActionListener() {
-		            @Override
-		            public void actionPerformed(final ActionEvent e) {
-		            	updateDisplay();
-		            	// if timer ticker changes
-		            	// timer.setDelay(2);
-		            }
-		        });
-		        timer.start();
+		final Timer timer = new Timer(100, new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+            	updateDisplay();
+            	// if timer ticker changes
+            	// timer.setDelay(2);
+            }
+        });
+        timer.start();
+        
+        if (this.guiMode == false) {	// Only do this if in standalone mode
+        	/*
+        	 * Code copied from SystemGUI so as to be able to run TrainModel separately
+        	 * 
+        	 */
+        	Thread t = new Thread(new Runnable() {
+                public void run() {
+                    long time = System.nanoTime();
+                    while (true) {
+                    	
+                    	// Run all Train Models
+                    	for (TrainModel train : SystemWrapper.trainModels) {
+                    		train.run();
+            			}
+            
+                    	// Sleep for the appropriate amount of time
+                    	long elapsedTime = System.nanoTime() - time;
+                    	long desiredElapsedTime = (long) Math.ceil(SystemWrapper.perceivedTimeMultiplier * 1000000000);
+                    	long timeDifferenceMS = (desiredElapsedTime - elapsedTime) / 1000000;
+                    	try {
+                    	  if (timeDifferenceMS > 0) {
+        					Thread.sleep(timeDifferenceMS);
+                    	  }
+        				} catch (InterruptedException e) {
+        					e.printStackTrace();
+        				}
+                    	time = System.nanoTime();
+                    	
+                    	
+                    }
+                }
+              });
+            
+            t.start();
+        }
 	}
 	
 	/*
