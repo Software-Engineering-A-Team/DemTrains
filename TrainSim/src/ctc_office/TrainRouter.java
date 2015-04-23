@@ -1,6 +1,7 @@
 package ctc_office;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -10,6 +11,8 @@ import java.util.Set;
 import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
+
+
 
 import system_wrapper.SimClock;
 import system_wrapper.SystemWrapper;
@@ -52,46 +55,30 @@ public class TrainRouter {
 				destinationBlock = i;
 			}
 		}
-
-		// Get the shortest path between the vertices (fewest hops path)
-		List<DefaultEdge> pa = DijkstraShortestPath.findPathBetween(layout, currentBlock, destinationBlock);
-		
-		
 		
 		findSimplePaths(currentBlock, destinationBlock, totalWeight, path, allVertices, visitedNodes, allSimplePaths);
-		// find the shortest path of all the calculated paths
-		double min = Double.MAX_VALUE;
-		LinkedList<Integer> minPath = null;
+		// Create a route object for all of the paths
+		LinkedList<TrainRoute> allTrainRoutes = new LinkedList<TrainRoute>();
 		for (LinkedList<Integer> p : allSimplePaths.keySet()) {
-			if (allSimplePaths.get(p) < min) {
-				min = allSimplePaths.get(p);
-				minPath = p;
+			Double pathDistance = allSimplePaths.get(p);
+			p.add(0, currentBlock);
+			pathDistance += ((DefaultBlock)blockData.get(currentBlock)).blockLength;
+			pathDistance += ((DefaultBlock)blockData.get(p.get(p.size()-1))).blockLength/2;
+			// create the TrainRoute Object
+			double trainSpeed = ((DefaultBlock)blockData.get(train.currentBlock)).speedLimit;
+			if (train.maxSpeed < trainSpeed) {
+				trainSpeed = train.maxSpeed;
 			}
-		}
-		if (minPath == null) {
-			trainRoutes.put(train.trainId, null);
-			return null;
-		}
-		
-		// create the TrainRoute Object
-		double trainSpeed = ((DefaultBlock)blockData.get(train.currentBlock)).speedLimit;
-		if (train.maxSpeed < trainSpeed) {
-			trainSpeed = train.maxSpeed;
-		}
-		double authority = train.authority;
-		if (authority > min) {
-			authority = min;
-		}
+			double authority = train.authority;
+			if (authority > pathDistance) {
+				authority = pathDistance;
+			}
 
-		TrainRoute route =  new TrainRoute(lineName, train.currentBlock, minPath, trainSpeed, authority);
-        TrainRoute waysideRoute = blockToControllerMap.get(currentBlock).addRoute(route);
-		if (waysideRoute == null) {
-			waysideRoute = route;
+			allTrainRoutes.add(new TrainRoute(lineName, train.currentBlock, p, trainSpeed, authority, pathDistance));
 		}
-		
-		trainRoutes.put(train.trainId, waysideRoute);
-		return waysideRoute;
-	}
+		Collections.sort(allTrainRoutes);
+		return allTrainRoutes.get(0);
+	}	
 	
 	
 	@SuppressWarnings("unchecked")
