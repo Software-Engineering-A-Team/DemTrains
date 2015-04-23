@@ -199,12 +199,12 @@ public class TrainModelGUI extends JFrame {
 		    };
 		    comboBox.addPopupMenuListener(selectedTrainPopupListener);
 		
-		JLabel label = new JLabel("New label");
-		GridBagConstraints gbc_label = new GridBagConstraints();
-		gbc_label.insets = new Insets(0, 0, 5, 5);
-		gbc_label.gridx = 1;
-		gbc_label.gridy = 2;
-		contentPane.add(label, gbc_label);
+		JLabel lblTrainmodelStatusIndicators = new JLabel("TrainModel Status Indicators");
+		GridBagConstraints gbc_lblTrainmodelStatusIndicators = new GridBagConstraints();
+		gbc_lblTrainmodelStatusIndicators.insets = new Insets(0, 0, 5, 5);
+		gbc_lblTrainmodelStatusIndicators.gridx = 1;
+		gbc_lblTrainmodelStatusIndicators.gridy = 2;
+		contentPane.add(lblTrainmodelStatusIndicators, gbc_lblTrainmodelStatusIndicators);
 		
 		
 		    
@@ -239,6 +239,7 @@ public class TrainModelGUI extends JFrame {
 		
 		currForceLabel = new JLabel("0000");
 		GridBagConstraints gbc_currForceLabel = new GridBagConstraints();
+		gbc_currForceLabel.anchor = GridBagConstraints.EAST;
 		gbc_currForceLabel.insets = new Insets(0, 0, 5, 5);
 		gbc_currForceLabel.gridx = 1;
 		gbc_currForceLabel.gridy = 4;
@@ -491,7 +492,10 @@ public class TrainModelGUI extends JFrame {
 				// TODO: Handle setting the power
 				if (currTrain != null) {
 					double pow = Double.parseDouble(txtSetPower.getText());
-					currTrain.powCommand = pow;
+					if (pow > 120)
+						currTrain.powCommand = 120;
+					else
+						currTrain.powCommand = pow;
 				}
 			}
 		});
@@ -574,6 +578,13 @@ public class TrainModelGUI extends JFrame {
 		gbc_engineStatusLabel.gridy = 18;
 		contentPane.add(engineStatusLabel, gbc_engineStatusLabel);
 		
+		JButton btnToggleLeftDoors = new JButton("Toggle Left Doors");
+		GridBagConstraints gbc_btnToggleLeftDoors = new GridBagConstraints();
+		gbc_btnToggleLeftDoors.insets = new Insets(0, 0, 5, 0);
+		gbc_btnToggleLeftDoors.gridx = 4;
+		gbc_btnToggleLeftDoors.gridy = 18;
+		contentPane.add(btnToggleLeftDoors, gbc_btnToggleLeftDoors);
+		
 		JLabel lblBrakeStatus = new JLabel("Brake Status:");
 		GridBagConstraints gbc_lblBrakeStatus = new GridBagConstraints();
 		gbc_lblBrakeStatus.insets = new Insets(0, 0, 5, 5);
@@ -587,6 +598,13 @@ public class TrainModelGUI extends JFrame {
 		gbc_brakeStatusLabel.gridx = 1;
 		gbc_brakeStatusLabel.gridy = 19;
 		contentPane.add(brakeStatusLabel, gbc_brakeStatusLabel);
+		
+		JButton btnToggleRightDoors = new JButton("Toggle Right Doors");
+		GridBagConstraints gbc_btnToggleRightDoors = new GridBagConstraints();
+		gbc_btnToggleRightDoors.insets = new Insets(0, 0, 5, 0);
+		gbc_btnToggleRightDoors.gridx = 4;
+		gbc_btnToggleRightDoors.gridy = 19;
+		contentPane.add(btnToggleRightDoors, gbc_btnToggleRightDoors);
 		
 		JLabel lblSignalPickupStatus = new JLabel("Signal Pickup Status:");
 		GridBagConstraints gbc_lblSignalPickupStatus = new GridBagConstraints();
