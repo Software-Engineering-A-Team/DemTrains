@@ -53,7 +53,7 @@ public static void main(String[] args) {
     
             	// Sleep for the appropriate amount of time
             	long elapsedTime = System.nanoTime() - time;
-            	long desiredElapsedTime = (long) Math.ceil(SystemWrapper.perceivedTimeMultiplier * 1000000000);
+            	long desiredElapsedTime = (long) Math.ceil(10000000.0 / SystemWrapper.perceivedTimeMultiplier);
             	long timeDifferenceMS = (desiredElapsedTime - elapsedTime) / 1000000;
             	try {
             	  if (timeDifferenceMS > 0) {
